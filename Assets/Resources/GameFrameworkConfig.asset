@@ -1,0 +1,85 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6abfbeca84b7514fa5b2ff85e238993, type: 3}
+  m_Name: GameFrameworkConfig
+  m_EditorClassIdentifier: 
+  adjustAppToken: 
+  adjustIAPEventToken: 
+  admobUnitCfg:
+    androidBanner: 
+    androidInterstitial: 
+    androidRewardedVideo: 
+    iosBanner: 
+    iosInterstitial: 
+    iosRewardedVideo: 
+  admobUseTestMode: 0
+  admobUMPTestingDevice: 
+  appLovinUnitCfg:
+    androidBanner: 
+    androidInterstitial: 
+    androidRewardedVideo: 
+    iosBanner: 
+    iosInterstitial: 
+    iosRewardedVideo: 
+  audioClips:
+  - audioClipName: 
+    audioClip: {fileID: 0}
+  - audioClipName: 
+    audioClip: {fileID: 0}
+  awsS3BucketName: mobirix-cdn-has
+  awsS3GameContentRoot: project-11/game-content
+  awsS3UserDataRoot: 
+  awsRegion: us-west-2
+  awsS3GameContentUrl: https://has-cdn.mobirix.net/project-11/game-content
+  awsCloudFrontDistributionId: E210GL7H7G64B3
+  androidTargetSDK: 34
+  screenOrientation: 0
+  androidKeystorePassword: Hopper#123
+  playPassPID: 
+  languageGroupCfg:
+  - languageGroupName: 0
+    font: {fileID: 12800000, guid: 43cde026e29ef1c41808d6623be23434, type: 3}
+    padding: 2
+    atlasSize: 512
+  - languageGroupName: 1
+    font: {fileID: 12800000, guid: 3fba76f7a9b4d7d4990ee214935c5059, type: 3}
+    padding: 2
+    atlasSize: 1024
+  - languageGroupName: 2
+    font: {fileID: 12800000, guid: 1c90dd69e51d5394ea423b5dcf3e6cc2, type: 3}
+    padding: 2
+    atlasSize: 1024
+  - languageGroupName: 3
+    font: {fileID: 12800000, guid: 78938d8a560e2cb48b0da0ccc8b192c8, type: 3}
+    padding: 2
+    atlasSize: 1024
+  - languageGroupName: 4
+    font: {fileID: 12800000, guid: 5239b75dda62a9a4fa132df0a9b97863, type: 3}
+    padding: 2
+    atlasSize: 512
+  - languageGroupName: 5
+    font: {fileID: 12800000, guid: d33fa56cecedc154991dff2858383646, type: 3}
+    padding: 2
+    atlasSize: 512
+  locFileNames:
+  - main localization
+  - sub localization
+  appNameLocalizedKey: 
+  trackingDescLocalizedKey: 
+  gameIdForCustomerCare: 0
+  popupAnimScaleCfg:
+    scaleDuration: 0
+    scaleInEase: 0
+    scaleOutEase: 0
+  popupAddressablePath: 
+  webClientId: 
+  iosAppId: 

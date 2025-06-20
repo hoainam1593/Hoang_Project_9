@@ -1,0 +1,9 @@
+/obj/
+/bin/
+/.idea/
+
+obj.meta
+bin.meta
+
+CSharpProjUploadAWS.sln.DotSettings.user
+CSharpProjUploadAWS.sln.DotSettings.user.meta

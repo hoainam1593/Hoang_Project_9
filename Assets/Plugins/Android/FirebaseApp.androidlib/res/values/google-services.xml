@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@string/gcm_defaultSenderId,@string/google_storage_bucket,@string/project_id,@string/google_api_key,@string/google_crash_reporting_api_key,@string/google_app_id,@string/default_android_client_id,@string/default_web_client_id">
+  <string name="gcm_defaultSenderId" translatable="false">312882256131</string>
+  <string name="google_storage_bucket" translatable="false">merge-cat-island.firebasestorage.app</string>
+  <string name="project_id" translatable="false">merge-cat-island</string>
+  <string name="google_api_key" translatable="false">AIzaSyBAIrKFjHlf9TPnMpjE290vpz3XJ6Abi7c</string>
+  <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBAIrKFjHlf9TPnMpjE290vpz3XJ6Abi7c</string>
+  <string name="google_app_id" translatable="false">1:312882256131:android:27cd511d0180879525b136</string>
+  <string name="default_android_client_id" translatable="false">312882256131-gu2ncnutli9t0hviadsouka0ob6e3lnj.apps.googleusercontent.com</string>
+  <string name="default_web_client_id" translatable="false">312882256131-qscbi5qt8di5co26ig3ptakvjtpnj3ik.apps.googleusercontent.com</string>
+</resources>
