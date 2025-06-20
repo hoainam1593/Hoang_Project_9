@@ -19,6 +19,7 @@ public class MapData
             tiles[i] = new int[col];
             for (int j = 0; j < col; j++)
             {
+                // Debug.Log($"MapData[{i}][{j}]: {tiles[i][j]}");
                 tiles[i][j] = 0;
             }
         }

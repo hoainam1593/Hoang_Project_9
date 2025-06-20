@@ -6,7 +6,8 @@ public class MapCtrl : MonoBehaviour
 
     private void Awake()
     {
-        var mapData = JsonUtility.FromJson<MapData>(_mapData.text);
+        var mapData = CsvParser.ToMapData(_mapData.text);
+        
         // var mapModel = new MapModel(mapData);
         MapGenerator.instance.GenerateMap(mapData);
     }

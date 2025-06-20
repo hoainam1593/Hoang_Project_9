@@ -26,92 +26,55 @@ public class MapGenerator : SingletonMonoBehaviour<MapGenerator>
             for (int j = 0; j < mapData.column; j++)
             {
                 var tile = (TileEnum)mapData.tiles[i][j];
-                spawnTile(tile, i, j);
+                spawnTile(tile, i, j, mapData.row, mapData.column);
             }
         }
     }
 
-    private void spawnTile(TileEnum tile, int row, int column)
+    private void spawnTile(TileEnum tileEnum, int row, int column, int matrixRow, int matrixCol)
+    {
+        var sprite = getSprite(tileEnum);
+        var pos = convertToTilePosition(matrixRow, matrixCol, row, column);
+        var tile = CreateTile(sprite);
+        layerGround.SetTile(pos, tile);
+    }
+    
+    private Sprite getSprite(TileEnum tile)
     {
         switch (tile)
         {
             case TileEnum.Ground:
-                spawnGround(row, column);
-                break;
+                return tileGround;
             case TileEnum.Water:
-                spawnWater(row, column);
-                break;
+                return tileWater;
             case TileEnum.Tree1:
-                spawnTree1(row, column);
-                break;
+                return tileTree1;
             case TileEnum.Tree2:
-                spawnTree2(row, column);
-                break;
+                return tileTree2;
             case TileEnum.Rock:
-                spawnRock(row, column);
-                break;
+                return tileRock;
             case TileEnum.Path:
-                spawnPath(row, column);
-                break;
+                return tilePath;
             case TileEnum.Hall:
-                spawnHall(row, column);
-                break;
-        }
+                return tileHall;
+        }   
+        return tileGround;
     }
 
-    private void spawnGround(int row, int column)
+    private Vector3Int convertToTilePosition(int row, int col, int x, int y)
     {
-        var tile = new Tile();
-        tile.sprite = tileGround;
-        var pos = new Vector3Int(row, column, 0);
-        layerGround.SetTile(pos, tile);
+        var pos = new Vector3Int(y, x, 0);
+        var halfX = col / 2;
+        var halfY = row / 2;
+        return pos - new  Vector3Int(halfX, halfY, 0);
     }
-    
-    private void spawnWater(int row, int column)
+
+    private Tile CreateTile(Sprite sprite)
     {
-        var tile = new Tile();
-        tile.sprite = tileWater;
-        var pos = new Vector3Int(row, column, 0);
-        layerGround.SetTile(pos, tile);
-    }
-    
-    private void spawnTree1(int row, int column)
-    {
-        var tile = new Tile();
-        tile.sprite = tileTree1;
-        var pos = new Vector3Int(row, column, 0);
-        layerObject.SetTile(pos, tile);
-    }
-    
-    private void spawnTree2(int row, int column)
-    {
-        var tile = new Tile();
-        tile.sprite = tileTree2;
-        var pos = new Vector3Int(row, column, 0);
-        layerObject.SetTile(pos, tile);
-    }  
-    
-    private void spawnRock(int row, int column)
-    {
-        var tile = new Tile();
-        tile.sprite = tileRock;
-        var pos = new Vector3Int(row, column, 0);
-        layerObject.SetTile(pos, tile);
-    }
-    
-    private void spawnPath(int row, int column)
-    {
-        var tile = new Tile();
-        tile.sprite = tilePath;
-        var pos = new Vector3Int(row, column, 0);
-        layerGround.SetTile(pos, tile);
-    }
-    
-    private void spawnHall(int row, int column)
-    {
-        var tile = new Tile();
-        tile.sprite = tileHall;
-        var pos = new Vector3Int(row, column, 0);
-        layerGround.SetTile(pos, tile);
+        Tile newTile = ScriptableObject.CreateInstance<Tile>();
+        newTile.sprite = sprite;
+        newTile.color = Color.white; // hoặc chỉnh màu tùy ý
+        newTile.colliderType = Tile.ColliderType.None;
+        return newTile;
     }
 }
