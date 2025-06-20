@@ -7,4 +7,5 @@ public enum TileEnum
     Rock = 4,
     Path = 5,
     Hall = 6,
+    HallGate = 7,
 }

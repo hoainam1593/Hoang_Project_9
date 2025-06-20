@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MapCtrl : MonoBehaviour
+public partial class MapCtrl : MonoBehaviour
 {
     [SerializeField] private TextAsset _mapData;
 
@@ -9,6 +9,6 @@ public class MapCtrl : MonoBehaviour
         var mapData = CsvParser.ToMapData(_mapData.text);
         
         // var mapModel = new MapModel(mapData);
-        MapGenerator.instance.GenerateMap(mapData);
+        GenerateMap(mapData);
     }
 }

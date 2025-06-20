@@ -1,12 +1,25 @@
 using UnityEngine;
-using UnityEngine.Rendering;
+using System.Collections.Generic;
 using UnityEngine.Tilemaps;
 
-public class MapGenerator : SingletonMonoBehaviour<MapGenerator>
+public partial class MapCtrl
 {
     [Header("TileMap")]
     [SerializeField] private Tilemap layerGround;
-    [SerializeField] private Tilemap layerObject;
+
+    private Tile tileOfSet = null;
+
+    public Tile TileOfSet
+    {
+        get 
+        {
+            if (tileOfSet == null)
+            {
+                tileOfSet = CreateNewTile();
+            }
+            return tileOfSet;
+        }
+    }
     
     [Header("Resources")]
     // public SerializedDictionary<(TileEnum, TileEnum), Sprite> mapTiles;
@@ -18,6 +31,9 @@ public class MapGenerator : SingletonMonoBehaviour<MapGenerator>
     [SerializeField] private Sprite tilePath;
     [SerializeField] private Sprite tileHall;
 
+    [SerializeField] private List<Sprite> tileHalls;
+
+    private Vector3Int hallGatePos;
     
     public void GenerateMap(MapData mapData)
     {
@@ -26,20 +42,33 @@ public class MapGenerator : SingletonMonoBehaviour<MapGenerator>
             for (int j = 0; j < mapData.column; j++)
             {
                 var tile = (TileEnum)mapData.tiles[i][j];
-                spawnTile(tile, i, j, mapData.row, mapData.column);
+                
+                if (tile == TileEnum.HallGate || tile == TileEnum.Hall)
+                {
+                    SpawnTileHalls(tile, i, j, mapData.row, mapData.column);    
+                }
+                else
+                {
+                    SpawnTile(tile, i, j, mapData.row, mapData.column);    
+                }
             }
         }
     }
 
-    private void spawnTile(TileEnum tileEnum, int row, int column, int matrixRow, int matrixCol)
+    private void SpawnTileHalls(TileEnum tileEnum, int row, int column, int matrixRow, int matrixCol)
     {
-        var sprite = getSprite(tileEnum);
-        var pos = convertToTilePosition(matrixRow, matrixCol, row, column);
-        var tile = CreateTile(sprite);
-        layerGround.SetTile(pos, tile);
+        
+    }
+
+    private void SpawnTile(TileEnum tileEnum, int row, int column, int matrixRow, int matrixCol)
+    {
+        var sprite = GetSprite(tileEnum);
+        var pos = ConvertToTilePosition(matrixRow, matrixCol, row, column);
+        TileOfSet.sprite = sprite;
+        layerGround.SetTile(pos, TileOfSet);
     }
     
-    private Sprite getSprite(TileEnum tile)
+    private Sprite GetSprite(TileEnum tile)
     {
         switch (tile)
         {
@@ -55,13 +84,13 @@ public class MapGenerator : SingletonMonoBehaviour<MapGenerator>
                 return tileRock;
             case TileEnum.Path:
                 return tilePath;
-            case TileEnum.Hall:
-                return tileHall;
-        }   
-        return tileGround;
+            default:
+               return null;
+        }  
+        return null; 
     }
 
-    private Vector3Int convertToTilePosition(int row, int col, int x, int y)
+    private Vector3Int ConvertToTilePosition(int row, int col, int x, int y)
     {
         var pos = new Vector3Int(y, x, 0);
         var halfX = col / 2;
@@ -69,10 +98,9 @@ public class MapGenerator : SingletonMonoBehaviour<MapGenerator>
         return pos - new  Vector3Int(halfX, halfY, 0);
     }
 
-    private Tile CreateTile(Sprite sprite)
+    private Tile CreateNewTile()
     {
-        Tile newTile = ScriptableObject.CreateInstance<Tile>();
-        newTile.sprite = sprite;
+        var newTile = ScriptableObject.CreateInstance<Tile>();
         newTile.color = Color.white; // hoặc chỉnh màu tùy ý
         newTile.colliderType = Tile.ColliderType.None;
         return newTile;
