@@ -16,8 +16,8 @@ public class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>
     private Vector3 direction;
     private Vector3 targetPosition;
     private Vector3 velocity = Vector3.zero;
-    public float smoothTime = 0.1f;
-    public float dragSpeed = 0.004f;
+    private const float smoothTime = 0.1f;
+    private const float dragSpeed = 0.1f;
 
     private float camWidth;
     private float camHeight;
@@ -36,9 +36,9 @@ public class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>
     
     private void LateUpdate()
     {
-        if (onTouched)
+        if (onTouched && direction.magnitude > 0.04f)
         {
-            targetPosition += direction * dragSpeed;
+            targetPosition -= direction * dragSpeed;
             targetPosition = FixPositionInView(targetPosition);
             transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime);
         }
@@ -56,103 +56,104 @@ public class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>
     
     #region Task Zoom Camera
     
-    private void ZoomFixedSize(float width, float height)
-    {
-        
-        if (mainCam.aspect > height / width)
+        private void ZoomFixedSize(float width, float height)
         {
-            //Fixed Horizontal
-            lockSide = LockScroll.Horizontal;
             
-            camWidth = width;
-            camHeight = camWidth / mainCam.aspect;
-            mainCam.orthographicSize = camHeight / 2f;
+            if (mainCam.aspect > height / width)
+            {
+                //Fixed Horizontal
+                lockSide = LockScroll.Horizontal;
+                
+                camWidth = width;
+                camHeight = camWidth / mainCam.aspect;
+                mainCam.orthographicSize = camHeight / 2f;
+            }
+            else
+            {
+                //Fixed Vertical
+                lockSide = LockScroll.Vertical;
+                
+                camHeight = height;
+                mainCam.orthographicSize = camHeight / 2f;
+            }
         }
-        else
-        {
-            //Fixed Vertical
-            lockSide = LockScroll.Vertical;
-            
-            camHeight = height;
-            mainCam.orthographicSize = camHeight / 2f;
-        }
-    }
 
-    private void SetStartPosition()
-    {
-        var startPosition = FixPositionInView(mainCam.transform.position);
-        mainCam.transform.position = startPosition;
-    }
+        private void SetStartPosition()
+        {
+            var startPosition = FixPositionInView(mainCam.transform.position);
+            mainCam.transform.position = startPosition;
+        }
     
     #endregion Task Zoom Camera!!
     
     
     #region Task Scroll Camera
     
-    //Public Method:
-    public void StartScroll(Vector3 touchPoint)
-    {
-        onTouched = true;
-        touchStart = mainCam.ScreenToWorldPoint(touchPoint);
-        touchStart = FixPositionLockSide(touchStart);
-        targetPosition = touchStart;
-    }
-
-    public void StopScroll()
-    {
-        onTouched = false;
-        targetPosition = Vector3.zero;
-    }
-
-    public void CrollTo(Vector3 touchPoint)
-    {
-        var currentTouch = mainCam.ScreenToWorldPoint(touchPoint);
-        direction = currentTouch - touchStart;
-        direction = FixPositionLockSide(direction);
-    }
-
-    //Calculate position
-    private Vector3 FixPositionLockSide(Vector3 vector)
-    {
-        if (lockSide == LockScroll.Horizontal)
+        //Public Method:
+        public void StartScroll(Vector3 touchPoint)
         {
-            vector.x = 0;
-        }
-        else
-        {
-            vector.y = 0;
+            onTouched = true;
+            touchStart = mainCam.ScreenToWorldPoint(touchPoint);
+            touchStart = FixPositionLockSide(touchStart);
+            targetPosition = touchStart;
         }
 
-        return vector;
-    }
-    
-    private Vector3 FixPositionInView(Vector3 position)
-    {
-        var halfWidth = camWidth / 2;
-        var halfHeight = camHeight / 2;
-        
-        if (position.x - halfWidth < mapLeftBottomPos.x)
+        public void StopScroll()
         {
-            position.x = mapLeftBottomPos.x + halfWidth;
+            onTouched = false;
+            direction = Vector3.zero;
+            targetPosition = Vector3.zero;
+        }
+
+        public void ScrollTo(Vector3 touchPoint)
+        {
+            var currentTouch = mainCam.ScreenToWorldPoint(touchPoint);
+            direction = currentTouch - touchStart;
+            direction = FixPositionLockSide(direction);
+        }
+
+        //Calculate position
+        private Vector3 FixPositionLockSide(Vector3 vector)
+        {
+            if (lockSide == LockScroll.Horizontal)
+            {
+                vector.x = 0;
+            }
+            else
+            {
+                vector.y = 0;
+            }
+
+            return vector;
         }
         
-        if (position.x + halfWidth > mapLeftBottomPos.x + viewWidth)
+        private Vector3 FixPositionInView(Vector3 position)
         {
-            position.x = mapLeftBottomPos.x + viewWidth - halfWidth;
-        }
+            var halfWidth = camWidth / 2;
+            var halfHeight = camHeight / 2;
+            
+            if (position.x - halfWidth < mapLeftBottomPos.x)
+            {
+                position.x = mapLeftBottomPos.x + halfWidth;
+            }
+            
+            if (position.x + halfWidth > mapLeftBottomPos.x + viewWidth)
+            {
+                position.x = mapLeftBottomPos.x + viewWidth - halfWidth;
+            }
 
-        if (position.y - halfHeight < mapLeftBottomPos.y)
-        {
-            position.y = mapLeftBottomPos.y + halfHeight;
-        }
+            if (position.y - halfHeight < mapLeftBottomPos.y)
+            {
+                position.y = mapLeftBottomPos.y + halfHeight;
+            }
 
-        if (position.y + halfHeight > mapLeftBottomPos.y + viewHeight)
-        {
-            position.y = mapLeftBottomPos.y + viewHeight - halfHeight;
-        }
+            if (position.y + halfHeight > mapLeftBottomPos.y + viewHeight)
+            {
+                position.y = mapLeftBottomPos.y + viewHeight - halfHeight;
+            }
 
-        return position;
-    }
+            return position;
+        }
     
     #endregion Task Scroll Camera!
 }

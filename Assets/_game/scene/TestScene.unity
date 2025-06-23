@@ -177,7 +177,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 878bfff005445ea43b453bd5ff47168f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mapData: {fileID: 4900000, guid: 1a8538ba3f88fee4c92982ba3f3fda5a, type: 3}
+  _mapData: {fileID: 4900000, guid: 45a3d7eb6547aa247ae271d03e0c7a4e, type: 3}
   layerGround: {fileID: 1815215577}
   tileGround: {fileID: 21300000, guid: 53ede7e802ea6ec4a9db931d4b220573, type: 3}
   tileWater: {fileID: 21300000, guid: b161a76784b069f4da91a037d017617e, type: 3}
@@ -366,8 +366,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 520dddeae9d24df59a42c92ba051dc50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  smoothTime: 0.1
-  dragSpeed: 0.004
 --- !u!1 &976476727
 GameObject:
   m_ObjectHideFlags: 0
