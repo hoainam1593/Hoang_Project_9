@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Rendering;
+using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 public partial class MapCtrl
@@ -9,7 +11,7 @@ public partial class MapCtrl
 
     private Tile tileOfSet = null;
 
-    public Tile TileOfSet
+    private Tile TileOfSet
     {
         get 
         {
@@ -31,39 +33,112 @@ public partial class MapCtrl
     [SerializeField] private Sprite tilePath;
     [SerializeField] private Sprite tileHall;
 
-    [SerializeField] private List<Sprite> tileHalls;
+    [SerializeField] private List<Sprite> tileUpHalls;
+    [SerializeField] private List<Sprite> tileDownHalls;
+    [SerializeField] private List<Sprite> tileLeftHalls;
+    [SerializeField] private List<Sprite> tileRightHalls;
 
+    private List<Vector3Int> hallPositions = new List<Vector3Int>();
     private Vector3Int hallGatePos;
-    
-    public void GenerateMap(MapData mapData)
+    private HallDirection hallDirection;
+
+    public enum HallDirection
     {
+        Down = 1,
+        Left = 3,
+        Right = 5,
+        Up = 7,
+    }
+    
+    private void GenerateMap(MapData mapData)
+    {
+        hallPositions.Clear();
+        Vector3Int pos;
         for (int i = 0; i < mapData.row ; i++)
         {
             for (int j = 0; j < mapData.column; j++)
             {
                 var tile = (TileEnum)mapData.tiles[i][j];
-                
+                pos = ConvertToTilePosition(mapData.row, mapData.column, i, j);
                 if (tile == TileEnum.HallGate || tile == TileEnum.Hall)
                 {
-                    SpawnTileHalls(tile, i, j, mapData.row, mapData.column);    
+                    hallPositions.Add(pos);
+                    if (tile == TileEnum.HallGate)
+                    {
+                        var hallGateIndex = hallPositions.Count - 1;
+                        hallDirection = (HallDirection)hallGateIndex;
+                        hallGatePos = pos;
+                    }
                 }
                 else
                 {
-                    SpawnTile(tile, i, j, mapData.row, mapData.column);    
+                    SpawnTile(tile, pos);    
                 }
             }
         }
+
+        ConvertHallPartsOrder();
+        SpawnTileHalls();    
     }
 
-    private void SpawnTileHalls(TileEnum tileEnum, int row, int column, int matrixRow, int matrixCol)
+    //Use this function because: the yAxis direction in Tilemap is Up. (from Bottom to Top)
+    //But sprite order has indexed from Top to Bottom
+    private void ConvertHallPartsOrder()
+    {
+        List<Vector3Int> backup =  new List<Vector3Int>(hallPositions);
+        hallPositions[0] = backup[6];
+        hallPositions[1] = backup[7];
+        hallPositions[2] = backup[8];
+        
+        hallPositions[6] = backup[0];
+        hallPositions[7] = backup[1];
+        hallPositions[8] = backup[2];
+    }
+
+    private void SpawnTileHalls()
+    {
+        for (int i = 0; i < hallPositions.Count; i++)
+        {
+            SpawnTileHall(i, hallDirection, hallPositions[i]);    
+        }
+    }
+
+    private void SpawnTileHall(int partIndex, HallDirection direction, Vector3Int pos)
     {
         
+        var sprite = GetHallSprite(partIndex, direction);
+        if (sprite == null) return;
+        TileOfSet.sprite = sprite;
+        layerGround.SetTile(pos, TileOfSet);
+        
+        //NOTE: Don't have sprite for right side, so I use sprite of left side hall and rename.
+        //Therefore, I need to flip it 180 degree.
+        if (hallDirection == HallDirection.Right)
+        {
+            layerGround.RotateTile(pos, 180f);
+        }
     }
 
-    private void SpawnTile(TileEnum tileEnum, int row, int column, int matrixRow, int matrixCol)
+    private Sprite GetHallSprite(int partIndex, HallDirection direction)
+    {
+        switch (direction)
+        {
+            case HallDirection.Up:
+                return tileUpHalls[partIndex];
+            case HallDirection.Left:
+                return tileLeftHalls[partIndex];
+            case HallDirection.Right:
+                return tileRightHalls[partIndex];
+            case HallDirection.Down:
+                return tileDownHalls[partIndex];
+        }
+
+        return null;
+    }
+
+    private void SpawnTile(TileEnum tileEnum, Vector3Int pos)
     {
         var sprite = GetSprite(tileEnum);
-        var pos = ConvertToTilePosition(matrixRow, matrixCol, row, column);
         TileOfSet.sprite = sprite;
         layerGround.SetTile(pos, TileOfSet);
     }

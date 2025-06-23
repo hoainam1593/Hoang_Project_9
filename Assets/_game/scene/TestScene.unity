@@ -177,7 +177,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 878bfff005445ea43b453bd5ff47168f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mapData: {fileID: 4900000, guid: 314057edae837ac4d909d2c2ea03cffa, type: 3}
+  _mapData: {fileID: 4900000, guid: 1a8538ba3f88fee4c92982ba3f3fda5a, type: 3}
   layerGround: {fileID: 1815215577}
   tileGround: {fileID: 21300000, guid: 53ede7e802ea6ec4a9db931d4b220573, type: 3}
   tileWater: {fileID: 21300000, guid: b161a76784b069f4da91a037d017617e, type: 3}
@@ -186,7 +186,46 @@ MonoBehaviour:
   tileRock: {fileID: 21300000, guid: 2315a138a48cbb44d914b3b7ea1026f8, type: 3}
   tilePath: {fileID: 21300000, guid: 3d0a659498fd82441a8949ec7cb403b1, type: 3}
   tileHall: {fileID: 21300000, guid: 1566c3665a322fb46984311f840cdb59, type: 3}
-  tileHalls: []
+  tileUpHalls:
+  - {fileID: 21300000, guid: 374bcc7f3a2ba684d82c09949be4063d, type: 3}
+  - {fileID: 21300000, guid: f16b0bb9a03b8e94790d8ead82a8a39c, type: 3}
+  - {fileID: 21300000, guid: 3592891c11715f54f8df68aef64db52b, type: 3}
+  - {fileID: 21300000, guid: 18a3ffebcefc3294d9b40092efaa5a6d, type: 3}
+  - {fileID: 21300000, guid: 4620cc322b03ad746a6486640700782e, type: 3}
+  - {fileID: 21300000, guid: bf9734ca28398e8449dcdd83cf184156, type: 3}
+  - {fileID: 21300000, guid: fe1d15e3409482d4a9f03dd2432fde06, type: 3}
+  - {fileID: 21300000, guid: 2dd3e1b2691b9524d89e77cf411c9f13, type: 3}
+  - {fileID: 21300000, guid: 6f0c27dcf55408445813a56bdb4261c9, type: 3}
+  tileDownHalls:
+  - {fileID: 21300000, guid: c999e355cc8a14442989deac61b92492, type: 3}
+  - {fileID: 21300000, guid: c6c84d27ad08f9a419ab3367fe87686a, type: 3}
+  - {fileID: 21300000, guid: f7ddaa4087da9f04cb5528b2728834e8, type: 3}
+  - {fileID: 21300000, guid: 8ef3fce18692ae64fae34e70680e29af, type: 3}
+  - {fileID: 21300000, guid: 30d54b111abf20049835cb750719ed84, type: 3}
+  - {fileID: 21300000, guid: b1090344fe7ae6449bc6d33d4b7096b2, type: 3}
+  - {fileID: 21300000, guid: edbd459b5c550a94ca17ad576b1ab69c, type: 3}
+  - {fileID: 21300000, guid: 1566c3665a322fb46984311f840cdb59, type: 3}
+  - {fileID: 21300000, guid: 85601c22c3c23cd4ba2c9da776256540, type: 3}
+  tileLeftHalls:
+  - {fileID: 21300000, guid: bb230ae4d1a46be459190d65e791d855, type: 3}
+  - {fileID: 21300000, guid: 62ef18de1e4b2934fbb07d9862617922, type: 3}
+  - {fileID: 21300000, guid: 702a9295c6f36c142a1e4ee381f71936, type: 3}
+  - {fileID: 21300000, guid: 56b7185e7bda90542b60a8dec5e8a3c7, type: 3}
+  - {fileID: 21300000, guid: 14f710146c48526478d7a512bf02f721, type: 3}
+  - {fileID: 21300000, guid: 1c37ee7de7d724b489c22b75a03bb1c2, type: 3}
+  - {fileID: 21300000, guid: b50c9965c6ca0cf4495bcbf6e8eaed96, type: 3}
+  - {fileID: 21300000, guid: 66bcfaad9e9743d4b90e3f74d3adb823, type: 3}
+  - {fileID: 21300000, guid: 72aa5854d8d1398448bd50ae243a4111, type: 3}
+  tileRightHalls:
+  - {fileID: -4084296656454840432, guid: 795eeff6e1871474eab282d4895083b9, type: 3}
+  - {fileID: -5236962431444448149, guid: 2ef14111e50fc194a9777ac1d048504d, type: 3}
+  - {fileID: 7823891584892964540, guid: 491a8e4f2838d61459045126b4cca838, type: 3}
+  - {fileID: -3349384384531078115, guid: 82b4cb657473e7b4fabb230656eafe4a, type: 3}
+  - {fileID: -8661927910450890375, guid: af2831fa7d58d8348ac56691c1361161, type: 3}
+  - {fileID: -8823836502520999377, guid: 4c19b4a956237804fbf100beecd04e1d, type: 3}
+  - {fileID: -3387576090800043127, guid: 1819da942d59b5e40a99dd6a68f08273, type: 3}
+  - {fileID: -7729615834620142705, guid: fce75ad9f4b25574aa896308e39d1453, type: 3}
+  - {fileID: 3899488174495102745, guid: 777b25caf861b824db421ee94143baa2, type: 3}
 --- !u!1 &621120030
 GameObject:
   m_ObjectHideFlags: 0
