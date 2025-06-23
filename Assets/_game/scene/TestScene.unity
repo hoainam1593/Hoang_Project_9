@@ -216,16 +216,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: b50c9965c6ca0cf4495bcbf6e8eaed96, type: 3}
   - {fileID: 21300000, guid: 66bcfaad9e9743d4b90e3f74d3adb823, type: 3}
   - {fileID: 21300000, guid: 72aa5854d8d1398448bd50ae243a4111, type: 3}
-  tileRightHalls:
-  - {fileID: -4084296656454840432, guid: 795eeff6e1871474eab282d4895083b9, type: 3}
-  - {fileID: -5236962431444448149, guid: 2ef14111e50fc194a9777ac1d048504d, type: 3}
-  - {fileID: 7823891584892964540, guid: 491a8e4f2838d61459045126b4cca838, type: 3}
-  - {fileID: -3349384384531078115, guid: 82b4cb657473e7b4fabb230656eafe4a, type: 3}
-  - {fileID: -8661927910450890375, guid: af2831fa7d58d8348ac56691c1361161, type: 3}
-  - {fileID: -8823836502520999377, guid: 4c19b4a956237804fbf100beecd04e1d, type: 3}
-  - {fileID: -3387576090800043127, guid: 1819da942d59b5e40a99dd6a68f08273, type: 3}
-  - {fileID: -7729615834620142705, guid: fce75ad9f4b25574aa896308e39d1453, type: 3}
-  - {fileID: 3899488174495102745, guid: 777b25caf861b824db421ee94143baa2, type: 3}
 --- !u!1 &621120030
 GameObject:
   m_ObjectHideFlags: 0

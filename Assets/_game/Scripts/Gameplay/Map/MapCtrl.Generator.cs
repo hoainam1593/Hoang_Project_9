@@ -36,7 +36,7 @@ public partial class MapCtrl
     [SerializeField] private List<Sprite> tileUpHalls;
     [SerializeField] private List<Sprite> tileDownHalls;
     [SerializeField] private List<Sprite> tileLeftHalls;
-    [SerializeField] private List<Sprite> tileRightHalls;
+    // [SerializeField] private List<Sprite> tileRightHalls;
 
     private List<Vector3Int> hallPositions = new List<Vector3Int>();
     private Vector3Int hallGatePos;
@@ -78,6 +78,11 @@ public partial class MapCtrl
         }
 
         ConvertHallPartsOrder();
+        if (hallDirection == HallDirection.Right)
+        {
+            ConvertLeftSideToRightSide();
+        }
+        
         SpawnTileHalls();    
     }
 
@@ -93,6 +98,22 @@ public partial class MapCtrl
         hallPositions[6] = backup[0];
         hallPositions[7] = backup[1];
         hallPositions[8] = backup[2];
+    }
+
+    private void ConvertLeftSideToRightSide()
+    {
+        List<Vector3Int> backup =  new List<Vector3Int>(hallPositions);
+        
+        hallPositions[0] = backup[8];
+        hallPositions[1] = backup[7];
+        hallPositions[2] = backup[6];
+        
+        hallPositions[3] = backup[5];
+        hallPositions[5] = backup[3];
+        
+        hallPositions[6] = backup[2];
+        hallPositions[7] = backup[1];
+        hallPositions[8] = backup[0];
     }
 
     private void SpawnTileHalls()
@@ -128,7 +149,7 @@ public partial class MapCtrl
             case HallDirection.Left:
                 return tileLeftHalls[partIndex];
             case HallDirection.Right:
-                return tileRightHalls[partIndex];
+                return tileLeftHalls[partIndex];
             case HallDirection.Down:
                 return tileDownHalls[partIndex];
         }
