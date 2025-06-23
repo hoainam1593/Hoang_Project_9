@@ -39,6 +39,7 @@ public partial class MapCtrl
     
     private void GenerateMap(MapData mapData)
     {
+        Debug.Log($"Generating Map > {Row}x{Column}");
         CacheHallPositionAndSpawnOtherTiles(mapData);
 
         ConvertHallPartsOrder();
@@ -89,7 +90,7 @@ public partial class MapCtrl
                 for (int j = 0; j < mapData.column; j++)
                 {
                     var tile = (TileEnum)mapData.tiles[i][j];
-                    pos = ConvertToTilePosition(mapData.row, mapData.column, i, j);
+                    pos = ConvertToTilePosition(mapData.row, mapData.column, new MatrixCoordinate(i, j));
                     if (tile == TileEnum.HallGate || tile == TileEnum.Hall)
                     {
                         CacheHallPosition(tile, pos);
@@ -143,16 +144,7 @@ public partial class MapCtrl
             }  
             return null; 
         }
-        
-        
-        private Vector3Int ConvertToTilePosition(int row, int col, int x, int y)
-        {
-            var pos = new Vector3Int(y, x, 0);
-            var halfX = col / 2;
-            var halfY = row / 2;
-            return pos - new  Vector3Int(halfX, halfY, 0);
-        }
-        
+       
     #endregion Task - Spawn Tiles!
 
         
@@ -233,4 +225,38 @@ public partial class MapCtrl
             hallPositions[8] = backup[0];
         }
     #endregion Task - Convert Hall Order!
+    
+    #region Task - Position Converter
+    
+            
+        private Vector3Int ConvertToTilePosition(int row, int col, MatrixCoordinate matrixPos)
+        {
+            var pos = new Vector3Int(matrixPos.y, matrixPos.x, 0);
+            var halfX = col / 2;
+            var halfY = row / 2;
+            return pos - new  Vector3Int(halfX, halfY, 0);
+        }
+
+        private MatrixCoordinate RevertToMatixCoordinate(int row, int col, Vector3Int tilePosition)
+        {
+            var halfX = col / 2;
+            var halfY = row / 2;
+            var convertedPos =  tilePosition + new Vector3Int(halfX, halfY, 0);
+            Debug.Log("ClickedCell: " + convertedPos);
+            return new MatrixCoordinate(convertedPos.y, convertedPos.x);
+        }
+
+        private MatrixCoordinate ConvertFromScreenToMatixCoordinate(Vector3 screenPos)
+        {
+            var worldPos = Camera.main.ScreenToWorldPoint(screenPos);
+            var cellPos = layerGround.WorldToCell(worldPos);
+            return RevertToMatixCoordinate(Row, Column, cellPos);
+        }
+
+        private bool IsInMatrix(MatrixCoordinate matrixPos)
+        {
+            return (0 <= matrixPos.x && matrixPos.x < Row) && (0 <= matrixPos.y && matrixPos.y < Column);
+        }
+    
+    #endregion Task - Position Converter!!
 }

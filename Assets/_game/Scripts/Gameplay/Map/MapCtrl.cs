@@ -1,11 +1,29 @@
 using System;
-using UnityEditor.Tilemaps;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public partial class MapCtrl : MonoBehaviour
 {
     [SerializeField] private TextAsset _mapData;
+    private MapData mapData;
     private Grid mapGrid;
+
+    public struct MatrixCoordinate
+    {
+        public int x;
+        public int y;
+
+        public MatrixCoordinate(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+
+        public override string ToString()
+        {
+            return $"({x},{y})";
+        }
+    }
 
     private void Awake()
     {
@@ -14,12 +32,56 @@ public partial class MapCtrl : MonoBehaviour
 
     private void Start()
     {
-        var mapData = CsvParser.ToMapData(_mapData.text);
+        mapData = CsvParser.ToMapData(_mapData.text);
         // var mapModel = new MapModel(mapData);
         GenerateMap(mapData);
 
         PassParamsToCamera(mapData);
+
+        TestSpawnPrefab();
     }
+    
+    #region Getter / Setter
+
+        public int Row
+        {
+            get
+            {
+                return mapData == null ? mapData.row : 0;
+            }
+        }
+
+        public int Column
+        {
+            get
+            {
+                return mapData == null ? mapData.column : 0;
+            }
+        }
+            
+
+        public TileEnum GetTile(Vector3 screenPos)
+        {
+            var matrixPos = ConvertFromScreenToMatixCoordinate(screenPos);
+            Debug.Log("matrixPos: " + matrixPos);
+            
+            if (IsInMatrix(matrixPos))
+            {
+                return (TileEnum)mapData.tiles[matrixPos.x][matrixPos.y];
+            }
+            else
+            {
+                return TileEnum.None;
+            }
+        }
+        
+    #endregion Getter / Setter!
+
+    private async UniTaskVoid TestSpawnPrefab()
+    {
+        var prefab = await AssetManager.instance.LoadPrefab(GlobalConfig.Resources.TurretPrefab, "Turret_lv1");
+        GameObject.Instantiate(prefab);
+    }        
     
     #region Task PassParam to Camera
 

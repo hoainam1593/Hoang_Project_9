@@ -1,5 +1,6 @@
 public enum TileEnum
 {
+    None = -1,
     Ground = 0,
     Water = 1,
     Tree1 = 2,
