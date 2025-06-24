@@ -29,6 +29,7 @@ public class AssetGroup
 	public async UniTask<GameObject> LoadPrefab(string parentPath, string assetName)
 	{
 		var fullPath = $"{parentPath}/{assetName}.prefab";
+		Debug.Log("LoadPrefab: " + fullPath);
 		return await LoadAsset<GameObject>(fullPath);
 	}
 

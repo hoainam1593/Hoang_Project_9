@@ -7,6 +7,17 @@ public partial class MapCtrl : MonoBehaviour
     [SerializeField] private TextAsset _mapData;
     private MapData mapData;
     private Grid mapGrid;
+    
+    public Vector3 WorldTileSize
+    {
+        get
+        {
+            return Vector3.Scale(
+                layerGround.layoutGrid.cellSize, // thường là (1,1,0)
+                layerGround.transform.lossyScale // để biết tile thực lớn bao nhiêu
+            );
+        }
+    }
 
     public struct MatrixCoordinate
     {
@@ -47,7 +58,7 @@ public partial class MapCtrl : MonoBehaviour
         {
             get
             {
-                return mapData == null ? mapData.row : 0;
+                return mapData != null ? mapData.row : 0;
             }
         }
 
@@ -55,14 +66,14 @@ public partial class MapCtrl : MonoBehaviour
         {
             get
             {
-                return mapData == null ? mapData.column : 0;
+                return mapData != null ? mapData.column : 0;
             }
         }
             
 
         public TileEnum GetTile(Vector3 screenPos)
         {
-            var matrixPos = ConvertFromScreenToMatixCoordinate(screenPos);
+            var matrixPos = ScreenToMatixCoordinate(screenPos);
             Debug.Log("matrixPos: " + matrixPos);
             
             if (IsInMatrix(matrixPos))
@@ -74,13 +85,19 @@ public partial class MapCtrl : MonoBehaviour
                 return TileEnum.None;
             }
         }
+
+        public Vector3 GetWorldPosOfTile(Vector3 screenPos)
+        {
+            var tilePos = ScreenPointToTilePosition(screenPos);
+            return TilePositionToWorldPosition(tilePos);
+        }
         
     #endregion Getter / Setter!
 
     private async UniTaskVoid TestSpawnPrefab()
     {
-        var prefab = await AssetManager.instance.LoadPrefab(GlobalConfig.Resources.TurretPrefab, "Turret_lv1");
-        GameObject.Instantiate(prefab);
+        // var prefab = await AssetManager.instance.LoadPrefab(GlobalConfig.Resources.TurretPrefab, "Turret_lv1");
+        // GameObject.Instantiate(prefab);
     }        
     
     #region Task PassParam to Camera

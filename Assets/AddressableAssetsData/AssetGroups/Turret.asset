@@ -20,6 +20,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9cbe63dc13db651438016bb3432ba2f4
+    m_Address: Assets/_game/AssetResources/Prefab/UI/TurretSelectUI.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d3c21363d038bd54e904028c2fda4a2b
     m_Address: Assets/_game/AssetResources/Prefab/Turret/Turret_lv2.prefab
     m_ReadOnly: 0

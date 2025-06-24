@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>
+public partial class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>
 {
     private Camera mainCam;
     private float viewWidth;
@@ -156,4 +156,5 @@ public class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>
         }
     
     #endregion Task Scroll Camera!
+    
 }
