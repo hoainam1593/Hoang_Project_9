@@ -2,7 +2,7 @@ using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-public partial class MapCtrl : MonoBehaviour
+public partial class MapCtrl : MonoBehaviour, IDispatcher, IRegister
 {
     [SerializeField] private TextAsset _mapData;
     private MapData mapData;
@@ -52,47 +52,20 @@ public partial class MapCtrl : MonoBehaviour
         TestSpawnPrefab();
     }
     
-    #region Getter / Setter
+    #region Subscribes Methods:
 
-        public int Row
-        {
-            get
-            {
-                return mapData != null ? mapData.row : 0;
-            }
-        }
-
-        public int Column
-        {
-            get
-            {
-                return mapData != null ? mapData.column : 0;
-            }
-        }
-            
-
-        public TileEnum GetTile(Vector3 screenPos)
-        {
-            var matrixPos = ScreenToMatixCoordinate(screenPos);
-            Debug.Log("matrixPos: " + matrixPos);
-            
-            if (IsInMatrix(matrixPos))
-            {
-                return (TileEnum)mapData.tiles[matrixPos.x][matrixPos.y];
-            }
-            else
-            {
-                return TileEnum.None;
-            }
-        }
-
-        public Vector3 GetWorldPosOfTile(Vector3 screenPos)
-        {
-            var tilePos = ScreenPointToTilePosition(screenPos);
-            return TilePositionToWorldPosition(tilePos);
-        }
+    public void Subscribes()
+    {
         
-    #endregion Getter / Setter!
+    }
+
+    public void UnSubscribes()
+    {
+        
+    }
+    
+    #endregion Subscribes Methods!
+    
 
     private async UniTaskVoid TestSpawnPrefab()
     {
@@ -108,24 +81,16 @@ public partial class MapCtrl : MonoBehaviour
         var height = mapData.row * layerGround.transform.lossyScale.y;
         var mapBottomLeft = GetMapBottomLeft(mapData.row, mapData.column);
         
-        CameraCtrl.instance.UpdateMapSize(width, height, mapBottomLeft);
+        this.DispatcherEvent(GameEvent.OnMapSizeUpdate, new GEventData.MapSizeData(width, height, mapBottomLeft));
+        // CameraCtrl.instance.UpdateMapSize(width, height, mapBottomLeft);
     }
 
     private Vector3 GetMapBottomLeft(int row, int col)
     {
-        //Get centerOfBottomLeftCell
         var halfX = col / 2;
         var halfY = row / 2;
         var bottomLeftCellCoordinate = new Vector3Int(-halfX, -halfY, 0);
         var centerOfBottomLeftCell = layerGround.CellToWorld(bottomLeftCellCoordinate);
-        
-        //centerOfBottomLeftCell to map BottomLeft corner
-        // Vector3 cellSize = mapGrid.cellSize;
-        // Vector3 cellScale = layerGround.transform.lossyScale;
-        // Vector3 cellAnchor = layerGround.tileAnchor;
-        // var bottomLeftCorner = centerOfBottomLeftCell - new Vector3(cellSize.x * cellScale.x * cellAnchor.x, cellSize.y * cellScale.y * cellAnchor.y, 0);
-        // return bottomLeftCorner;
-        
         return centerOfBottomLeftCell;
     }
     

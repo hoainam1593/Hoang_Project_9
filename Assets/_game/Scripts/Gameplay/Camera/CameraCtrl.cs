@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public partial class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>
+public partial class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>, IRegister
 {
     private Camera mainCam;
     private float viewWidth;
@@ -32,8 +32,15 @@ public partial class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>
     {
         base.Awake();
         mainCam = Camera.main;
+        Subscribes();
     }
-    
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        UnSubscribes();
+    }
+
     private void LateUpdate()
     {
         if (onTouched && direction.magnitude > 0.04f)
@@ -43,14 +50,35 @@ public partial class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>
             transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime);
         }
     }
+    
+    #region IRegister methods:
 
-    public void UpdateMapSize(float width, float height, Vector3 pointBottomLeft)
+        public void Subscribes()
+        {
+            this.RegisterEvent(GameEvent.OnDraggedStart, StartScroll);
+            this.RegisterEvent(GameEvent.OnDragging, ScrollTo);
+            this.RegisterEvent(GameEvent.OnDraggedEnd, StopScroll);
+            this.RegisterEvent(GameEvent.OnMapSizeUpdate, OnMapSizeUpdate);
+        }
+
+        public void UnSubscribes()
+        {
+            this.UnRegisterEvent(GameEvent.OnDraggedStart, StartScroll);
+            this.UnRegisterEvent(GameEvent.OnDragging, ScrollTo);
+            this.UnRegisterEvent(GameEvent.OnDraggedEnd, StopScroll);
+            this.UnRegisterEvent(GameEvent.OnMapSizeUpdate, OnMapSizeUpdate);
+        }
+
+    #endregion IRegister methods!!
+
+    public void OnMapSizeUpdate(object data)
     {
-        viewWidth = width;
-        viewHeight = height;
-        mapLeftBottomPos = pointBottomLeft;
+        var sizeData = (GEventData.MapSizeData)data;
+        viewWidth = sizeData.Width;
+        viewHeight = sizeData.Height;
+        mapLeftBottomPos = sizeData.BottomLeftPoint;
         
-        ZoomFixedSize(width, height);
+        ZoomFixedSize(viewWidth, viewHeight);
         SetStartPosition();
     }
     
@@ -90,23 +118,25 @@ public partial class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>
     #region Task Scroll Camera
     
         //Public Method:
-        public void StartScroll(Vector3 touchPoint)
+        public void StartScroll(object data)
         {
+            Vector3 touchPoint = (Vector3)data;
             onTouched = true;
             touchStart = mainCam.ScreenToWorldPoint(touchPoint);
             touchStart = FixPositionLockSide(touchStart);
             targetPosition = touchStart;
         }
 
-        public void StopScroll()
+        public void StopScroll(object data)
         {
             onTouched = false;
             direction = Vector3.zero;
             targetPosition = Vector3.zero;
         }
 
-        public void ScrollTo(Vector3 touchPoint)
+        public void ScrollTo(object data)
         {
+            Vector3 touchPoint = (Vector3)data;
             var currentTouch = mainCam.ScreenToWorldPoint(touchPoint);
             direction = currentTouch - touchStart;
             direction = FixPositionLockSide(direction);

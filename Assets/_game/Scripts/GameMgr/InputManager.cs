@@ -1,9 +1,8 @@
 using System;
 using UnityEngine;
 
-public class InputManager : MonoBehaviour
+public class InputManager : MonoBehaviour, IDispatcher
 {
-
     private Vector3 crrPos;
     private Vector3 direction;
     private Vector3 startPos;
@@ -21,26 +20,27 @@ public class InputManager : MonoBehaviour
             isDragging = true;
             startPos =  Input.mousePosition;
             crrPos =  Input.mousePosition;
-            CameraCtrl.instance.StartScroll(Input.mousePosition);
+            this.DispatcherEvent(GameEvent.OnDraggedStart, crrPos);
         }
         else if (Input.GetMouseButtonUp(0))
         {
+            crrPos = Input.mousePosition;
+            
             // Debug.Log("EndPos: " + Input.mousePosition);
             isDragging = false;
-            CameraCtrl.instance.StopScroll();
+            this.DispatcherEvent(GameEvent.OnDraggedEnd, crrPos);
 
-            crrPos = Input.mousePosition;
             direction = crrPos - startPos;
             if (direction.magnitude < 0.1f)
             {
-                GameManager.instance.OnClick(crrPos);
+                this.DispatcherEvent(GameEvent.OnClick, crrPos);
             }
         }
         else if (Input.GetMouseButton(0) && isDragging)
         {
             // Debug.Log("MousePos: " + Input.mousePosition);
             crrPos = Input.mousePosition;
-            CameraCtrl.instance.ScrollTo(Input.mousePosition);
+            this.DispatcherEvent(GameEvent.OnDragging, crrPos);
         }
 
 #endif
