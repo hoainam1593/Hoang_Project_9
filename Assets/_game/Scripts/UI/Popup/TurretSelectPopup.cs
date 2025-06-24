@@ -18,7 +18,7 @@ public class TurretSelectPopup : BasePopup
         //Subscribes Event:
         gunButton.onClick.AddListener(() =>
         {
-            Debug.Log("GunButtonClicked");
+            SpawnTurretGun();
             ClosePopup();
         });        
     }
@@ -35,5 +35,12 @@ public class TurretSelectPopup : BasePopup
     {
         transform.position = worldPos;
         transform.localScale = size;
+    }
+    
+    
+    private void SpawnTurretGun()
+    {
+        Debug.Log("SpawnTurretGun");
+        // EntityManager.instance.SpawnTurret("")
     }
 }

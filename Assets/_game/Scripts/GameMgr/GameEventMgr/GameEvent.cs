@@ -10,4 +10,10 @@ public enum GameEvent
     
     //
     OnMapSizeUpdate,
+    
+    //
+    OnTurretSpawnStart,
+    OnTurretSpawnCompleted,
+    OnTurretDespawnStart,
+    OnTurretDespawnComplete,
 }
