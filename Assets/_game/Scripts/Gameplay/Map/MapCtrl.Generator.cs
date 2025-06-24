@@ -90,7 +90,7 @@ public partial class MapCtrl
                 for (int j = 0; j < mapData.column; j++)
                 {
                     var tile = (TileEnum)mapData.tiles[i][j];
-                    pos = MatrixCoordinateToTilePosition(mapData.row, mapData.column, new MatrixCoordinate(i, j));
+                    pos = MatrixCoordinateToTilePosition(mapData.row, mapData.column, new MapCoordinate(i, j));
                     if (tile == TileEnum.HallGate || tile == TileEnum.Hall)
                     {
                         CacheHallPosition(tile, pos);
@@ -226,47 +226,4 @@ public partial class MapCtrl
         }
     #endregion Task - Convert Hall Order!
     
-    #region Task - Position Converter
-    
-        
-        private Vector3Int MatrixCoordinateToTilePosition(int row, int col, MatrixCoordinate matrixPos)
-        {
-            var pos = new Vector3Int(matrixPos.y, matrixPos.x, 0);
-            var halfX = col / 2;
-            var halfY = row / 2;
-            return pos - new  Vector3Int(halfX, halfY, 0);
-        }
-
-        private MatrixCoordinate TilePositionToMatrixCoordinate(int row, int col, Vector3Int tilePosition)
-        {
-            var halfX = col / 2;
-            var halfY = row / 2;
-            var convertedPos =  tilePosition + new Vector3Int(halfX, halfY, 0);
-            Debug.Log("ClickedCell: " + convertedPos);
-            return new MatrixCoordinate(convertedPos.y, convertedPos.x);
-        }
-
-        private Vector3Int ScreenPointToTilePosition(Vector3 screenPos)
-        {
-            var worldPos = Camera.main.ScreenToWorldPoint(screenPos);
-            return layerGround.WorldToCell(worldPos);
-        }
-        
-        private Vector3 TilePositionToWorldPosition(Vector3Int tilePosition)
-        {
-            return layerGround.CellToWorld(tilePosition);
-        }
-
-        private MatrixCoordinate ScreenToMatixCoordinate(Vector3 screenPos)
-        {
-            var cellPos = ScreenPointToTilePosition(screenPos);
-            return TilePositionToMatrixCoordinate(Row, Column, cellPos);
-        }
-
-        private bool IsInMatrix(MatrixCoordinate matrixPos)
-        {
-            return (0 <= matrixPos.x && matrixPos.x < Row) && (0 <= matrixPos.y && matrixPos.y < Column);
-        }
-    
-    #endregion Task - Position Converter!!
 }

@@ -7,38 +7,16 @@ public partial class MapCtrl : MonoBehaviour, IDispatcher, IRegister
     [SerializeField] private TextAsset _mapData;
     private MapData mapData;
     private Grid mapGrid;
-    
-    public Vector3 WorldTileSize
-    {
-        get
-        {
-            return Vector3.Scale(
-                layerGround.layoutGrid.cellSize, // thường là (1,1,0)
-                layerGround.transform.lossyScale // để biết tile thực lớn bao nhiêu
-            );
-        }
-    }
-
-    public struct MatrixCoordinate
-    {
-        public int x;
-        public int y;
-
-        public MatrixCoordinate(int x, int y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-
-        public override string ToString()
-        {
-            return $"({x},{y})";
-        }
-    }
 
     private void Awake()
     {
         mapGrid = gameObject.GetComponent<Grid>();
+        Subscribes();
+    }
+
+    private void OnDestroy()
+    {
+        UnSubscribes();
     }
 
     private void Start()
@@ -47,22 +25,21 @@ public partial class MapCtrl : MonoBehaviour, IDispatcher, IRegister
         // var mapModel = new MapModel(mapData);
         GenerateMap(mapData);
 
-        PassParamsToCamera(mapData);
-
-        TestSpawnPrefab();
+        PassParamsToCamera();
     }
     
     #region Subscribes Methods:
 
     public void Subscribes()
     {
-        
+        this.RegisterEvent(GameEvent.OnClick, OnClickedInMap);
     }
 
     public void UnSubscribes()
     {
-        
+        this.UnRegisterEvent(GameEvent.OnClick, OnClickedInMap);
     }
+
     
     #endregion Subscribes Methods!
     
@@ -75,24 +52,10 @@ public partial class MapCtrl : MonoBehaviour, IDispatcher, IRegister
     
     #region Task PassParam to Camera
 
-    private void PassParamsToCamera(MapData mapData)
+    private void PassParamsToCamera()
     {
-        var width = mapData.column * layerGround.transform.lossyScale.x;
-        var height = mapData.row * layerGround.transform.lossyScale.y;
-        var mapBottomLeft = GetMapBottomLeft(mapData.row, mapData.column);
-        
-        this.DispatcherEvent(GameEvent.OnMapSizeUpdate, new GEventData.MapSizeData(width, height, mapBottomLeft));
-        // CameraCtrl.instance.UpdateMapSize(width, height, mapBottomLeft);
+        var mapBottomLeft = GetMapBottomLeft();
+        this.DispatcherEvent(GameEvent.OnMapSizeUpdate, new GEventData.MapSizeData(Width, Height, mapBottomLeft));
     }
-
-    private Vector3 GetMapBottomLeft(int row, int col)
-    {
-        var halfX = col / 2;
-        var halfY = row / 2;
-        var bottomLeftCellCoordinate = new Vector3Int(-halfX, -halfY, 0);
-        var centerOfBottomLeftCell = layerGround.CellToWorld(bottomLeftCellCoordinate);
-        return centerOfBottomLeftCell;
-    }
-    
     #endregion
 }

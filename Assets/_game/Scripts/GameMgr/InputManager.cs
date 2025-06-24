@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class InputManager : MonoBehaviour, IDispatcher
 {
@@ -11,8 +14,12 @@ public class InputManager : MonoBehaviour, IDispatcher
     
     private void Update()
     {
-        
 #if UNITY_EDITOR
+
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
 
         if (!isDragging && Input.GetMouseButtonDown(0))
         {
@@ -21,6 +28,8 @@ public class InputManager : MonoBehaviour, IDispatcher
             startPos =  Input.mousePosition;
             crrPos =  Input.mousePosition;
             this.DispatcherEvent(GameEvent.OnDraggedStart, crrPos);
+
+            // LogTest();
         }
         else if (Input.GetMouseButtonUp(0))
         {
@@ -31,9 +40,12 @@ public class InputManager : MonoBehaviour, IDispatcher
             this.DispatcherEvent(GameEvent.OnDraggedEnd, crrPos);
 
             direction = crrPos - startPos;
-            if (direction.magnitude < 0.1f)
+            if (direction.magnitude < 0.1f && !EventSystem.current.IsPointerOverGameObject())
             {
-                this.DispatcherEvent(GameEvent.OnClick, crrPos);
+                // if (!EventSystem.current.IsPointerOverGameObject())
+                // {
+                    this.DispatcherEvent(GameEvent.OnClick, crrPos);
+                // }
             }
         }
         else if (Input.GetMouseButton(0) && isDragging)
@@ -45,4 +57,13 @@ public class InputManager : MonoBehaviour, IDispatcher
 
 #endif
     }
+
+    // public GraphicRaycaster raycaster;
+    // public EventSystem eventSystem;
+    // private void LogTest()
+    // {
+    //     List<RaycastResult> results = new List<RaycastResult>();
+    //     PointerEventData eventData = new PointerEventData(eventSystem);
+    //     raycaster.Raycast(eventData, results);
+    // }
 }

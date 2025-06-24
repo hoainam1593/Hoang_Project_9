@@ -1,0 +1,39 @@
+using UnityEngine.UI;
+using UnityEngine;
+
+public class TurretSelectPopup : BasePopup
+{
+    [Space(10)]
+    [SerializeField] private Button gunButton;
+    
+    protected override void Start()
+    {
+        base.Start();
+        OnStart();
+    }
+
+    private void OnStart()
+    {
+        Debug.Log("OnStart");
+        //Subscribes Event:
+        gunButton.onClick.AddListener(() =>
+        {
+            Debug.Log("GunButtonClicked");
+            ClosePopup();
+        });        
+    }
+
+    public override void OnClosePopup(bool isRunAnim = true)
+    {
+        base.OnClosePopup(isRunAnim);
+        
+        //UnSubscribes Event
+        gunButton.onClick.RemoveAllListeners();
+    }
+
+    public void InitView(Vector3 worldPos, Vector3 size)
+    {
+        transform.position = worldPos;
+        transform.localScale = size;
+    }
+}

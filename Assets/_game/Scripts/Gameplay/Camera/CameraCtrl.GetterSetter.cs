@@ -6,11 +6,10 @@ public partial class CameraCtrl
 
     public Vector3 WorldToScreenSize(Vector3 worldTileSize)
     {
-        float unitsPerScreenHeight = Camera.main.orthographicSize * 2f;
-        float pixelsPerUnit = Screen.height / unitsPerScreenHeight;
-
-        float tileScreenWidth  = worldTileSize.x * pixelsPerUnit;
-        float tileScreenHeight = worldTileSize.y * pixelsPerUnit;
+        var unitsPerScreenHeight = mainCam.orthographicSize * 2f;
+        var pixelsPerUnit = Screen.height / unitsPerScreenHeight;
+        var tileScreenWidth  = worldTileSize.x * pixelsPerUnit;
+        var tileScreenHeight = worldTileSize.y * pixelsPerUnit;
         return new  Vector3(tileScreenWidth, tileScreenHeight, 1);
     }
 

@@ -80,6 +80,6 @@ MonoBehaviour:
     scaleDuration: 0
     scaleInEase: 0
     scaleOutEase: 0
-  popupAddressablePath: 
+  popupAddressablePath: Assets/_game/AssetResources/Prefab/Popup
   webClientId: 
   iosAppId: 
