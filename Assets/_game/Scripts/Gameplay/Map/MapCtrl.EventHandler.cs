@@ -9,7 +9,7 @@ public partial class MapCtrl
     private void OnClickedInMap(object data)
     {
         var viewPos = (Vector3)data;
-        Debug.Log("OnClickedInMap: " + viewPos);
+        // Debug.Log("OnClickedInMap: " + viewPos);
         
         var clickedCell = ScreenToMatixCoordinate(viewPos);
         var tile = GetTile(viewPos);
