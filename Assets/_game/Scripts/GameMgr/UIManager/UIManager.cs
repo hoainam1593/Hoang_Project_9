@@ -28,7 +28,7 @@ public class UIManager : SingletonMonoBehaviour<UIManager>, IUIManager
         layerMain =  MainCanvas.transform;
     }
     
-    private Dictionary<UIPanel, PanelBase> panels = new Dictionary<UIPanel, PanelBase>();
+    private readonly Dictionary<UIPanel, PanelBase> panels = new Dictionary<UIPanel, PanelBase>();
 
     public async UniTask<IPanel> OpenPanel<T>(UIPanel uiPanel, object data = null) where T : PanelBase, new()
     {
@@ -64,6 +64,7 @@ public class UIManager : SingletonMonoBehaviour<UIManager>, IUIManager
     {
         if (panels.TryGetValue(uiPanel, out var panelCtrl))
         {
+            Debug.Log($"ClosePanel {uiPanel} - isOpen: {panelCtrl.IsOpen}");
             if (panelCtrl.IsOpen)
             {
                 panelCtrl.Close();

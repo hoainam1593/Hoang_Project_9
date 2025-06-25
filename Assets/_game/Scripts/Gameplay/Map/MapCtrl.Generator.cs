@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.Rendering;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
+using Cysharp.Threading.Tasks;
 
 public partial class MapCtrl
 {
@@ -35,9 +36,16 @@ public partial class MapCtrl
         Right = 5,
         Up = 7,
     }
+
+    private TextAsset LoadMapDataFile(string mapName)
+    {
+        var fullPath = $"MapData/{mapName}";
+        // Debug.Log("LoadMapData: " + fullPath);
+        return Resources.Load<TextAsset>($"MapData/{mapName}");
+    }
     
     
-    private void GenerateMap(MapData mapData)
+    private void GenerateMap()
     {
         Debug.Log($"Generating Map > {Row}x{Column}");
         CacheHallPositionAndSpawnOtherTiles(mapData);

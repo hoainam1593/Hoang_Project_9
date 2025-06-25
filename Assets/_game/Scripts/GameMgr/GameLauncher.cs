@@ -3,25 +3,24 @@ using UnityEngine;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
-
-
-//Main Application lifeCycle
-public partial class GameLauncher : MonoBehaviour
+public class GameLauncher : SingletonMonoBehaviour<GameLauncher>
 {
     [SerializeField] private MapCtrl mapCtrl;
     private GameObject mapRoot;
 
     private Game game;
     
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         mapRoot = mapCtrl.gameObject;
+        game = new Game();
     }
 
     private void Start()
     {
         LoadConfig().Forget();
-        
+
         //hide map
         mapRoot.SetActive(false);
         
@@ -30,14 +29,15 @@ public partial class GameLauncher : MonoBehaviour
     }
 
     #region Main Stream
-    public void StartGame()
+    public void StartGame(object data)
     {
-        var mapName = "map1";
+        var mapName = (string)data;
+        Debug.Log("StartGame > map: " + mapName);
         mapRoot.SetActive(true);
-        // mapCtrl.GenerateMap(mapName);
+        mapCtrl.GenerateMap(mapName);
         
         UIManager.instance.ClosePanel(UIPanel.MainUIPanel);
-        UIManager.instance.OpenPanel<BattleUIPanel>(UIPanel.BattleUIPanel);
+        UIManager.instance.OpenPanel<BattleUIPanel>(UIPanel.BattleUIPanel).Forget();
         
         game.StartGame();   
     }
@@ -47,7 +47,7 @@ public partial class GameLauncher : MonoBehaviour
         mapRoot.SetActive(false);
         
         UIManager.instance.ClosePanel(UIPanel.BattleUIPanel);
-        UIManager.instance.OpenPanel<MainUIPanel>(UIPanel.MainUIPanel);
+        UIManager.instance.OpenPanel<MainUIPanel>(UIPanel.MainUIPanel).Forget();
                 
         game.ExitGame();
     }

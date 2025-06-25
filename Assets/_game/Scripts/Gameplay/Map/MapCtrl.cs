@@ -4,7 +4,6 @@ using UnityEngine;
 
 public partial class MapCtrl : MonoBehaviour, IDispatcher, IRegister
 {
-    [SerializeField] private TextAsset _mapData;
     private MapData mapData;
     private Grid mapGrid;
 
@@ -19,12 +18,15 @@ public partial class MapCtrl : MonoBehaviour, IDispatcher, IRegister
         UnSubscribes();
     }
 
-    private void Start()
+    public void GenerateMap(string mapName)
     {
+        layerGround.ClearAllTiles();
+
+        var _mapData = LoadMapDataFile(mapName);
         mapData = CsvParser.ToMapData(_mapData.text);
         // var mapModel = new MapModel(mapData);
-        GenerateMap(mapData);
-
+        GenerateMap();
+        
         PassParamsToCamera();
     }
     

@@ -4,7 +4,7 @@ using R3;
 
 public class TabContent : MonoBehaviour
 {
-    [SerializeField] private Transform content;
+    [SerializeField] protected Transform content;
 
     private int index;
     private ReactiveProperty<int> tabIndex;
@@ -20,7 +20,7 @@ public class TabContent : MonoBehaviour
         {
             if (x == index)
             {
-                OnSelect();
+                OnShow();
             }
         });
 
@@ -28,23 +28,29 @@ public class TabContent : MonoBehaviour
         {
             if (x == index)
             {
-                UnSelect();
+                OnHide();
             }
         });
     }
 
-    public void Hide()
+
+    public void Show()
     {
-        content.gameObject.SetActive(false);
+        OnShow();
     }
 
-    private void OnSelect()
+    public void Hide()
+    {
+        OnHide();
+    }
+
+    protected virtual void OnShow()
     {
         // Debug.Log($"OnSelect Tab: {index}");
         content.gameObject.SetActive(true);
     }
 
-    private  void UnSelect()
+    protected virtual void OnHide()
     {
         // Debug.Log($"UnSelect Tab: {index}");
         content.gameObject.SetActive(false);
