@@ -5,6 +5,9 @@ public class TurretSelectPopup : BasePopup
 {
     [Space(10)]
     [SerializeField] private Button gunButton;
+
+    private MapCoordinate mapCoordinate;
+    private Vector3 pos;
     
     protected override void Start()
     {
@@ -14,7 +17,7 @@ public class TurretSelectPopup : BasePopup
 
     private void OnStart()
     {
-        Debug.Log("OnStart");
+        // Debug.Log("OnStart");
         //Subscribes Event:
         gunButton.onClick.AddListener(() =>
         {
@@ -31,8 +34,11 @@ public class TurretSelectPopup : BasePopup
         gunButton.onClick.RemoveAllListeners();
     }
 
-    public void InitView(Vector3 worldPos, Vector3 size)
+    public void InitView(MapCoordinate mapCoordinate, Vector3 worldPos, Vector3 size)
     {
+        this.mapCoordinate = mapCoordinate;
+        this.pos = worldPos;
+        
         transform.position = worldPos;
         transform.localScale = size;
     }
@@ -40,7 +46,8 @@ public class TurretSelectPopup : BasePopup
     
     private void SpawnTurretGun()
     {
-        Debug.Log("SpawnTurretGun");
-        // EntityManager.instance.SpawnTurret("")
+        // Debug.Log("SpawnTurretGun");
+        EntityManager.instance.SpawnTurret(mapCoordinate, pos, "Turret_lv1");
     }
 }
+

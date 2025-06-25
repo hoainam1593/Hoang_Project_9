@@ -2,35 +2,39 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 
-public class EntityManager : SingletonMonoBehaviour<EntityManager>//, IEntityManager
+public class EntityManager : SingletonMonoBehaviour<EntityManager>, IDispatcher//, IEntityManager
 {
     [SerializeField] private Transform turretRoot;
     
-    private Dictionary<Vector3Int, TurretCtrl> turretCtrls = new  Dictionary<Vector3Int, TurretCtrl>();
+    private Dictionary<MapCoordinate, TurretCtrl> turretCtrls = new  Dictionary<MapCoordinate, TurretCtrl>();
 
-    public async UniTaskVoid SpawnTurret(Vector3Int tilePosition, Vector3 pos, string turretName)
+    public async UniTaskVoid SpawnTurret(MapCoordinate mapCoordinate, Vector3 pos, string turretName)
     {
-        if (turretCtrls.ContainsKey(tilePosition))
+        if (turretCtrls.ContainsKey(mapCoordinate))
         {
             return;
         }
+        
+        // this.DispatcherEvent(GameEvent.OnTurretSpawnStart, mapCoordinate);
         
         //SpawnNewTurret
         TurretCtrl turretCtrl = await EntitySpawner.SpawnEntity<TurretCtrl>(ResourcesConfig.TurretPrefab, turretName, pos, turretRoot);
         turretCtrl.OnSpawn();
-        turretCtrls.Add(tilePosition, turretCtrl);
+        turretCtrls.Add(mapCoordinate, turretCtrl);
+        
+        this.DispatcherEvent(GameEvent.OnTurretSpawnCompleted, mapCoordinate);
     }
 
-    public void DespawnTurret(Vector3Int tilePosition)
+    public void DespawnTurret(MapCoordinate mapCoordinate)
     {
-        if (!turretCtrls.ContainsKey(tilePosition))
+        if (!turretCtrls.ContainsKey(mapCoordinate))
         {
             return;
         }
         
-        turretCtrls[tilePosition].OnDespawn();
-        EntitySpawner.DespawnEntity(turretCtrls[tilePosition].gameObject);
-        turretCtrls.Remove(tilePosition);
+        turretCtrls[mapCoordinate].OnDespawn();
+        EntitySpawner.DespawnEntity(turretCtrls[mapCoordinate].gameObject);
+        turretCtrls.Remove(mapCoordinate);
     }
 
     public void ClearAllTurrets()

@@ -32,27 +32,35 @@ public partial class MapCtrl
     private TurretSelectPopup popup;
     private async UniTaskVoid ShowTurretSelectPopup(Vector3 viewPos, MapCoordinate clickedCell)
     {
-        Debug.Log("ShowTurretSelectPopup");
+        // Debug.Log("ShowTurretSelectPopup");
         var tilePosition = GetWorldPosOfTile(viewPos);
         var uiPos = tilePosition + CellAnchor;
         selectedCell = clickedCell;
-        
         popup = await PopupManager.instance.OpenPopupWorld<TurretSelectPopup>();
-        popup.InitView(uiPos, WorldTileSize);
+        popup.InitView(clickedCell, uiPos, WorldTileSize);
     }
 
     private void CloseTurretSelectPopup()
     {
         if (popup != null)
         {
-            Debug.Log("CloseTurretSelectPopup");
+            // Debug.Log("CloseTurretSelectPopup");
             PopupManager.instance.ClosePopup(popup);
         }
         selectedCell = MapCoordinate.oneNegative;
     }
 
-    private void OnSpawnTurret(object data)
+    private void OnTurretSpawnStart(object data)
     {
         selectedCell = MapCoordinate.oneNegative;
+    }
+    
+    private void OnTurretSpawnCompleted(object data)
+    {
+        var coordinate = (MapCoordinate)data;
+        if (mapData.IsInMatrix(coordinate))
+        {
+            mapData.tiles[coordinate.x][coordinate.y] = (int)TileEnum.Turret;
+        }
     }
 }
