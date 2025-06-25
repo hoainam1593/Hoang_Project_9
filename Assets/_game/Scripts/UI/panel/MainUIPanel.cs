@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MainUIPanel : TabView
+public class MainUIPanel : PanelBase
 {
 
 }

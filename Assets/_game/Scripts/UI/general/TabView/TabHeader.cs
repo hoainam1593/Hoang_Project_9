@@ -53,7 +53,7 @@ public class TabHeader : MonoBehaviour
 
     private void OnSelect()
     {
-        Debug.Log($"OnSelect {index}");
+        // Debug.Log($"OnSelect {index}");
         foreach (var highlightElement in _highlightElements)
         {
             highlightElement.SetActive(true);
@@ -66,7 +66,7 @@ public class TabHeader : MonoBehaviour
 
     private  void UnSelect()
     {
-        Debug.Log($"UnSelect {index}");
+        // Debug.Log($"UnSelect {index}");
         foreach (var highlightElement in _highlightElements)
         {
             highlightElement.SetActive(false);

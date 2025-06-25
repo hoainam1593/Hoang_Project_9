@@ -36,7 +36,7 @@ public class TabView : MonoBehaviour
 
         if (tab != tabIndex.Value)
         {
-            Debug.Log($"Switch tab to: {tab}");
+            // Debug.Log($"Switch tab to: {tab}");
             oldTabIndex.Value = tabIndex.Value;
             tabIndex.Value = tab;
         }

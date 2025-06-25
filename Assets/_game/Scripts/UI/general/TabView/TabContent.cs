@@ -40,13 +40,13 @@ public class TabContent : MonoBehaviour
 
     private void OnSelect()
     {
-        Debug.Log($"OnSelect Tab: {index}");
+        // Debug.Log($"OnSelect Tab: {index}");
         content.gameObject.SetActive(true);
     }
 
     private  void UnSelect()
     {
-        Debug.Log($"UnSelect Tab: {index}");
+        // Debug.Log($"UnSelect Tab: {index}");
         content.gameObject.SetActive(false);
     }
 }
