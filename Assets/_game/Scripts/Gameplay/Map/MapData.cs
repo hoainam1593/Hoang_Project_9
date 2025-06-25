@@ -24,4 +24,11 @@ public class MapData
             }
         }
     }
+
+    public bool IsInMatrix(MapCoordinate coordinate)
+    {
+        var xCheck = 0 < coordinate.x && coordinate.x < this.row;
+        var ycheck  = 0 < coordinate.y && coordinate.y < this.column;
+        return  xCheck && ycheck;
+    }
 }

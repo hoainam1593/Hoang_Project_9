@@ -33,22 +33,20 @@ public partial class MapCtrl : MonoBehaviour, IDispatcher, IRegister
     public void Subscribes()
     {
         this.RegisterEvent(GameEvent.OnClick, OnClickedInMap);
+        this.RegisterEvent(GameEvent.OnTurretSpawnStart, OnTurretSpawnStart);
+        this.RegisterEvent(GameEvent.OnTurretSpawnCompleted, OnTurretSpawnCompleted);
     }
 
     public void UnSubscribes()
     {
         this.UnRegisterEvent(GameEvent.OnClick, OnClickedInMap);
+        this.UnRegisterEvent(GameEvent.OnTurretSpawnStart, OnTurretSpawnStart);
+        this.UnRegisterEvent(GameEvent.OnTurretSpawnCompleted, OnTurretSpawnCompleted);
     }
 
     
     #endregion Subscribes Methods!
     
-
-    private async UniTaskVoid TestSpawnPrefab()
-    {
-        // var prefab = await AssetManager.instance.LoadPrefab(GlobalConfig.Resources.TurretPrefab, "Turret_lv1");
-        // GameObject.Instantiate(prefab);
-    }        
     
     #region Task PassParam to Camera
 

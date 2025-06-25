@@ -6,11 +6,17 @@ using UnityEngine.UI;
 
 public class InputManager : MonoBehaviour, IDispatcher
 {
+#if UNITY_EDITOR
+    private const float ClickThreshold = 10f;
+#else
+    private const float ClickThreshold = 30f;
+#endif
     private Vector3 crrPos;
     private Vector3 direction;
     private Vector3 startPos;
 
     private bool isDragging = false;
+    
     
     private void Update()
     {
@@ -40,7 +46,7 @@ public class InputManager : MonoBehaviour, IDispatcher
             this.DispatcherEvent(GameEvent.OnDraggedEnd, crrPos);
 
             direction = crrPos - startPos;
-            if (direction.magnitude < 0.1f && !EventSystem.current.IsPointerOverGameObject())
+            if (direction.magnitude < ClickThreshold && !EventSystem.current.IsPointerOverGameObject())
             {
                 // if (!EventSystem.current.IsPointerOverGameObject())
                 // {

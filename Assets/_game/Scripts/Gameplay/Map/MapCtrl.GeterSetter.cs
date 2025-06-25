@@ -50,6 +50,11 @@ public partial class MapCtrl
     #endregion Getter / Setter!
     
     #region Task - Position Converter
+
+    public Vector3Int MatrixCoordinateToTilePosition(MapCoordinate mapPos)
+    {
+        return MatrixCoordinateToTilePosition(Row, Column, mapPos);
+    }
         
     private Vector3Int MatrixCoordinateToTilePosition(int row, int col, MapCoordinate mapPos)
     {

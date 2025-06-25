@@ -121,6 +121,7 @@ public partial class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>, IRegister
         public void StartScroll(object data)
         {
             Vector3 touchPoint = (Vector3)data;
+            // Debug.Log("CameraCtrl Start Scroll: " +  touchPoint);
             onTouched = true;
             touchStart = mainCam.ScreenToWorldPoint(touchPoint);
             touchStart = FixPositionLockSide(touchStart);
@@ -129,6 +130,7 @@ public partial class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>, IRegister
 
         public void StopScroll(object data)
         {
+            // Debug.Log("CameraCtrl Stop Scroll");
             onTouched = false;
             direction = Vector3.zero;
             targetPosition = Vector3.zero;
@@ -140,6 +142,8 @@ public partial class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>, IRegister
             var currentTouch = mainCam.ScreenToWorldPoint(touchPoint);
             direction = currentTouch - touchStart;
             direction = FixPositionLockSide(direction);
+            targetPosition = currentTouch;
+            // Debug.Log("CameraCtrl Start Scroll: " +  touchPoint + " > direction: " + direction);
         }
 
         //Calculate position
