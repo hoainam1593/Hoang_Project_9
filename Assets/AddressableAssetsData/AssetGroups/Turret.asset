@@ -20,11 +20,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: a5ede57d497d072419104e4f3a875695
-    m_Address: Assets/_game/AssetResources/Prefab/UI/Panel
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c679597d502437e4091416783c7bbe53
     m_Address: Assets/_game/AssetResources/Prefab/Popup
     m_ReadOnly: 0

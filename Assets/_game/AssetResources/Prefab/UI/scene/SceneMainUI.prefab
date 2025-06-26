@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8124032350034919154}
   - component: {fileID: 1565665503470829909}
   m_Layer: 0
-  m_Name: MainUIPanel
+  m_Name: SceneMainUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

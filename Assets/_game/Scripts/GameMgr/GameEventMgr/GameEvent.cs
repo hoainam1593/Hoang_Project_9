@@ -16,4 +16,8 @@ public enum GameEvent
     OnTurretSpawnCompleted,
     OnTurretDespawnStart,
     OnTurretDespawnComplete,
+    
+    //Game
+    OnGameStart,
+    OnGameExit,
 }

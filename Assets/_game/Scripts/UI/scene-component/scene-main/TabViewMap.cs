@@ -22,7 +22,7 @@ public class TabViewMap : TabContent
 {    
     [SerializeField] private GameObject mapItemPrefab;
 
-    private Dictionary<int, MapItemData> mapItems = new Dictionary<int, MapItemData>();
+    private Dictionary<int, MapItemData> mapItems;
     
     #region Tab Content
     
@@ -30,6 +30,7 @@ public class TabViewMap : TabContent
     {
         base.OnShow();
 
+        mapItems = new Dictionary<int, MapItemData>();
         LoadAndInitData();
 
         // Debug.Log("Try print map Model: " + mapModel.Chapters.Count.ToString());

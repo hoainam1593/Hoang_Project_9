@@ -11,6 +11,9 @@ public partial class MapCtrl : MonoBehaviour
     {
         mapGrid = gameObject.GetComponent<Grid>();
         Subscribes();
+        
+        var mapName = PlayerPrefs.GetString(PlayerPrefsConfig.Key_Select_Map, "map1");
+        GenerateMap(mapName);
     }
 
     private void OnDestroy()
@@ -18,7 +21,7 @@ public partial class MapCtrl : MonoBehaviour
         UnSubscribes();
     }
 
-    public void GenerateMap(string mapName)
+    private void GenerateMap(string mapName)
     {
         layerGround.ClearAllTiles();
 

@@ -12,7 +12,7 @@ public class ButtonHome : MonoBehaviour
         
         button.onClick.AddListener(() =>
         {
-            GameLauncher.instance.ExitGame();
+            GameLauncher.instance.ExitGame().Forget();;
         });
     }
 }

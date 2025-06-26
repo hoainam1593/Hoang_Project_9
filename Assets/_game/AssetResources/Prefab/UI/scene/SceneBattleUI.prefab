@@ -649,7 +649,7 @@ GameObject:
   - component: {fileID: 8707347118111585839}
   - component: {fileID: 6599084731198741205}
   m_Layer: 0
-  m_Name: BattleUIPanel
+  m_Name: SceneBattleUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

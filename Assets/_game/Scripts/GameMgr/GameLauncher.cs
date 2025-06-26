@@ -3,9 +3,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
-public class GameLauncher : SingletonMonoBehaviour<GameLauncher>
+public partial class GameLauncher : SingletonMonoBehaviour<GameLauncher>
 {
-    [SerializeField] private MapCtrl mapCtrl;
     private GameObject mapRoot;
 
     private Game game;
@@ -13,45 +12,31 @@ public class GameLauncher : SingletonMonoBehaviour<GameLauncher>
     protected override void Awake()
     {
         base.Awake();
-        mapRoot = mapCtrl.gameObject;
+        DontDestroyOnLoad(this);
+        
+        RegisterSceneLoaded();
         game = new Game();
     }
 
-    private void Start()
+    private async UniTaskVoid Start()
     {
         LoadConfig().Forget();
         LoadModels();
 
-        //hide map
-        mapRoot.SetActive(false);
-        
-        //show main ui
-        UIManager.instance.OpenPanel<MainUIPanel>(UIPanel.MainUIPanel);
+        await LoadScene(SceneName.Main);
     }
 
     #region Main Stream
-    public void StartGame(object data)
+    public async UniTaskVoid StartGame()
     {
-        var mapName = (string)data;
-        Debug.Log("StartGame > map: " + mapName);
-        mapRoot.SetActive(true);
-        mapCtrl.GenerateMap(mapName);
-        
-        var path = mapCtrl.GetMatrixPath();
-        Debug.Log("MyPath : " + path);
-        
-        UIManager.instance.ClosePanel(UIPanel.MainUIPanel);
-        UIManager.instance.OpenPanel<BattleUIPanel>(UIPanel.BattleUIPanel).Forget();
+        await LoadScene(SceneName.Battle);
         
         game.StartGame();   
     }
 
-    public void ExitGame()
+    public async UniTaskVoid ExitGame()
     {
-        mapRoot.SetActive(false);
-        
-        UIManager.instance.ClosePanel(UIPanel.BattleUIPanel);
-        UIManager.instance.OpenPanel<MainUIPanel>(UIPanel.MainUIPanel).Forget();
+        await LoadScene(SceneName.Main);
                 
         game.ExitGame();
     }
