@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.Serialization;
 
-public class MapItemCtrl : MonoBehaviour
+public class MapItemCtrl : RecycleScrollViewItem
 {
     [SerializeField] private Button button;
     [SerializeField] private TMPro.TextMeshProUGUI number;
@@ -12,9 +12,11 @@ public class MapItemCtrl : MonoBehaviour
     [SerializeField] private List<Image> starsIcon;
     
     string mapName;
-    
-    public void InitView(MapItemData itemData)
+
+    public override void SetData(object data)
     {
+        MapItemData itemData = (MapItemData)data;
+        
         number.text = itemData.Id.ToString();
         mapName = itemData.Name;
         
@@ -27,7 +29,7 @@ public class MapItemCtrl : MonoBehaviour
         SetStar(itemData.Star);
         SetUnlock(itemData.IsActive);
     }
-
+    
     private void SetStar(int number)
     {
         for (int i = 0; i < number; i++)

@@ -22,134 +22,131 @@ public class MapItemData
     }
 }
 
-public class TabViewMap : MonoBehaviour
+public class TabViewMap : RecycleListView
 {    
-    [SerializeField] private ObjectPool pool;
-    [SerializeField] private Transform content;
+    // [SerializeField] private ObjectPool pool;
+    // [SerializeField] private Transform content;
+    //
+    // private List<int, MapItemData> itemsData;
+    // private Dictionary<int, Transform> items;
 
-    private Dictionary<int, MapItemData> itemsData;
-    private Dictionary<int, Transform> items;
-
-    private bool createItemCompleted = true;
+    // private bool createItemCompleted = true;
     
-
-    private void Awake()
+    private void Start()
     {
-        createItemCompleted = true;
-        items = new  Dictionary<int, Transform>();
-        
-        LoadAndInitData();
-        // CreateItems();
+        var l = LoadAndInitData();
+        Debug.Log("DataCount: " + l.Count);
+        SetData(l);
     }
 
-    private void OnEnable()
-    {
-        ClearAllItems();
-        LoadAndInitData();
-        CreateItems();
-        // BalanceItems();
-    }
+    // private void OnEnable()
+    // {
+    //     ClearAllItems();
+    //     LoadAndInitData();
+    //     CreateItems();
+    //     // BalanceItems();
+    // }
+    //
+    // #region CreateView
+    //
+    // private async UniTaskVoid BalanceItems()
+    // {
+    //     await UniTask.WaitUntil(() => createItemCompleted);
+    //
+    //     createItemCompleted = false;
+    //     
+    //     if (itemsData == null || items == null)
+    //     {
+    //         return; 
+    //     }
+    //     
+    //     if (itemsData.Count == items.Count)
+    //     {
+    //         return;
+    //     }
+    //     
+    //
+    //     if (items.Count < itemsData.Count)
+    //     {
+    //         var dataList = itemsData.Values.ToArray();
+    //         //Spawn more
+    //         for (int i = items.Count; i < itemsData.Count; i++)
+    //         {
+    //             CreateItem(dataList[i]).Forget();
+    //         }
+    //     }
+    //     else
+    //     {
+    //         var itemList =  items.Values.ToArray();
+    //         // Remove
+    //         for (int i = itemsData.Count; i < items.Count; i++)
+    //         {
+    //             RemoveItem(itemList[i].gameObject);
+    //         }
+    //     }
+    //
+    //     createItemCompleted = true;
+    // }
 
-    #region CreateView
-
-    private async UniTaskVoid BalanceItems()
-    {
-        await UniTask.WaitUntil(() => createItemCompleted);
-
-        createItemCompleted = false;
-        
-        if (itemsData == null || items == null)
-        {
-            return; 
-        }
-        
-        if (itemsData.Count == items.Count)
-        {
-            return;
-        }
-        
-
-        if (items.Count < itemsData.Count)
-        {
-            var dataList = itemsData.Values.ToArray();
-            //Spawn more
-            for (int i = items.Count; i < itemsData.Count; i++)
-            {
-                CreateItem(dataList[i]).Forget();
-            }
-        }
-        else
-        {
-            var itemList =  items.Values.ToArray();
-            // Remove
-            for (int i = itemsData.Count; i < items.Count; i++)
-            {
-                RemoveItem(itemList[i].gameObject);
-            }
-        }
-
-        createItemCompleted = true;
-    }
-
-    private void ClearAllItems()
-    {
-        foreach (var item in items)
-        {
-            RemoveItem(item.Value.gameObject);
-        }
-        items.Clear();
-    }
-
-    private void RemoveItem(GameObject go)
-    {
-        pool.Despawn(go);
-        // GameObject.Destroy(go);
-    }
-        
-
-    private async UniTaskVoid CreateItems()
-    {
-        await UniTask.WaitUntil(() => createItemCompleted);
-        
-        createItemCompleted = false;
-        foreach (var data in itemsData.Values)
-        {
-            if (!items.ContainsKey(data.Id))
-            {
-                var go = await CreateItem(data);
-                if (!items.ContainsKey(data.Id))
-                {
-                    items.Add(data.Id, go.transform);
-                }
-            }
-        }
-
-        createItemCompleted = true;
-    }
-
-    private async UniTask<GameObject> CreateItem(MapItemData data)
-    {
-        Debug.Log("Creating item > map: " + data.Id);
-        // var newItem = GameObject.Instantiate(mapItemPrefab, Vector3.zero, Quaternion.identity, content);
-        var newItem = await pool.Spawn("MapItem");
-        newItem.transform.SetParent(content);
-        newItem.transform.SetAsLastSibling();
-        
-        var itemCtrl = newItem.GetOrAddComponent<MapItemCtrl>();
-        itemCtrl.InitView(data);
-        
-        return newItem;
-    }
+    // private void ClearAllItems()
+    // {
+    //     foreach (var item in items)
+    //     {
+    //         RemoveItem(item.Value.gameObject);
+    //     }
+    //     items.Clear();
+    // }
+    //
+    // private void RemoveItem(GameObject go)
+    // {
+    //     pool.Despawn(go);
+    //     // GameObject.Destroy(go);
+    // }
+    //     
+    //
+    // private async UniTaskVoid CreateItems()
+    // {
+    //     await UniTask.WaitUntil(() => createItemCompleted);
+    //     
+    //     createItemCompleted = false;
+    //     foreach (var data in itemsData.Values)
+    //     {
+    //         if (!items.ContainsKey(data.Id))
+    //         {
+    //             var go = await CreateItem(data);
+    //             if (!items.ContainsKey(data.Id))
+    //             {
+    //                 items.Add(data.Id, go.transform);
+    //             }
+    //         }
+    //     }
+    //
+    //     createItemCompleted = true;
+    // }
+    //
+    // private async UniTask<GameObject> CreateItem(MapItemData data)
+    // {
+    //     Debug.Log("Creating item > map: " + data.Id);
+    //     // var newItem = GameObject.Instantiate(mapItemPrefab, Vector3.zero, Quaternion.identity, content);
+    //     var newItem = await pool.Spawn("MapItem");
+    //     newItem.transform.SetParent(content);
+    //     newItem.transform.SetAsLastSibling();
+    //     
+    //     var itemCtrl = newItem.GetOrAddComponent<MapItemCtrl>();
+    //     itemCtrl.InitView(data);
+    //     
+    //     return newItem;
+    // }
+    //
+    // #endregion CreateView!
+    //
+    // #region Load And Init Data
     
-    #endregion CreateView!
-
-    #region Load And Init Data
-    
-    private void LoadAndInitData()
+    private List<object> LoadAndInitData()
     {
-        itemsData = new Dictionary<int, MapItemData>();
+        Dictionary<int, MapItemData> itemsData = new Dictionary<int, MapItemData>();
+        
         var mapConfig = ConfigManager.instance.GetConfig<MapConfig>();
-        
         foreach (var item in mapConfig.listConfigItems)
         {
             itemsData.Add(item.mapId, new MapItemData(item.mapId, 0, false, item.mapName));
@@ -161,7 +158,15 @@ public class TabViewMap : MonoBehaviour
             itemsData[chapter.Id].Star = chapter.Star;
             itemsData[chapter.Id].IsActive = chapter.IsActive;
         }
+        
+        var l = new List<object>();
+        foreach (var item in itemsData.Values)
+        {
+            l.Add(item);
+        }
+
+        return l;
     }
     
-    #endregion Load And Init Data!!
+    // #endregion Load And Init Data!!
 }
