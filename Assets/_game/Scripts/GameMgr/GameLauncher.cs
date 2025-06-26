@@ -20,6 +20,7 @@ public class GameLauncher : SingletonMonoBehaviour<GameLauncher>
     private void Start()
     {
         LoadConfig().Forget();
+        LoadModels();
 
         //hide map
         mapRoot.SetActive(false);
@@ -80,4 +81,17 @@ public class GameLauncher : SingletonMonoBehaviour<GameLauncher>
     }
     
     #endregion LoadConfig!
+    
+    #region LoadModel
+
+    public void LoadModels()
+    {
+        List<BasePlayerModel> lModels = new List<BasePlayerModel>()
+        {
+            new MapModel(),
+        };
+        PlayerModelManager.instance.LoadAllModels(lModels, "MapModel");
+    }
+    
+    #endregion LoadModel!
 }

@@ -119,6 +119,50 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &127885572
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 127885573}
+  - component: {fileID: 127885574}
+  m_Layer: 0
+  m_Name: PlayerModelManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &127885573
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 127885572}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 388439302}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &127885574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 127885572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d308e3592752eb47b3eaa4dd25d79d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &187917638
 GameObject:
   m_ObjectHideFlags: 0
@@ -232,6 +276,7 @@ Transform:
   - {fileID: 2067748744}
   - {fileID: 1247601322}
   - {fileID: 1731381295}
+  - {fileID: 127885573}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &557573777
@@ -1420,14 +1465,6 @@ PrefabInstance:
     - target: {fileID: 1089915246005366689, guid: 3ee7f618c1d1db24e96838b622bd5b61, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -704
-      objectReference: {fileID: 0}
-    - target: {fileID: 3100788245224797063, guid: 3ee7f618c1d1db24e96838b622bd5b61, type: 3}
-      propertyPath: 'tabContents.Array.data[0]'
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 3100788245224797063, guid: 3ee7f618c1d1db24e96838b622bd5b61, type: 3}
-      propertyPath: 'tabContents.Array.data[1]'
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 4405581771577736070, guid: 3ee7f618c1d1db24e96838b622bd5b61, type: 3}
       propertyPath: m_AnchorMax.y

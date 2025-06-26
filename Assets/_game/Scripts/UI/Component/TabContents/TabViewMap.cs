@@ -24,25 +24,30 @@ public class TabViewMap : TabContent
 
     private Dictionary<int, MapItemData> mapItems = new Dictionary<int, MapItemData>();
     
+    #region Tab Content
+    
     protected override void OnShow()
     {
         base.OnShow();
-        
-        var mapConfig = ConfigManager.instance.GetConfig<MapConfig>();
-        foreach (var item in mapConfig.listConfigItems)
-        {
-            mapItems.Add(item.mapId, new MapItemData(item.mapId, 0, false, item.mapName));
-        }
-        
-        mapItems[1].isActive = true;
+
+        LoadAndInitData();
+
+        // Debug.Log("Try print map Model: " + mapModel.Chapters.Count.ToString());
 
         CreateItems();
     }
+    
 
     protected override void OnHide()
     {
         base.OnHide();
     }
+    
+    #endregion Tab Content!
+
+    #region CreateView
+    
+    
 
     private void CreateItems()
     {
@@ -58,4 +63,26 @@ public class TabViewMap : TabContent
         var itemCtrl = newItem.GetOrAddComponent<MapItemCtrl>();
         itemCtrl.InitView(itemData);
     }
+    
+    #endregion CreateView!
+
+    #region Load And Init Data
+    
+    private void LoadAndInitData()
+    {
+        var mapConfig = ConfigManager.instance.GetConfig<MapConfig>();
+        foreach (var item in mapConfig.listConfigItems)
+        {
+            mapItems.Add(item.mapId, new MapItemData(item.mapId, 0, false, item.mapName));
+        }
+        
+        var mapModel = PlayerModelManager.instance.GetPlayerModel<MapModel>();
+        foreach (var chapter in mapModel.Chapters)
+        {
+            mapItems[chapter.Id].star = chapter.Star;
+            mapItems[chapter.Id].isActive = chapter.IsActive;
+        }
+    }
+    
+    #endregion Load And Init Data!!
 }
