@@ -55,6 +55,7 @@ public partial class MapCtrl : MonoBehaviour, IDispatcher, IRegister
     private void PassParamsToCamera()
     {
         var mapBottomLeft = GetMapBottomLeft();
+        // Debug.Log("Map size: " + Width + " / " + Height);
         this.DispatcherEvent(GameEvent.OnMapSizeUpdate, new GEventData.MapSizeData(Width, Height, mapBottomLeft));
     }
     #endregion

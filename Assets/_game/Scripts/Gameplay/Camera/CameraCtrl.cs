@@ -86,9 +86,11 @@ public partial class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>, IRegister
     
         private void ZoomFixedSize(float width, float height)
         {
+            // Debug.Log($"ZoomFixedSize > camera Ratio: {mainCam.aspect} - map Ratio: {width/height}");
             
-            if (mainCam.aspect > height / width)
+            if (mainCam.aspect > width / height)
             {
+                // Debug.Log("Fixed Horizontal");
                 //Fixed Horizontal
                 lockSide = LockScroll.Horizontal;
                 
@@ -98,10 +100,12 @@ public partial class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>, IRegister
             }
             else
             {
+                // Debug.Log("Fixed Vertical");
                 //Fixed Vertical
                 lockSide = LockScroll.Vertical;
                 
                 camHeight = height;
+                camWidth = camHeight * mainCam.aspect;
                 mainCam.orthographicSize = camHeight / 2f;
             }
         }
@@ -166,22 +170,22 @@ public partial class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>, IRegister
             var halfWidth = camWidth / 2;
             var halfHeight = camHeight / 2;
             
-            if (position.x - halfWidth < mapLeftBottomPos.x)
+            if (position.x - halfWidth < mapLeftBottomPos.x)  //limit left
             {
                 position.x = mapLeftBottomPos.x + halfWidth;
             }
             
-            if (position.x + halfWidth > mapLeftBottomPos.x + viewWidth)
+            if (position.x + halfWidth > mapLeftBottomPos.x + viewWidth) // limit right
             {
                 position.x = mapLeftBottomPos.x + viewWidth - halfWidth;
             }
 
-            if (position.y - halfHeight < mapLeftBottomPos.y)
+            if (position.y - halfHeight < mapLeftBottomPos.y) // limit bottom
             {
                 position.y = mapLeftBottomPos.y + halfHeight;
             }
 
-            if (position.y + halfHeight > mapLeftBottomPos.y + viewHeight)
+            if (position.y + halfHeight > mapLeftBottomPos.y + viewHeight) // limit top
             {
                 position.y = mapLeftBottomPos.y + viewHeight - halfHeight;
             }
