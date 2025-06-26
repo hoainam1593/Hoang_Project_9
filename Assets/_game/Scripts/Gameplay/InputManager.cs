@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class InputManager : MonoBehaviour, IDispatcher
+public class InputManager : MonoBehaviour
 {
 #if UNITY_EDITOR
     private const float ClickThreshold = 10f;
@@ -33,7 +33,7 @@ public class InputManager : MonoBehaviour, IDispatcher
             isDragging = true;
             startPos =  Input.mousePosition;
             crrPos =  Input.mousePosition;
-            this.DispatcherEvent(GameEvent.OnDraggedStart, crrPos);
+            GameEventMgr.GED.DispatcherEvent(GameEvent.OnDraggedStart, crrPos);
 
             // LogTest();
         }
@@ -43,14 +43,14 @@ public class InputManager : MonoBehaviour, IDispatcher
             
             // Debug.Log("EndPos: " + Input.mousePosition);
             isDragging = false;
-            this.DispatcherEvent(GameEvent.OnDraggedEnd, crrPos);
+            GameEventMgr.GED.DispatcherEvent(GameEvent.OnDraggedEnd, crrPos);
 
             direction = crrPos - startPos;
             if (direction.magnitude < ClickThreshold && !EventSystem.current.IsPointerOverGameObject())
             {
                 // if (!EventSystem.current.IsPointerOverGameObject())
                 // {
-                    this.DispatcherEvent(GameEvent.OnClick, crrPos);
+                    GameEventMgr.GED.DispatcherEvent(GameEvent.OnClick, crrPos);
                 // }
             }
         }
@@ -58,7 +58,7 @@ public class InputManager : MonoBehaviour, IDispatcher
         {
             // Debug.Log("MousePos: " + Input.mousePosition);
             crrPos = Input.mousePosition;
-            this.DispatcherEvent(GameEvent.OnDragging, crrPos);
+            GameEventMgr.GED.DispatcherEvent(GameEvent.OnDragging, crrPos);
         }
 
 #endif

@@ -2,7 +2,7 @@ using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-public partial class MapCtrl : MonoBehaviour, IDispatcher, IRegister
+public partial class MapCtrl : MonoBehaviour
 {
     private MapData mapData;
     private Grid mapGrid;
@@ -34,16 +34,16 @@ public partial class MapCtrl : MonoBehaviour, IDispatcher, IRegister
 
     public void Subscribes()
     {
-        this.RegisterEvent(GameEvent.OnClick, OnClickedInMap);
-        this.RegisterEvent(GameEvent.OnTurretSpawnStart, OnTurretSpawnStart);
-        this.RegisterEvent(GameEvent.OnTurretSpawnCompleted, OnTurretSpawnCompleted);
+        GameEventMgr.GED.Register(GameEvent.OnClick, OnClickedInMap);
+        GameEventMgr.GED.Register(GameEvent.OnTurretSpawnStart, OnTurretSpawnStart);
+        GameEventMgr.GED.Register(GameEvent.OnTurretSpawnCompleted, OnTurretSpawnCompleted);
     }
 
     public void UnSubscribes()
     {
-        this.UnRegisterEvent(GameEvent.OnClick, OnClickedInMap);
-        this.UnRegisterEvent(GameEvent.OnTurretSpawnStart, OnTurretSpawnStart);
-        this.UnRegisterEvent(GameEvent.OnTurretSpawnCompleted, OnTurretSpawnCompleted);
+        GameEventMgr.GED.UnRegister(GameEvent.OnClick, OnClickedInMap);
+        GameEventMgr.GED.UnRegister(GameEvent.OnTurretSpawnStart, OnTurretSpawnStart);
+        GameEventMgr.GED.UnRegister(GameEvent.OnTurretSpawnCompleted, OnTurretSpawnCompleted);
     }
 
     
@@ -56,7 +56,7 @@ public partial class MapCtrl : MonoBehaviour, IDispatcher, IRegister
     {
         var mapBottomLeft = GetMapBottomLeft();
         // Debug.Log("Map size: " + Width + " / " + Height);
-        this.DispatcherEvent(GameEvent.OnMapSizeUpdate, new GEventData.MapSizeData(Width, Height, mapBottomLeft));
+        GameEventMgr.GED.DispatcherEvent(GameEvent.OnMapSizeUpdate, new GEventData.MapSizeData(Width, Height, mapBottomLeft));
     }
     #endregion
 }

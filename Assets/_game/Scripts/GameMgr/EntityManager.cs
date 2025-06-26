@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 
-public class EntityManager : SingletonMonoBehaviour<EntityManager>, IDispatcher//, IEntityManager
+public class EntityManager : SingletonMonoBehaviour<EntityManager>//, IEntityManager
 {
     [SerializeField] private Transform turretRoot;
     
@@ -15,14 +15,14 @@ public class EntityManager : SingletonMonoBehaviour<EntityManager>, IDispatcher/
             return;
         }
         
-        // this.DispatcherEvent(GameEvent.OnTurretSpawnStart, mapCoordinate);
+        // GameEventMgr.GED.DispatcherEvent(GameEvent.OnTurretSpawnStart, mapCoordinate);
         
         //SpawnNewTurret
         TurretCtrl turretCtrl = await EntitySpawner.SpawnEntity<TurretCtrl>(ResourcesConfig.TurretPrefab, turretName, pos, turretRoot);
         turretCtrl.OnSpawn();
         turretCtrls.Add(mapCoordinate, turretCtrl);
         
-        this.DispatcherEvent(GameEvent.OnTurretSpawnCompleted, mapCoordinate);
+        GameEventMgr.GED.DispatcherEvent(GameEvent.OnTurretSpawnCompleted, mapCoordinate);
     }
 
     public void DespawnTurret(MapCoordinate mapCoordinate)

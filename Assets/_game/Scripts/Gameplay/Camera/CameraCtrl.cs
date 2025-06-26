@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public partial class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>, IRegister
+public partial class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>
 {
     private Camera mainCam;
     private float viewWidth;
@@ -55,18 +55,18 @@ public partial class CameraCtrl : SingletonMonoBehaviour<CameraCtrl>, IRegister
 
         public void Subscribes()
         {
-            this.RegisterEvent(GameEvent.OnDraggedStart, StartScroll);
-            this.RegisterEvent(GameEvent.OnDragging, ScrollTo);
-            this.RegisterEvent(GameEvent.OnDraggedEnd, StopScroll);
-            this.RegisterEvent(GameEvent.OnMapSizeUpdate, OnMapSizeUpdate);
+            GameEventMgr.GED.Register(GameEvent.OnDraggedStart, StartScroll);
+            GameEventMgr.GED.Register(GameEvent.OnDragging, ScrollTo);
+            GameEventMgr.GED.Register(GameEvent.OnDraggedEnd, StopScroll);
+            GameEventMgr.GED.Register(GameEvent.OnMapSizeUpdate, OnMapSizeUpdate);
         }
 
         public void UnSubscribes()
         {
-            this.UnRegisterEvent(GameEvent.OnDraggedStart, StartScroll);
-            this.UnRegisterEvent(GameEvent.OnDragging, ScrollTo);
-            this.UnRegisterEvent(GameEvent.OnDraggedEnd, StopScroll);
-            this.UnRegisterEvent(GameEvent.OnMapSizeUpdate, OnMapSizeUpdate);
+            GameEventMgr.GED.UnRegister(GameEvent.OnDraggedStart, StartScroll);
+            GameEventMgr.GED.UnRegister(GameEvent.OnDragging, ScrollTo);
+            GameEventMgr.GED.UnRegister(GameEvent.OnDraggedEnd, StopScroll);
+            GameEventMgr.GED.UnRegister(GameEvent.OnMapSizeUpdate, OnMapSizeUpdate);
         }
 
     #endregion IRegister methods!!
