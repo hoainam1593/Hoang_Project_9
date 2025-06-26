@@ -64,6 +64,11 @@ public partial class MapCtrl
         return pos - new  Vector3Int(halfX, halfY, 0);
     }
 
+    public MapCoordinate TilePositionToMatrixCoordinate(Vector3Int tilePosition)
+    {
+        return TilePositionToMatrixCoordinate(Row, Column, tilePosition);
+    }
+
     private MapCoordinate TilePositionToMatrixCoordinate(int row, int col, Vector3Int tilePosition)
     {
         var halfX = col / 2;

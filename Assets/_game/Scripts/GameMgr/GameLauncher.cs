@@ -37,6 +37,9 @@ public class GameLauncher : SingletonMonoBehaviour<GameLauncher>
         mapRoot.SetActive(true);
         mapCtrl.GenerateMap(mapName);
         
+        var path = mapCtrl.GetMatrixPath();
+        Debug.Log("MyPath : " + path);
+        
         UIManager.instance.ClosePanel(UIPanel.MainUIPanel);
         UIManager.instance.OpenPanel<BattleUIPanel>(UIPanel.BattleUIPanel).Forget();
         
