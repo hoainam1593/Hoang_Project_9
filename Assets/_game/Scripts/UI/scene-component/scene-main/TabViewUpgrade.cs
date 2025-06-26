@@ -1,4 +1,6 @@
-public class TabViewUpgrade : TabContent
+using UnityEngine;
+
+public class TabViewUpgrade : MonoBehaviour
 {
         
 }

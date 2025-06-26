@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -18,41 +19,44 @@ public class MapItemData
     }
 }
 
-public class TabViewMap : TabContent
+public class TabViewMap : MonoBehaviour
 {    
     [SerializeField] private GameObject mapItemPrefab;
+    [SerializeField] private Transform content;
 
-    private Dictionary<int, MapItemData> mapItems;
+    private Dictionary<int, MapItemData> itemDatas;
+    private Dictionary<int, Transform> items;
     
-    #region Tab Content
-    
-    protected override void OnShow()
+
+    private void Awake()
     {
-        base.OnShow();
-
-        mapItems = new Dictionary<int, MapItemData>();
+        itemDatas = new Dictionary<int, MapItemData>();
+        items = new  Dictionary<int, Transform>();
+        
         LoadAndInitData();
+    }
 
-        // Debug.Log("Try print map Model: " + mapModel.Chapters.Count.ToString());
-
+    private void OnEnable()
+    {
+        ClearAllItems();
         CreateItems();
     }
-    
-
-    protected override void OnHide()
-    {
-        base.OnHide();
-    }
-    
-    #endregion Tab Content!
 
     #region CreateView
-    
-    
+
+    private void ClearAllItems()
+    {
+        foreach (var item in items)
+        {
+            GameObject.Destroy(item.Value.gameObject);
+        }
+        items.Clear();
+    }
+        
 
     private void CreateItems()
     {
-        foreach (var item in mapItems)
+        foreach (var item in itemDatas)
         {
             CreateItem(item.Value);
         }
@@ -63,6 +67,7 @@ public class TabViewMap : TabContent
         var newItem = GameObject.Instantiate(mapItemPrefab, Vector3.zero, Quaternion.identity, content);
         var itemCtrl = newItem.GetOrAddComponent<MapItemCtrl>();
         itemCtrl.InitView(itemData);
+        items.Add(itemData.id, itemCtrl.transform);
     }
     
     #endregion CreateView!
@@ -72,16 +77,17 @@ public class TabViewMap : TabContent
     private void LoadAndInitData()
     {
         var mapConfig = ConfigManager.instance.GetConfig<MapConfig>();
+        
         foreach (var item in mapConfig.listConfigItems)
         {
-            mapItems.Add(item.mapId, new MapItemData(item.mapId, 0, false, item.mapName));
+            itemDatas.Add(item.mapId, new MapItemData(item.mapId, 0, false, item.mapName));
         }
         
         var mapModel = PlayerModelManager.instance.GetPlayerModel<MapModel>();
         foreach (var chapter in mapModel.Chapters)
         {
-            mapItems[chapter.Id].star = chapter.Star;
-            mapItems[chapter.Id].isActive = chapter.IsActive;
+            itemDatas[chapter.Id].star = chapter.Star;
+            itemDatas[chapter.Id].isActive = chapter.IsActive;
         }
     }
     
