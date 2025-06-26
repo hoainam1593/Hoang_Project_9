@@ -15,8 +15,8 @@ public class MapItemCtrl : MonoBehaviour
     
     public void InitView(MapItemData itemData)
     {
-        number.text = itemData.id.ToString();
-        mapName = itemData.name;
+        number.text = itemData.Id.ToString();
+        mapName = itemData.Name;
         
         button.onClick.AddListener(() =>
         {
@@ -24,8 +24,8 @@ public class MapItemCtrl : MonoBehaviour
             GameLauncher.instance.StartGame().Forget();
         });
 
-        SetStar(itemData.star);
-        SetUnlock(itemData.isActive);
+        SetStar(itemData.Star);
+        SetUnlock(itemData.IsActive);
     }
 
     private void SetStar(int number)

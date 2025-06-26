@@ -418,6 +418,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!4 &368246401809297498
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7096622399373272216}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &423718287741251604
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -873,6 +888,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8774044348687180271}
   m_CullTransparentMesh: 1
+--- !u!114 &1591302937093329207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7096622399373272216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8858952d65e48d745b81b396e43169fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefabCfgs:
+  - name: MapItem
+    useAssetRef: 1
+    prefab: {fileID: 2606574970747478004, guid: db074148c7e9fc341b759371fb240a1d, type: 3}
+    assetRef:
+      m_AssetGUID: db074148c7e9fc341b759371fb240a1d
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    preSpawnedAmount: 5
+    lifeTimeInSecs: 0
 --- !u!1 &1636911114690224712
 GameObject:
   m_ObjectHideFlags: 0
@@ -3837,6 +3876,23 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &7096622399373272216
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 368246401809297498}
+  - component: {fileID: 1591302937093329207}
+  m_Layer: 0
+  m_Name: ObjectPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!114 &7112734146753181119
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3849,7 +3905,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7e51b0cc5024941b67d9e73369ee817, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapItemPrefab: {fileID: 2606574970747478004, guid: db074148c7e9fc341b759371fb240a1d, type: 3}
+  pool: {fileID: 1591302937093329207}
   content: {fileID: 39057431674088306}
 --- !u!114 &7193266430602749431
 MonoBehaviour:
@@ -4991,3 +5047,4 @@ SceneRoots:
   - {fileID: 966007302}
   - {fileID: 1061180810}
   - {fileID: 7068690654204346811}
+  - {fileID: 368246401809297498}
