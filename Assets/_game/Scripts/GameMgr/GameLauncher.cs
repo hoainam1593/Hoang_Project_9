@@ -36,6 +36,7 @@ public partial class GameLauncher : SingletonMonoBehaviour<GameLauncher>
 
     public async UniTaskVoid ExitGame()
     {
+        EntityManager.instance.ClearAll();
         await LoadScene(SceneName.Main);
                 
         game.ExitGame();

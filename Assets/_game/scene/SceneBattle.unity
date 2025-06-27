@@ -253,7 +253,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ece7b1c6dcb64042b99e16fe56c4f00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyId: 3
+  enemyId: 1
 --- !u!1 &309025749
 GameObject:
   m_ObjectHideFlags: 0
@@ -388,7 +388,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ece7b1c6dcb64042b99e16fe56c4f00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyId: 5
+  enemyId: 3
 --- !u!1 &562191795
 GameObject:
   m_ObjectHideFlags: 0
@@ -750,7 +750,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ece7b1c6dcb64042b99e16fe56c4f00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyId: 4
+  enemyId: 2
 --- !u!1 &799706712
 GameObject:
   m_ObjectHideFlags: 0
@@ -1566,7 +1566,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ece7b1c6dcb64042b99e16fe56c4f00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyId: 1
+  enemyId: 7
 --- !u!1 &2010362795
 GameObject:
   m_ObjectHideFlags: 0
@@ -1701,7 +1701,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ece7b1c6dcb64042b99e16fe56c4f00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyId: 2
+  enemyId: 0
 --- !u!114 &295938205997122523
 MonoBehaviour:
   m_ObjectHideFlags: 0

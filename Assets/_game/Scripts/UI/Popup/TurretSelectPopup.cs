@@ -47,7 +47,7 @@ public class TurretSelectPopup : BasePopup
     private void SpawnTurretGun()
     {
         // Debug.Log("SpawnTurretGun");
-        EntityManager.instance.SpawnTurret(mapCoordinate, pos, 1);
+        EntityManager.instance.SpawnTurret(mapCoordinate, pos, 0);
     }
 }
 

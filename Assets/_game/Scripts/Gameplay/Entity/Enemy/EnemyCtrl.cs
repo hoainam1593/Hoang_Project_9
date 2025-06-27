@@ -1,6 +1,7 @@
 using System;
 using System.Data.Common;
 using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.Triggers;
 using R3;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -45,9 +46,8 @@ public class EnemyCtrl : EntityBase
     {
         Uid = GetUid();
         InitData(data);
-        isSpawnCompleted = true;
-        
-        StartMove();
+        OnInitStart();
+        OnInitComplete();
     }
 
     public override void OnDespawn()
@@ -66,7 +66,19 @@ public class EnemyCtrl : EntityBase
         var config = ConfigManager.instance.GetConfig<EnemyConfig>().GetItem(id);
         isAlive = new ReactiveProperty<bool>(true);
         hp = new ReactiveProperty<float>(config.hp);
-        speed = config.speed / 4;
+        speed = config.speed/4;
+    }
+
+    protected virtual void OnInitStart()
+    {
+        
+    }
+
+    protected virtual void OnInitComplete()
+    {
+        isSpawnCompleted = true;
+        
+        StartMove();
     }
     
     #endregion Task - Spawn / Despawn!!!
@@ -116,6 +128,11 @@ public class EnemyCtrl : EntityBase
             lateUpateTime -= interval;
             LateUpdateEachInterval();
         }
+        
+        if (isMoving)
+        {
+            Moving();
+        }
     }
         
 
@@ -129,13 +146,13 @@ public class EnemyCtrl : EntityBase
 
     private void LateUpdateEachInterval()
     {
-        if (isAlive.Value)
-        {
-            if (isMoving)
-            {
-                Moving();
-            }
-        } 
+        // if (isAlive.Value)
+        // {
+        //     if (isMoving)
+        //     {
+        //         Moving();
+        //     }
+        // } 
     }
 
     #endregion Task - MainLoop!!!

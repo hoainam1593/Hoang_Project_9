@@ -35,10 +35,31 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
     public async UniTaskVoid SpawnEnemy(Vector3 pos, int enemyId)
     {
         var enemyName = ConfigManager.instance.GetConfig<EnemyConfig>().GetItem(enemyId).prefabName;
-        EnemyCtrl enemyCtrl = await SpawnEntity<EnemyCtrl>(ResourcesConfig.EnemyPrefab, enemyName, pos, enemyRoot);
-        enemyCtrl.OnSpawn(enemyId);
-        // Debug.Log("SpawnEnemy: " + (enemyCtrl.Uid));
-        enemyCtrls.Add(enemyCtrl.Uid, enemyCtrl);
+        var enemyType = (EnemyType)ConfigManager.instance.GetConfig<EnemyConfig>().GetItem(enemyId).id;
+
+        EnemyCtrl enemyCtrl = null;
+        switch (enemyType)
+        {
+            case EnemyType.Soldier1:
+            case EnemyType.Soldier2:
+                enemyCtrl = await SpawnEntity<EnemySoldierCtrl>(ResourcesConfig.EnemyPrefab, enemyName, pos, enemyRoot);
+                break;
+            case EnemyType.Jeep:
+            case EnemyType.Truck:
+            case EnemyType.Tank1:
+            case EnemyType.Tank2:
+            case EnemyType.Tank3:
+            case EnemyType.Tank4:
+            case EnemyType.Tank5:
+                enemyCtrl = await SpawnEntity<EnemyCtrl>(ResourcesConfig.EnemyPrefab, enemyName, pos, enemyRoot);
+                break;
+        }
+
+        if (enemyCtrl != null)
+        {
+            enemyCtrl.OnSpawn(enemyId);
+            enemyCtrls.Add(enemyCtrl.Uid, enemyCtrl);
+        }
     }
     
     private async UniTask<T> SpawnEntity<T>(string package, string entityName, Vector3 position, Transform root) where T : EntityBase
@@ -68,6 +89,23 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
     
     
     #region Despawn
+
+    public void ClearAll()
+    {
+        foreach (var turret in turretCtrls.Values)
+        {
+            turret.OnDespawn();
+            DespawnEntity(turret.gameObject);
+        }
+        turretCtrls.Clear();
+
+        foreach (var enemy in enemyCtrls.Values)
+        {
+            enemy.OnDespawn();
+            DespawnEntity(enemy.gameObject);
+        }
+        enemyCtrls.Clear();
+    }
     
     public void DespawnTurret(MapCoordinate mapCoordinate)
     {
