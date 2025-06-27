@@ -421,6 +421,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4076aa3ef7724543a9dd514a1d5c105a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &2498258971969792420
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5029283917868367206}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3950563041549614321}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2695322510498141444
 GameObject:
   m_ObjectHideFlags: 0
@@ -499,6 +514,85 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d308e3592752eb47b3eaa4dd25d79d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3576613458485070025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5029283917868367206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8858952d65e48d745b81b396e43169fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefabCfgs:
+  - name: Jeep
+    useAssetRef: 1
+    prefab: {fileID: 2606574970747478004, guid: db074148c7e9fc341b759371fb240a1d, type: 3}
+    assetRef:
+      m_AssetGUID: a5882cbd2794ac64c978b12492bb6b2d
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    preSpawnedAmount: 5
+    lifeTimeInSecs: 0
+  - name: soldier1
+    useAssetRef: 1
+    prefab: {fileID: 2606574970747478004, guid: db074148c7e9fc341b759371fb240a1d, type: 3}
+    assetRef:
+      m_AssetGUID: 1ad2a3d43ceabdf4ead4bced2ecfab5b
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    preSpawnedAmount: 5
+    lifeTimeInSecs: 0
+  - name: soldier2
+    useAssetRef: 1
+    prefab: {fileID: 2606574970747478004, guid: db074148c7e9fc341b759371fb240a1d, type: 3}
+    assetRef:
+      m_AssetGUID: baa1f13fe9a015b47af2215e76311f3c
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    preSpawnedAmount: 5
+    lifeTimeInSecs: 0
+  - name: tank-1
+    useAssetRef: 1
+    prefab: {fileID: 2606574970747478004, guid: db074148c7e9fc341b759371fb240a1d, type: 3}
+    assetRef:
+      m_AssetGUID: 47a6b3f8dfb21eb4bb47401664d1a1da
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    preSpawnedAmount: 5
+    lifeTimeInSecs: 0
+  - name: tank-2
+    useAssetRef: 1
+    prefab: {fileID: 2606574970747478004, guid: db074148c7e9fc341b759371fb240a1d, type: 3}
+    assetRef:
+      m_AssetGUID: 190550675268945429554834afe7a2e8
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    preSpawnedAmount: 5
+    lifeTimeInSecs: 0
+  - name: truck
+    useAssetRef: 1
+    prefab: {fileID: 2606574970747478004, guid: db074148c7e9fc341b759371fb240a1d, type: 3}
+    assetRef:
+      m_AssetGUID: 75c8245e431705849ad294dc75b4c70f
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    preSpawnedAmount: 5
+    lifeTimeInSecs: 0
 --- !u!4 &3841820842715320880
 Transform:
   m_ObjectHideFlags: 0
@@ -529,6 +623,7 @@ Transform:
   m_Children:
   - {fileID: 8559821091563454869}
   - {fileID: 1830656604937865853}
+  - {fileID: 2498258971969792420}
   m_Father: {fileID: 4723482279769844202}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4378934819444273103
@@ -616,6 +711,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c18eb5b44c9ad054fb8c204af94fdcec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &5029283917868367206
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2498258971969792420}
+  - component: {fileID: 3576613458485070025}
+  m_Layer: 0
+  m_Name: ObjectPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!4 &5683264957411989263
 Transform:
   m_ObjectHideFlags: 0
