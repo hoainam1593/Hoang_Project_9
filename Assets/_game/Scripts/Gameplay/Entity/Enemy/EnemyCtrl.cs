@@ -10,7 +10,7 @@ public class EnemyCtrl : EntityBase
     private const int EnemyKey = 50;
     private const int EnemyLimit = 1000;
     
-    private static int uid = -1;
+    private static int _uid = -1;
 
     private int id;
     private bool isSpawnCompleted = false;
@@ -26,8 +26,8 @@ public class EnemyCtrl : EntityBase
     
     private static int GetUid()
     {
-        uid++;
-        return EnemyKey * EnemyLimit + uid;
+        _uid++;
+        return EnemyKey * EnemyLimit + _uid;
     }
 
     private void OnDrawGizmos()
@@ -206,6 +206,8 @@ public class EnemyCtrl : EntityBase
     private void EndMove()
     {
         isMoving = false;
+        EntityManager.instance.DespawnEnemy(Uid);
+        GameEventMgr.GED.DispatcherEvent(GameEvent.OnEnemyReachHallGate, Uid);
     }
     
     private void Rotate()

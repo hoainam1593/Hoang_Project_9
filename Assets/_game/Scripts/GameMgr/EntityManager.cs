@@ -37,6 +37,7 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
         var enemyName = ConfigManager.instance.GetConfig<EnemyConfig>().GetItem(enemyId).prefabName;
         EnemyCtrl enemyCtrl = await SpawnEntity<EnemyCtrl>(ResourcesConfig.EnemyPrefab, enemyName, pos, enemyRoot);
         enemyCtrl.OnSpawn(enemyId);
+        // Debug.Log("SpawnEnemy: " + (enemyCtrl.Uid));
         enemyCtrls.Add(enemyCtrl.Uid, enemyCtrl);
     }
     
@@ -82,6 +83,7 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
 
     public void DespawnEnemy(int uid)
     {
+        // Debug.Log("DespawnEnemy > uid: " + uid);
         if (!enemyCtrls.ContainsKey(uid))
         {
             return;
@@ -94,6 +96,7 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
     
     private void DespawnEntity(GameObject go)
     {
+        // Debug.Log("DespawnEntity > uid: " + go.name);
         if (!isUsingPooling)
         {
             if (go == null) { return; }

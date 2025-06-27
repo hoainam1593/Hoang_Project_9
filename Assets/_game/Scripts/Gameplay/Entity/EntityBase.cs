@@ -2,19 +2,10 @@ using UnityEngine;
 
 public class EntityBase : MonoBehaviour, IEntity
 {
-    private static int uid = -1;
-
-    private static int getUid()
-    {
-        uid++;
-        return uid;
-    }
-
     public int Uid { get; set;}
     
     public virtual void OnSpawn(object data)
     {
-        Uid = getUid();
     }
 
     public virtual void OnDespawn()

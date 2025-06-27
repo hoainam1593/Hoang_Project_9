@@ -22,7 +22,8 @@ public enum GameEvent
     OnEnemySpawnCompleted,
     OnEnemyDespawnStart,
     OnEnemyDespawnCompleted,
-    
+    //Enemy
+    OnEnemyReachHallGate,
     
     //Game
     OnGameStart,
