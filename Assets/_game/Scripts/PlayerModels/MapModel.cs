@@ -24,9 +24,9 @@ public class MapModel : BasePlayerModel
         
         foreach (var item in mapConfig.listConfigItems)
         {
-            Chapters.Add(new ChapterObj(item.mapId, 0, false));
+            Chapters.Add(new ChapterObj(item.mapId, -1));
         }
 
-        Chapters[0].IsActive = true;
+        Chapters[0].Star = 0;
     }
 }

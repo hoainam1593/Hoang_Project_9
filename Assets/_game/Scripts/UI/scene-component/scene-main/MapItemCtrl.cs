@@ -10,7 +10,7 @@ public class MapItemCtrl : MonoBehaviour
     [SerializeField] private Image unlockIcon;
     [SerializeField] private GameObject starsRoot;
     [SerializeField] private List<Image> starsIcon;
-    
+
     string mapName;
     
     public void InitView(MapItemData itemData)
@@ -25,11 +25,16 @@ public class MapItemCtrl : MonoBehaviour
         });
 
         SetStar(itemData.Star);
-        SetUnlock(itemData.IsActive);
+        SetUnlock(itemData.Star >= 0);
     }
 
     private void SetStar(int number)
     {
+        if (number < 0)
+        {
+            return;
+        }
+        
         for (int i = 0; i < number; i++)
         {
             starsIcon[i].enabled = true;

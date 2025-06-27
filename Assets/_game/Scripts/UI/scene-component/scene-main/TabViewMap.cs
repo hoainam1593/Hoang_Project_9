@@ -10,14 +10,12 @@ public class MapItemData
 {
     public int Id;
     public int Star;
-    public bool IsActive;
     public string Name;
 
-    public MapItemData(int id, int star, bool isActive, string name)
+    public MapItemData(int id, int star, string name)
     {
         this.Id = id;
         this.Star = star;
-        this.IsActive = isActive;
         this.Name = name;
     }
 }
@@ -27,8 +25,8 @@ public class TabViewMap : MonoBehaviour
     [SerializeField] private ObjectPool pool;
     [SerializeField] private Transform content;
 
-    private Dictionary<int, MapItemData> itemsData;
-    private Dictionary<int, Transform> items;
+    private List<MapItemData> itemsData;
+    private List<GameObject> items;
 
     private bool createItemCompleted = true;
     
@@ -36,66 +34,26 @@ public class TabViewMap : MonoBehaviour
     private void Awake()
     {
         createItemCompleted = true;
-        items = new  Dictionary<int, Transform>();
-        
-        LoadAndInitData();
-        // CreateItems();
     }
 
     private void OnEnable()
     {
         ClearAllItems();
         LoadAndInitData();
-        CreateItems();
-        // BalanceItems();
+        CreateItems().Forget();
     }
 
     #region CreateView
 
-    private async UniTaskVoid BalanceItems()
+    private void ClearAllItems()
     {
-        await UniTask.WaitUntil(() => createItemCompleted);
-
-        createItemCompleted = false;
-        
-        if (itemsData == null || items == null)
-        {
-            return; 
-        }
-        
-        if (itemsData.Count == items.Count)
+        if (items == null)
         {
             return;
         }
-        
-
-        if (items.Count < itemsData.Count)
+        for (int i = items.Count-1; i >= 0; i--)
         {
-            var dataList = itemsData.Values.ToArray();
-            //Spawn more
-            for (int i = items.Count; i < itemsData.Count; i++)
-            {
-                CreateItem(dataList[i]).Forget();
-            }
-        }
-        else
-        {
-            var itemList =  items.Values.ToArray();
-            // Remove
-            for (int i = itemsData.Count; i < items.Count; i++)
-            {
-                RemoveItem(itemList[i].gameObject);
-            }
-        }
-
-        createItemCompleted = true;
-    }
-
-    private void ClearAllItems()
-    {
-        foreach (var item in items)
-        {
-            RemoveItem(item.Value.gameObject);
+            RemoveItem(items[i]);
         }
         items.Clear();
     }
@@ -103,7 +61,6 @@ public class TabViewMap : MonoBehaviour
     private void RemoveItem(GameObject go)
     {
         pool.Despawn(go);
-        // GameObject.Destroy(go);
     }
         
 
@@ -111,17 +68,15 @@ public class TabViewMap : MonoBehaviour
     {
         await UniTask.WaitUntil(() => createItemCompleted);
         
+        items = new  List<GameObject>();
         createItemCompleted = false;
-        foreach (var data in itemsData.Values)
+        foreach (var data in itemsData)
         {
-            if (!items.ContainsKey(data.Id))
-            {
                 var go = await CreateItem(data);
-                if (!items.ContainsKey(data.Id))
+                if (!items.Contains(go))
                 {
-                    items.Add(data.Id, go.transform);
+                    items.Add(go);
                 }
-            }
         }
 
         createItemCompleted = true;
@@ -147,19 +102,15 @@ public class TabViewMap : MonoBehaviour
     
     private void LoadAndInitData()
     {
-        itemsData = new Dictionary<int, MapItemData>();
+        itemsData = new List<MapItemData>();
+
+        string mapName = null;
         var mapConfig = ConfigManager.instance.GetConfig<MapConfig>();
-        
-        foreach (var item in mapConfig.listConfigItems)
-        {
-            itemsData.Add(item.mapId, new MapItemData(item.mapId, 0, false, item.mapName));
-        }
-        
         var mapModel = PlayerModelManager.instance.GetPlayerModel<MapModel>();
         foreach (var chapter in mapModel.Chapters)
         {
-            itemsData[chapter.Id].Star = chapter.Star;
-            itemsData[chapter.Id].IsActive = chapter.IsActive;
+            mapName = mapConfig.GetMapName(chapter.Id);
+            itemsData.Add(new MapItemData(chapter.Id, chapter.Star, mapName));
         }
     }
     
