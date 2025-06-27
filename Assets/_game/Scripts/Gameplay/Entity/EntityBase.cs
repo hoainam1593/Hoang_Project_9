@@ -2,49 +2,98 @@ using UnityEngine;
 
 public class EntityBase : MonoBehaviour, IEntity
 {
-    public int Uid { get; set;}
+    private bool isSpawnCompleted = false;
+
+    private float lateUpateTime;
+    private float updateTime;
+    private const float interval = 0.02f;
+    
+    #region Spawn/DeSpawn
+    
     
     public virtual void OnSpawn(object data)
     {
+        InitData(data);
+        OnInitStart();
+        OnInitComplete();
+    }
+
+    protected virtual void InitData(object data)
+    {
+        
+    }
+    
+    protected virtual void OnInitStart()
+    {
+    }
+
+    protected virtual void OnInitComplete()
+    {
+        isSpawnCompleted = true;
     }
 
     public virtual void OnDespawn()
     {
+        isSpawnCompleted = false;
+    }
+    #endregion Spawn/DeSpawn!!!
+    
+    #region MainLoop
+    
+    private void Update()
+    {
+        // Debug.Log("[EntityBase] Update");
+        if (!isSpawnCompleted)
+        {
+            return;
+        }
+
+        OnUpdate();
+        
+        updateTime += Time.deltaTime;
+        if (updateTime > interval)
+        {
+            updateTime -= interval;
+            UpdateEachInterval();
+        }
+    }
+
+    protected virtual void OnUpdate()
+    {
+        // Debug.Log("[EntityBase] OnUpdate");
+    }
+    protected virtual void UpdateEachInterval()
+    {
+        // Debug.Log("[EntityBase] UpdateEachInterval");
+    }
+
+    private void LateUpdate()
+    {
+        // Debug.Log("[EntityBase] LateUpdate");
+        if (!isSpawnCompleted)
+        {
+            return;
+        }
+
+        OnLateUpdate();
+
+        lateUpateTime += Time.deltaTime;
+        if (lateUpateTime > interval)
+        {
+            lateUpateTime -= interval;
+            LateUpdateEachInterval();
+        }
+    }
+
+    protected virtual void OnLateUpdate()
+    {
+        // Debug.Log("[EntityBase] OnLateUpdate");
         
     }
+    protected virtual void LateUpdateEachInterval()
+    {
+        // Debug.Log("[EntityBase] LateUpdateEachInterval");
+        
+    }
+    #endregion MainLoop!!
 }
-
-// public class EntityBase// : IEntity
-// {
-//     private Transform transform;
-//     private GameObject gameObject;
-//
-//     private bool isActive = false;
-//     public bool IsActive => isActive;
-//     
-//     public void Init(GameObject go)
-//     {
-//         if (isActive)
-//         {
-//             return;
-//         }
-//         
-//         this.gameObject = go;
-//         this.transform = go.transform;
-//         isActive = true;
-//     }
-//     
-//     public void OnSpawn()
-//     {
-//         if (isActive) return;
-//         isActive = true;
-//         gameObject.SetActive(true);
-//     }
-//
-//     public void OnDeSpawn()
-//     {
-//         if (!isActive) return;
-//         isActive = false;
-//         gameObject.SetActive(false);
-//     }
-// }

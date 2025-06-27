@@ -25,7 +25,7 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
         
         //SpawnNewTurret
         TurretCtrl turretCtrl = await SpawnEntity<TurretCtrl>(ResourcesConfig.TurretPrefab, turretName, pos, turretRoot);
-        turretCtrl.OnSpawn(0);
+        turretCtrl.OnSpawn((0, mapCoordinate));
         turretCtrls.Add(mapCoordinate, turretCtrl);
         
         GameEventMgr.GED.DispatcherEvent(GameEvent.OnTurretSpawnCompleted, mapCoordinate);

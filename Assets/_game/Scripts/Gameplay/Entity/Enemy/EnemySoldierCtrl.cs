@@ -9,6 +9,8 @@ public class EnemySoldierCtrl : EnemyCtrl
     
     protected override void OnInitStart()
     {
+        base.OnInitStart();
+        
         //Set Animation state
         soldierDied.SetActive(false);
     }

@@ -14,7 +14,6 @@ public class EnemyCtrl : EntityBase
     private static int _uid = -1;
 
     private int id;
-    private bool isSpawnCompleted = false;
     private ReactiveProperty<bool> isAlive;
     private ReactiveProperty<float> hp;
     private float speed;
@@ -25,7 +24,9 @@ public class EnemyCtrl : EntityBase
     private bool isMoving;
     private const float DefaultForward = 90f;
     
-    private static int GetUid()
+    public int Uid { get; private set; }
+    
+    private static int GenerateUid()
     {
         _uid++;
         return EnemyKey * EnemyLimit + _uid;
@@ -42,21 +43,10 @@ public class EnemyCtrl : EntityBase
 
     #region Task - Spawn / Despawn
     
-    public override void OnSpawn(object data)
+    protected override void InitData(object data)
     {
-        Uid = GetUid();
-        InitData(data);
-        OnInitStart();
-        OnInitComplete();
-    }
-
-    public override void OnDespawn()
-    {
-        isSpawnCompleted = false;
-    }
-
-    private void InitData(object data)
-    {
+        Uid = GenerateUid();
+        
         if (data == null)
         {
             return;
@@ -69,15 +59,9 @@ public class EnemyCtrl : EntityBase
         speed = config.speed/4;
     }
 
-    protected virtual void OnInitStart()
+    protected override void OnInitComplete()
     {
-        
-    }
-
-    protected virtual void OnInitComplete()
-    {
-        isSpawnCompleted = true;
-        
+        base.OnInitComplete();
         StartMove();
     }
     
@@ -85,48 +69,12 @@ public class EnemyCtrl : EntityBase
     
     
     #region Task - MainLoop
-
-    private float lateUpateTime;
-    private float updateTime;
-    private const float interval = 0.02f;
     
-    public void Update()
+    protected override void OnLateUpdate()
     {
-        if (!isSpawnCompleted)
-        {
-            return;
-        }
-
         if (!isAlive.Value)
         {
             return;
-        }
-
-        updateTime += Time.deltaTime;
-        if (updateTime > interval)
-        {
-            updateTime -= interval;
-            UpdateEachInterval();
-        }
-    }
-
-    public void LateUpdate()
-    {        
-        if (!isSpawnCompleted)
-        {
-            return;
-        }
-
-        if (!isAlive.Value)
-        {
-            return;
-        }
-        
-        lateUpateTime += Time.deltaTime;
-        if (lateUpateTime > interval)
-        {
-            lateUpateTime -= interval;
-            LateUpdateEachInterval();
         }
         
         if (isMoving)
@@ -136,23 +84,13 @@ public class EnemyCtrl : EntityBase
     }
         
 
-    private void UpdateEachInterval()
+    protected override void UpdateEachInterval()
     {
+        Debug.Log("UpdateEachInterval");
         if (isAlive.Value)
         {
             UpdateTarget();
         }
-    }
-
-    private void LateUpdateEachInterval()
-    {
-        // if (isAlive.Value)
-        // {
-        //     if (isMoving)
-        //     {
-        //         Moving();
-        //     }
-        // } 
     }
 
     #endregion Task - MainLoop!!!
