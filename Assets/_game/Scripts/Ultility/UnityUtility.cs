@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public static class UnityUtility
+public static partial class UnityUtility
 {
     public static T GetOrAddComponent<T>(this GameObject go) where T : Component
     {

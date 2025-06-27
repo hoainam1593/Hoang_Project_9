@@ -1,4 +1,218 @@
+using System;
+using System.Data.Common;
+using Cysharp.Threading.Tasks;
+using R3;
+using UnityEngine;
+using UnityEngine.UIElements;
+
 public class EnemyCtrl : EntityBase
 {
+    private const int EnemyKey = 50;
+    private const int EnemyLimit = 1000;
     
+    private static int uid = -1;
+
+    private int id;
+    private bool isSpawnCompleted = false;
+    private ReactiveProperty<bool> isAlive;
+    private ReactiveProperty<float> hp;
+    private float speed;
+
+    private MapCoordinate target = MapCoordinate.oneNegative;
+    private Vector3 targetPos;
+    private Vector3 direction;
+    private bool isMoving;
+    private const float DefaultForward = 90f;
+    
+    private static int GetUid()
+    {
+        uid++;
+        return EnemyKey * EnemyLimit + uid;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (isMoving)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(targetPos, 0.1f);
+        }
+    }
+
+    #region Task - Spawn / Despawn
+    
+    public override void OnSpawn(object data)
+    {
+        Uid = GetUid();
+        InitData(data);
+        isSpawnCompleted = true;
+        
+        StartMove();
+    }
+
+    public override void OnDespawn()
+    {
+        isSpawnCompleted = false;
+    }
+
+    private void InitData(object data)
+    {
+        if (data == null)
+        {
+            return;
+        }
+
+        id = (int)data;
+        var config = ConfigManager.instance.GetConfig<EnemyConfig>().GetItem(id);
+        isAlive = new ReactiveProperty<bool>(true);
+        hp = new ReactiveProperty<float>(config.hp);
+        speed = config.speed / 4;
+    }
+    
+    #endregion Task - Spawn / Despawn!!!
+    
+    
+    #region Task - MainLoop
+
+    private float lateUpateTime;
+    private float updateTime;
+    private const float interval = 0.02f;
+    
+    public void Update()
+    {
+        if (!isSpawnCompleted)
+        {
+            return;
+        }
+
+        if (!isAlive.Value)
+        {
+            return;
+        }
+
+        updateTime += Time.deltaTime;
+        if (updateTime > interval)
+        {
+            updateTime -= interval;
+            UpdateEachInterval();
+        }
+    }
+
+    public void LateUpdate()
+    {        
+        if (!isSpawnCompleted)
+        {
+            return;
+        }
+
+        if (!isAlive.Value)
+        {
+            return;
+        }
+        
+        lateUpateTime += Time.deltaTime;
+        if (lateUpateTime > interval)
+        {
+            lateUpateTime -= interval;
+            LateUpdateEachInterval();
+        }
+    }
+        
+
+    private void UpdateEachInterval()
+    {
+        if (isAlive.Value)
+        {
+            UpdateTarget();
+        }
+    }
+
+    private void LateUpdateEachInterval()
+    {
+        if (isAlive.Value)
+        {
+            if (isMoving)
+            {
+                Moving();
+            }
+        } 
+    }
+
+    #endregion Task - MainLoop!!!
+    
+    #region Task - UpdateTarget
+    private void UpdateTarget()
+    {
+        if (IsReachTarget())
+        {
+            if (IsEndOfPath())
+            {
+                EndMove();
+            }
+            else
+            {
+                GetNewTarget();
+                Rotate();
+            }
+        }
+    }
+
+    private void GetFirstTarget()
+    {
+        target = PathFinding.instance.GetStartPoint();
+        targetPos = PathFinding.instance.GetWorldPos(target);
+        // Debug.Log("NewPos: " +  target);
+        direction =  targetPos - transform.position;
+        direction.z = 0;
+    }
+
+    private bool IsReachTarget()
+    {
+        var distance = targetPos - transform.position;
+        return (Vector3.SqrMagnitude(distance) < Mathf.Epsilon);
+    }
+
+    private bool IsEndOfPath()
+    {
+        return PathFinding.instance.IsEnd(target);
+    }
+
+    private void GetNewTarget()
+    {
+        target = PathFinding.instance.GetNextPoint(target);
+        targetPos = PathFinding.instance.GetWorldPos(target);
+        direction =  targetPos - transform.position;
+        direction.z = 0;
+    }
+    
+    #endregion Task - UpdateTarget!!!
+        
+    #region Task - Move & Rotate
+    
+    private void StartMove()
+    {
+        GetFirstTarget();
+        GetNewTarget();
+        Rotate();
+        isMoving = true;
+    }
+
+    private void Moving()
+    {
+        var newPos = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
+        transform.position = newPos;
+    }
+
+    private void EndMove()
+    {
+        isMoving = false;
+    }
+    
+    private void Rotate()
+    {
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - DefaultForward;
+        transform.rotation = Quaternion.Euler(0, 0, angle);
+    }
+    
+    #endregion Task - Move & Rotate!!!
 }

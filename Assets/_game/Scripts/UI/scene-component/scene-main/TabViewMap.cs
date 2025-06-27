@@ -84,7 +84,7 @@ public class TabViewMap : MonoBehaviour
 
     private async UniTask<GameObject> CreateItem(MapItemData data)
     {
-        Debug.Log("Creating item > map: " + data.Id);
+        // Debug.Log("Creating item > map: " + data.Id);
         // var newItem = GameObject.Instantiate(mapItemPrefab, Vector3.zero, Quaternion.identity, content);
         var newItem = await pool.Spawn("MapItem");
         newItem.transform.SetParent(content);

@@ -63,8 +63,9 @@ public partial class MapCtrl
         List<MapCoordinate> paths = new List<MapCoordinate>();
 
         var mapPoint = ConvertTilePosToMatrixCoordinate(hallGatePos);
-        MapCoordinate nextPoint;
+        paths.Add(mapPoint);
         
+        MapCoordinate nextPoint;
         while (GetPoint(mapPoint, out nextPoint))
         {
             paths.Add(nextPoint);

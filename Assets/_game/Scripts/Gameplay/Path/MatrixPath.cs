@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine.UIElements;
 
 public class MatrixPath<T> where T : class
 {
@@ -47,7 +48,34 @@ public class MatrixPath<T> where T : class
         return null;
     }
 
-    public bool IsEndItem()
+    public T Next(T point)
+    {
+        var index = IndexOf(point);
+        if (index != -1 && index < points.Count - 1)
+        {
+            return points[index+1];
+        }
+
+        return null;
+    }
+
+    public int IndexOf(T point)
+    {
+        return points.IndexOf(point);
+    }
+
+    public bool IsEnd(T point)
+    {
+        var index = IndexOf(point);
+        if (index == points.Count - 1)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool IsEnd()
     {
         return crrIdx == points.Count - 1;
     }

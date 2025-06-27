@@ -12,7 +12,7 @@ public partial class MapCtrl
     public float Height => mapData.row * layerGround.transform.lossyScale.y;
     
     public Vector3 WorldTileSize => Vector3.Scale(CellSizeUnit, CellScale);
-    private Vector3 CellSizeUnit => mapGrid.cellSize;
+    public Vector3 CellSizeUnit => mapGrid.cellSize;
     public Vector3 CellScale => layerGround.transform.lossyScale;
     public Vector3 CellAnchor => layerGround.tileAnchor;
 
@@ -74,6 +74,17 @@ public partial class MapCtrl
     
 
     //Convert from MapCoordinate
+    public Vector3 ConvertMatrixCoordinateToWorldPos(MapCoordinate matrixPos)
+    {
+        var tilePos = ConvertMatrixCoordinateToTilePos(matrixPos);
+        return ConvertTilePosToWorldPos(tilePos);
+    }
+
+    public Vector3 ConvertMatrixCoordinateToCenterTileWorldPos(MapCoordinate matrixPos)
+    {
+        return ConvertMatrixCoordinateToWorldPos(matrixPos) + Vector3.Scale(CellAnchor, WorldTileSize);
+    }
+    
     public Vector3Int ConvertMatrixCoordinateToTilePos(MapCoordinate mapPos)
     {
         return ConvertMatrixCoordinateToTilePos(Row, Column, mapPos);

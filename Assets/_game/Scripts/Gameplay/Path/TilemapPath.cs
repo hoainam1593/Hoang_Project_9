@@ -45,7 +45,21 @@ public class TilemapPath<T> where T : struct
         }
 
         return null;
+    }    
+    
+    public T? Next(T point)
+    {
+        for (int i = 0; i < points.Count-1; i++)
+        {
+            if (Equals(points[i], point))
+            {
+                return points[i + 1];
+            }
+        }
+
+        return null;
     }
+
 
     public bool IsEndItem()
     {

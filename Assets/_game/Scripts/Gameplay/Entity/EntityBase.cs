@@ -10,14 +10,14 @@ public class EntityBase : MonoBehaviour, IEntity
         return uid;
     }
 
-    public int Uid;
+    public int Uid { get; set;}
     
-    public void OnSpawn()
+    public virtual void OnSpawn(object data)
     {
         Uid = getUid();
     }
 
-    public void OnDespawn()
+    public virtual void OnDespawn()
     {
         
     }

@@ -11,7 +11,7 @@ public partial class EntityManager
         go.transform.parent = root;
         go.name = entityName;
         go.transform.position = position;
-        return go.AddComponent<T>(); 
+        return go.GetOrAddComponent<T>(); 
     }
     
     private void DespawnEntityToPool(GameObject go)

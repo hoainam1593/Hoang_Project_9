@@ -593,7 +593,7 @@ MonoBehaviour:
       m_EditorAssetChanged: 0
     preSpawnedAmount: 5
     lifeTimeInSecs: 0
-  - name: Turret_lv1
+  - name: turret_lv1
     useAssetRef: 1
     prefab: {fileID: 2606574970747478004, guid: db074148c7e9fc341b759371fb240a1d, type: 3}
     assetRef:
@@ -604,7 +604,7 @@ MonoBehaviour:
       m_EditorAssetChanged: 0
     preSpawnedAmount: 5
     lifeTimeInSecs: 0
-  - name: Turret_lv2
+  - name: turret_lv2
     useAssetRef: 1
     prefab: {fileID: 2606574970747478004, guid: db074148c7e9fc341b759371fb240a1d, type: 3}
     assetRef:
@@ -615,7 +615,7 @@ MonoBehaviour:
       m_EditorAssetChanged: 0
     preSpawnedAmount: 5
     lifeTimeInSecs: 0
-  - name: Turret_lv3
+  - name: turret_lv3
     useAssetRef: 1
     prefab: {fileID: 2606574970747478004, guid: db074148c7e9fc341b759371fb240a1d, type: 3}
     assetRef:
