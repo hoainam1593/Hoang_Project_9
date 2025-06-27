@@ -1,10 +1,5 @@
-using System;
-using System.Data.Common;
-using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.Triggers;
 using R3;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class EnemyCtrl : EntityBase
 {
@@ -17,6 +12,7 @@ public class EnemyCtrl : EntityBase
     private ReactiveProperty<bool> isAlive;
     private ReactiveProperty<float> hp;
     private float speed;
+    private string name;
 
     private MapCoordinate target = MapCoordinate.oneNegative;
     private Vector3 targetPos;
@@ -57,11 +53,19 @@ public class EnemyCtrl : EntityBase
         isAlive = new ReactiveProperty<bool>(true);
         hp = new ReactiveProperty<float>(config.hp);
         speed = config.speed/4;
+        name = config.prefabName;
     }
 
-    protected override void OnInitComplete()
+    protected override void OnSpawnStart()
     {
-        base.OnInitComplete();
+        base.OnSpawnStart();
+        gameObject.name = $"{name}[{Uid}]";
+        gameObject.layer = LayerMask.NameToLayer("Enemy");
+    }
+
+    protected override void OnSpawnComplete()
+    {
+        base.OnSpawnComplete();
         StartMove();
     }
     
@@ -86,7 +90,6 @@ public class EnemyCtrl : EntityBase
 
     protected override void UpdateEachInterval()
     {
-        Debug.Log("UpdateEachInterval");
         if (isAlive.Value)
         {
             UpdateTarget();

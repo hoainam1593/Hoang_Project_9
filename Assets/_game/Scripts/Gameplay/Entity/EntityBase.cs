@@ -2,20 +2,20 @@ using UnityEngine;
 
 public class EntityBase : MonoBehaviour, IEntity
 {
+    private const float Interval = 0.02f;
+    
     private bool isSpawnCompleted = false;
-
-    private float lateUpateTime;
+    private float lateUpdateTime;
     private float updateTime;
-    private const float interval = 0.02f;
     
     #region Spawn/DeSpawn
     
     
-    public virtual void OnSpawn(object data)
+    public void OnSpawn(object data)
     {
         InitData(data);
-        OnInitStart();
-        OnInitComplete();
+        OnSpawnStart();
+        OnSpawnComplete();
     }
 
     protected virtual void InitData(object data)
@@ -23,11 +23,11 @@ public class EntityBase : MonoBehaviour, IEntity
         
     }
     
-    protected virtual void OnInitStart()
+    protected virtual void OnSpawnStart()
     {
     }
 
-    protected virtual void OnInitComplete()
+    protected virtual void OnSpawnComplete()
     {
         isSpawnCompleted = true;
     }
@@ -51,9 +51,9 @@ public class EntityBase : MonoBehaviour, IEntity
         OnUpdate();
         
         updateTime += Time.deltaTime;
-        if (updateTime > interval)
+        if (updateTime > Interval)
         {
-            updateTime -= interval;
+            updateTime -= Interval;
             UpdateEachInterval();
         }
     }
@@ -77,10 +77,10 @@ public class EntityBase : MonoBehaviour, IEntity
 
         OnLateUpdate();
 
-        lateUpateTime += Time.deltaTime;
-        if (lateUpateTime > interval)
+        lateUpdateTime += Time.deltaTime;
+        if (lateUpdateTime > Interval)
         {
-            lateUpateTime -= interval;
+            lateUpdateTime -= Interval;
             LateUpdateEachInterval();
         }
     }

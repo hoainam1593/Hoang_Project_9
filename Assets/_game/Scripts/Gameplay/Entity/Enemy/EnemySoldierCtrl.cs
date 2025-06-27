@@ -7,9 +7,9 @@ public class EnemySoldierCtrl : EnemyCtrl
     [SerializeField] private GameObject soldierHead;
     [SerializeField] private GameObject soldierDied;
     
-    protected override void OnInitStart()
+    protected override void OnSpawnStart()
     {
-        base.OnInitStart();
+        base.OnSpawnStart();
         
         //Set Animation state
         soldierDied.SetActive(false);
