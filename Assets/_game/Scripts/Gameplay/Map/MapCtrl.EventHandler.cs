@@ -11,7 +11,7 @@ public partial class MapCtrl
         var viewPos = (Vector3)data;
         // Debug.Log("OnClickedInMap: " + viewPos);
         
-        var clickedCell = ScreenToMatixCoordinate(viewPos);
+        var clickedCell = ConvertScreenPosToMatrixCoordinate(viewPos);
         var tile = GetTile(viewPos);
         Debug.Log($"Clicked Tile {clickedCell}: {tile}");
         
@@ -33,11 +33,10 @@ public partial class MapCtrl
     private async UniTaskVoid ShowTurretSelectPopup(Vector3 viewPos, MapCoordinate clickedCell)
     {
         // Debug.Log("ShowTurretSelectPopup");
-        var tilePosition = GetWorldPosOfTile(viewPos);
-        var uiPos = tilePosition + CellAnchor;
+        var worldPos = ConvertScreenPosToCenterTileWorldPos(viewPos);
         selectedCell = clickedCell;
         popup = await PopupManager.instance.OpenPopupWorld<TurretSelectPopup>();
-        popup.InitView(clickedCell, uiPos, WorldTileSize);
+        popup.InitView(clickedCell, worldPos, WorldTileSize);
     }
 
     private void CloseTurretSelectPopup()

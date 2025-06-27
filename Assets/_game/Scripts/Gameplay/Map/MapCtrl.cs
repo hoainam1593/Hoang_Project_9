@@ -2,13 +2,14 @@ using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-public partial class MapCtrl : MonoBehaviour
+public partial class MapCtrl : SingletonMonoBehaviour<MapCtrl>
 {
     private MapData mapData;
     private Grid mapGrid;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         mapGrid = gameObject.GetComponent<Grid>();
         Subscribes();
         
@@ -16,8 +17,9 @@ public partial class MapCtrl : MonoBehaviour
         GenerateMap(mapName);
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
         UnSubscribes();
     }
 

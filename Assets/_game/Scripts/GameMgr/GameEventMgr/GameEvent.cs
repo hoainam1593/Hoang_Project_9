@@ -11,11 +11,18 @@ public enum GameEvent
     //
     OnMapSizeUpdate,
     
-    //
+    //Spawn - Despawn Turret
     OnTurretSpawnStart,
     OnTurretSpawnCompleted,
     OnTurretDespawnStart,
     OnTurretDespawnComplete,
+    
+    //Spawn - Despawn Enemy
+    OnEnemySpawnStart,
+    OnEnemySpawnCompleted,
+    OnEnemyDespawnStart,
+    OnEnemyDespawnCompleted,
+    
     
     //Game
     OnGameStart,

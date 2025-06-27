@@ -31,7 +31,7 @@ public partial class GameLauncher : SingletonMonoBehaviour<GameLauncher>
     {
         await LoadScene(SceneName.Battle);
         
-        game.StartGame();   
+        game.StartGame();
     }
 
     public async UniTaskVoid ExitGame()
@@ -50,6 +50,8 @@ public partial class GameLauncher : SingletonMonoBehaviour<GameLauncher>
             new()
             {
                 new MapConfig(),
+                new EnemyConfig(),
+                new TurretConfig(),
             };
     }
     

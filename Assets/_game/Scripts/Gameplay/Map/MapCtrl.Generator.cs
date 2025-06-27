@@ -98,7 +98,7 @@ public partial class MapCtrl
                 for (int j = 0; j < mapData.column; j++)
                 {
                     var tile = (TileEnum)mapData.tiles[i][j];
-                    pos = MatrixCoordinateToTilePosition(mapData.row, mapData.column, new MapCoordinate(i, j));
+                    pos = ConvertMatrixCoordinateToTilePos(mapData.row, mapData.column, new MapCoordinate(i, j));
                     if (tile == TileEnum.HallGate || tile == TileEnum.Hall)
                     {
                         CacheHallPosition(tile, pos);

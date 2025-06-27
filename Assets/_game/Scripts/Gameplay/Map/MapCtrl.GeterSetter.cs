@@ -18,7 +18,7 @@ public partial class MapCtrl
 
     public TileEnum GetTile(Vector3 screenPos)
     {
-        var matrixPos = ScreenToMatixCoordinate(screenPos);
+        var matrixPos = ConvertScreenPosToMatrixCoordinate(screenPos);
         // Debug.Log("matrixPos: " + matrixPos);
             
         if (IsInMatrix(matrixPos))
@@ -29,12 +29,6 @@ public partial class MapCtrl
         return TileEnum.None;
     }
 
-    public Vector3 GetWorldPosOfTile(Vector3 screenPos)
-    {
-        var tilePos = ScreenPointToTilePosition(screenPos);
-        return TilePositionToWorldPosition(tilePos);
-    }
-
     public Vector3 GetMapBottomLeft()
     {
         return GetMapBottomLeft(Row, Column);
@@ -42,7 +36,7 @@ public partial class MapCtrl
     
     private Vector3 GetMapBottomLeft(int row, int col)
     {
-        var bottomLeftCellPos = MatrixCoordinateToTilePosition(row, col, new MapCoordinate(0, 0));
+        var bottomLeftCellPos = ConvertMatrixCoordinateToTilePos(row, col, new MapCoordinate(0, 0));
         var centerOfBottomLeftCell = layerGround.CellToWorld(bottomLeftCellPos);
         return centerOfBottomLeftCell;
     }
@@ -50,13 +44,42 @@ public partial class MapCtrl
     #endregion Getter / Setter!
     
     #region Task - Position Converter
+    
+    //Convert from ScreenPos
 
-    public Vector3Int MatrixCoordinateToTilePosition(MapCoordinate mapPos)
+    public Vector3 ConvertScreenPosToCenterTileWorldPos(Vector3 screenPos)
     {
-        return MatrixCoordinateToTilePosition(Row, Column, mapPos);
+        var tilePos = ConvertScreenPosToTileWorldPos(screenPos);
+        tilePos += Vector3.Scale(CellAnchor, WorldTileSize);
+        return tilePos;
+    }
+    
+    public Vector3 ConvertScreenPosToTileWorldPos(Vector3 screenPos)
+    {
+        var tilePos = ConvertScreenPosToTilePos(screenPos);
+        return ConvertTilePosToWorldPos(tilePos);
+    }
+    
+    private MapCoordinate ConvertScreenPosToMatrixCoordinate(Vector3 screenPos)
+    {
+        var cellPos = ConvertScreenPosToTilePos(screenPos);
+        return ConvertTilePosToMatrixCoordinate(Row, Column, cellPos);
+    }
+
+    private Vector3Int ConvertScreenPosToTilePos(Vector3 screenPos)
+    {
+        var worldPos = Camera.main.ScreenToWorldPoint(screenPos);
+        return layerGround.WorldToCell(worldPos);
+    }
+    
+
+    //Convert from MapCoordinate
+    public Vector3Int ConvertMatrixCoordinateToTilePos(MapCoordinate mapPos)
+    {
+        return ConvertMatrixCoordinateToTilePos(Row, Column, mapPos);
     }
         
-    private Vector3Int MatrixCoordinateToTilePosition(int row, int col, MapCoordinate mapPos)
+    private Vector3Int ConvertMatrixCoordinateToTilePos(int row, int col, MapCoordinate mapPos)
     {
         var pos = new Vector3Int(mapPos.y, mapPos.x, 0);
         var halfX = col / 2;
@@ -64,40 +87,34 @@ public partial class MapCtrl
         return pos - new  Vector3Int(halfX, halfY, 0);
     }
 
-    public MapCoordinate TilePositionToMatrixCoordinate(Vector3Int tilePosition)
+    //Convert from TilePos
+    public MapCoordinate ConvertTilePosToMatrixCoordinate(Vector3Int tilePosition)
     {
-        return TilePositionToMatrixCoordinate(Row, Column, tilePosition);
+        return ConvertTilePosToMatrixCoordinate(Row, Column, tilePosition);
     }
 
-    private MapCoordinate TilePositionToMatrixCoordinate(int row, int col, Vector3Int tilePosition)
+    private MapCoordinate ConvertTilePosToMatrixCoordinate(int row, int col, Vector3Int tilePosition)
     {
         var halfX = col / 2;
         var halfY = row / 2;
         var convertedPos =  tilePosition + new Vector3Int(halfX, halfY, 0);
-        // Debug.Log("ClickedCell: " + convertedPos);
         return new MapCoordinate(convertedPos.y, convertedPos.x);
     }
-
-    private Vector3Int ScreenPointToTilePosition(Vector3 screenPos)
-    {
-        var worldPos = Camera.main.ScreenToWorldPoint(screenPos);
-        return layerGround.WorldToCell(worldPos);
-    }
         
-    private Vector3 TilePositionToWorldPosition(Vector3Int tilePosition)
+    public Vector3 ConvertTilePosToCenterTileWorldPos(Vector3Int tilePosition)
+    {
+        return layerGround.CellToWorld(tilePosition) + Vector3.Scale(CellAnchor, WorldTileSize);;
+    }    
+    
+    public Vector3 ConvertTilePosToWorldPos(Vector3Int tilePosition)
     {
         return layerGround.CellToWorld(tilePosition);
     }
 
-    private MapCoordinate ScreenToMatixCoordinate(Vector3 screenPos)
-    {
-        var cellPos = ScreenPointToTilePosition(screenPos);
-        return TilePositionToMatrixCoordinate(Row, Column, cellPos);
-    }
 
     private bool IsInMatrix(MapCoordinate mapPos)
     {
-        return (0 <= mapPos.x && mapPos.x < Row) && (0 <= mapPos.y && mapPos.y < Column);
+        return mapData.IsInMatrix(mapPos);
     }
     
     #endregion Task - Position Converter!!

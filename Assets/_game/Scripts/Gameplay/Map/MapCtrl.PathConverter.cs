@@ -16,17 +16,6 @@ public partial class MapCtrl
         return matrixPath;
     }
 
-    private TilemapPath<Vector3Int> CovertMatrixPathToTilePath(MatrixPath<MapCoordinate> matrixPath)
-    {
-        TilemapPath<Vector3Int> path = new TilemapPath<Vector3Int>();
-        foreach (var point in matrixPath.Points)
-        {
-            path.Add(MatrixCoordinateToTilePosition(point));
-        }
-
-        return path;
-    }
-    
     public TilemapPath<Vector3Int> GetTilemapPath()
     {
 
@@ -45,6 +34,19 @@ public partial class MapCtrl
         tilemapPath = CovertMatrixPathToTilePath(matrixPath);
         return tilemapPath;
     }
+    
+    private TilemapPath<Vector3Int> CovertMatrixPathToTilePath(MatrixPath<MapCoordinate> matrixPath)
+    {
+        TilemapPath<Vector3Int> path = new TilemapPath<Vector3Int>();
+        foreach (var point in matrixPath.Points)
+        {
+            path.Add(ConvertMatrixCoordinateToTilePos(point));
+        }
+
+        return path;
+    }
+    
+    #region Task - GetPath from TileMap
 
     private int[] xDiff = new[] { -1, 1, 0, 0 };
     private int[] yDiff = new[] { 0, 0, -1, 1 };
@@ -60,7 +62,7 @@ public partial class MapCtrl
         
         List<MapCoordinate> paths = new List<MapCoordinate>();
 
-        var mapPoint = TilePositionToMatrixCoordinate(hallGatePos);
+        var mapPoint = ConvertTilePosToMatrixCoordinate(hallGatePos);
         MapCoordinate nextPoint;
         
         while (GetPoint(mapPoint, out nextPoint))
@@ -95,4 +97,5 @@ public partial class MapCtrl
 
         return false;
     }
+    #endregion Task - GetPath from TileMap
 }
