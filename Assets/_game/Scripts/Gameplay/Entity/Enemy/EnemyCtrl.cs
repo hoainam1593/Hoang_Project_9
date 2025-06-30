@@ -1,17 +1,21 @@
 using R3;
 using UnityEngine;
 
-public class EnemyCtrl : EntityBase
+public class EnemyCtrl : EntityBase, IDamagable
 {
     private const int EnemyKey = 50;
     private const int EnemyLimit = 1000;
+    private const float FixedSpeed = 5f;
     
     private static int _uid = -1;
 
     private int id;
-    private ReactiveProperty<bool> isAlive;
-    private ReactiveProperty<float> hp;
-    private float speed;
+    public int Uid { get; private set; }
+    public bool IsDead { get; private set; }
+    public float MaxHp { get; private set; }
+    public ReactiveProperty<float> CrrHp { get; private set; }
+    public ReactiveProperty<Vector3> Position { get; private set; }
+    private float speed;  //Unit persecond
     private string name;
 
     private MapCoordinate target = MapCoordinate.oneNegative;
@@ -19,8 +23,6 @@ public class EnemyCtrl : EntityBase
     private Vector3 direction;
     private bool isMoving;
     private const float DefaultForward = 90f;
-    
-    public int Uid { get; private set; }
     
     private static int GenerateUid()
     {
@@ -50,9 +52,11 @@ public class EnemyCtrl : EntityBase
 
         id = (int)data;
         var config = ConfigManager.instance.GetConfig<EnemyConfig>().GetItem(id);
-        isAlive = new ReactiveProperty<bool>(true);
-        hp = new ReactiveProperty<float>(config.hp);
-        speed = config.speed/4;
+        IsDead = true;
+        MaxHp = config.hp;
+        CrrHp = new ReactiveProperty<float>(config.hp);
+        Position = new ReactiveProperty<Vector3>(transform.position);
+        speed = config.speed / FixedSpeed;
         name = config.prefabName;
     }
 
@@ -61,6 +65,8 @@ public class EnemyCtrl : EntityBase
         base.OnSpawnStart();
         gameObject.name = $"{name}[{Uid}]";
         gameObject.layer = LayerMask.NameToLayer("Enemy");
+
+        CreateHealthBar();
     }
 
     protected override void OnSpawnComplete()
@@ -71,12 +77,23 @@ public class EnemyCtrl : EntityBase
     
     #endregion Task - Spawn / Despawn!!!
     
+    #region Task - Create HealthBar
+
+    private void CreateHealthBar()
+    {
+        //New HealthBarCtrl
+        //Load prefab & SpawnPrefab
+        //OnMoving => HealthBarCtrl.UpdatePosition();
+        //IChangeablePositionUI
+    }
+    
+    #endregion Task - Create HealthBar!
     
     #region Task - MainLoop
     
     protected override void OnLateUpdate()
     {
-        if (!isAlive.Value)
+        if (!IsDead)
         {
             return;
         }
@@ -90,7 +107,7 @@ public class EnemyCtrl : EntityBase
 
     protected override void UpdateEachInterval()
     {
-        if (isAlive.Value)
+        if (IsDead)
         {
             UpdateTarget();
         }
@@ -159,6 +176,7 @@ public class EnemyCtrl : EntityBase
     {
         var newPos = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
         transform.position = newPos;
+        Position.Value = newPos;
     }
 
     private void EndMove()
@@ -175,4 +193,27 @@ public class EnemyCtrl : EntityBase
     }
     
     #endregion Task - Move & Rotate!!!
+    
+    #region Task - IDamageable
+
+    public void TakeDamage(float dmg)
+    {
+        float crrHp = CrrHp.Value - dmg;
+        if (crrHp <= 0)
+        {
+            CrrHp.Value = 0;
+            IsDead = false;
+            OnDead();
+        }
+        else
+        {
+            CrrHp.Value = crrHp;
+        }
+    }
+
+    private void OnDead()
+    {
+        EntityManager.instance.DespawnEnemy(this.Uid);
+    }
+    #endregion Task - IDamageable!!!
 }

@@ -1,20 +1,26 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using R3;
 
 public class TurretCtrl : EntityBase
 {
     private int id;
     private float attack;
     private float range;
-    private float speed;
+    private float speed; //the number of shooter per second
     private string name;
+    private float shooterGapTime;
     private MapCoordinate mapCoordinate;
+    private const float DefaultForward = 90f;
+    [SerializeField] private Transform objectMachine;
 
-    // private List<Transform> inRangeEnemies;
+    private bool isAttacking = false;
     private Transform target;
     private EnemyCtrl targetCtrl;
     private int targetUid;
+    private IDisposable lookTargetDisposable;
     
     #region EntityBase
 
@@ -29,8 +35,7 @@ public class TurretCtrl : EntityBase
         attack = config.attack;
         range = config.range;
         speed = config.speed;
-        
-        // inRangeEnemies = new List<Transform>();
+        shooterGapTime = 1 / speed;
     }
 
     protected override void OnSpawnStart()
@@ -61,8 +66,14 @@ public class TurretCtrl : EntityBase
 
     protected override void UpdateEachInterval()  //const: 0.02
     {
+        
     }
-    
+
+    protected override void OnUpdate()
+    {
+
+    }
+
     #endregion Main Stream!!
     
     #region Subscribes/UnSubscribes Event
@@ -82,8 +93,7 @@ public class TurretCtrl : EntityBase
         var enemyUId = (int)data;
         if (enemyUId == targetUid)
         {
-            target = null;
-            targetUid = -1;
+            RemoveTarget();
         }
     }
     
@@ -102,6 +112,8 @@ public class TurretCtrl : EntityBase
         if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
         {
             TargetFound(other);
+            LookTarget();
+            StartAttack();
         }
     }
     
@@ -115,6 +127,8 @@ public class TurretCtrl : EntityBase
         if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
         {
             TargetFound(other);
+            LookTarget();
+            StartAttack();
         }
     }
     
@@ -129,6 +143,7 @@ public class TurretCtrl : EntityBase
             && other.gameObject == target.gameObject)
         {
             TargetOutOfRange();
+            StopAttack();
         }
     }
 
@@ -143,10 +158,63 @@ public class TurretCtrl : EntityBase
     private void TargetOutOfRange()
     {
         Debug.Log("TargetOutOfRange: " + target.gameObject.name);
+        RemoveTarget();
+    }
+
+    private void RemoveTarget()
+    {
         target = null;
         targetCtrl = null;
         targetUid = -1;
+        lookTargetDisposable.Dispose();
     }
     #endregion DetectTarget!!!
     
+    #region Task - Attack
+
+    private void StartAttack()
+    {
+        isAttacking = true;
+        AttackTarget().Forget();
+    }
+
+    private void StopAttack()
+    {
+        isAttacking = false;
+    }
+
+
+    private async UniTaskVoid AttackTarget()
+    {
+        while (isAttacking)
+        {
+            //Attack
+            targetCtrl.TakeDamage(attack);
+            
+            //Spawn Effect
+            
+            
+            //wait for nextTime
+            await UniTask.WaitForSeconds(shooterGapTime);
+        }
+    }
+
+    private void LookTarget()
+    {
+        if (targetCtrl == null)
+        {
+            return;
+        }
+
+        lookTargetDisposable = targetCtrl.Position.Subscribe((position) => Rotate(position));
+    }
+
+    private void Rotate(Vector3 pos)
+    {
+        var direction = pos - transform.position; 
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - DefaultForward;
+        objectMachine.rotation = Quaternion.Euler(0, 0, angle);
+    }
+    #endregion Task - Attack!
+
 }

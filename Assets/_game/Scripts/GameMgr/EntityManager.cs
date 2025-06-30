@@ -59,6 +59,8 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
         {
             enemyCtrl.OnSpawn(enemyId);
             enemyCtrls.Add(enemyCtrl.Uid, enemyCtrl);
+
+            SpawnHealthBar(enemyCtrl);
         }
     }
     
@@ -81,6 +83,11 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
         {
             return await SpawnEntityViaPooling<T>(entityName, position, root);
         }
+    }
+
+    private void SpawnHealthBar(EnemyCtrl enemy)
+    {
+        HealthBarManager.instance.CreateHealthBar(enemy.Uid, enemy.Position, enemy.MaxHp, enemy.CrrHp).Forget();
     }
 
     
@@ -127,6 +134,7 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
             return;
         }
         
+        HealthBarManager.instance.DespawnHealthBar(uid);
         enemyCtrls[uid].OnDespawn();
         DespawnEntity(enemyCtrls[uid].gameObject);
         enemyCtrls.Remove(uid); 
