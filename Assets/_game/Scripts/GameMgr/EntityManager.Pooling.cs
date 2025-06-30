@@ -1,23 +1,52 @@
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using UnityEngine.Serialization;
 
 public partial class EntityManager
 {
-    [SerializeField] private ObjectPool pool;
+    [SerializeField] private ObjectPool turretPool;
+    [SerializeField] private ObjectPool enemyPool;
+    [SerializeField] private ObjectPool bulletPool;
 
-    private async UniTask<T> SpawnEntityViaPooling<T>(string entityName, Vector3 position, Transform root) where T : EntityBase
+    private async UniTask<T> SpawnEntityViaPooling<T>(EntityType entityType, string entityName, Vector3 position) where T : EntityBase
     {
-        var go = await pool.Spawn(entityName);
-        go.transform.parent = root;
+        var go = await GetPool(entityType).Spawn(entityName);
+        // go.transform.parent = root;
         go.name = entityName;
         go.transform.position = position;
         return go.GetOrAddComponent<T>(); 
     }
     
-    private void DespawnEntityToPool(GameObject go)
+    private void DespawnEntityToPool(EntityType entityType, GameObject go)
     {
             if (go == null) { return; }
-            // Debug.Log("DespawnEntityToPool > uid: " + go.name);
-            pool.Despawn(go);
+
+            switch (entityType)
+            {
+                case EntityType.Turret:
+                    turretPool.Despawn(go);
+                    break;
+                case EntityType.Enemy:
+                    enemyPool.Despawn(go);
+                    break;
+                case EntityType.Bullet:
+                    bulletPool.Despawn(go);
+                    break;
+            }
+    }
+
+    private ObjectPool GetPool(EntityType entityType)
+    {
+        switch (entityType)
+        {
+            case EntityType.Turret:
+                return turretPool;
+            case EntityType.Enemy:
+                return enemyPool;
+            case EntityType.Bullet:
+                return bulletPool;
+        }
+
+        return null;
     }
 }

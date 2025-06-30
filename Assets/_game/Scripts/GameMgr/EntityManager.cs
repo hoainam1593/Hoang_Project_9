@@ -1,17 +1,17 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using R3.Triggers;
 
 public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IEntityManager
 {
-    [SerializeField] private Transform turretRoot;
-    [SerializeField] private Transform enemyRoot;
-    
     private Dictionary<MapCoordinate, TurretCtrl> turretCtrls = new  Dictionary<MapCoordinate, TurretCtrl>();
     private Dictionary<int, EnemyCtrl> enemyCtrls = new  Dictionary<int, EnemyCtrl>();
+    private Dictionary<int, BulletCtrl> bulletCtrls = new  Dictionary<int, BulletCtrl>();
+    
     
     [SerializeField] private bool isUsingPooling = false;
-
+    
     
     #region Task - Spawn
     public async UniTaskVoid SpawnTurret(MapCoordinate mapCoordinate, Vector3 pos, int turretId)
@@ -24,7 +24,7 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
         var turretName = ConfigManager.instance.GetConfig<TurretConfig>().GetItem(turretId).prefabName;
         
         //SpawnNewTurret
-        TurretCtrl turretCtrl = await SpawnEntity<TurretCtrl>(ResourcesConfig.TurretPrefab, turretName, pos, turretRoot);
+        TurretCtrl turretCtrl = await SpawnEntity<TurretCtrl>(EntityType.Turret, ResourcesConfig.TurretPrefab, turretName, pos, turretPool.transform);
         turretCtrl.OnSpawn((0, mapCoordinate));
         turretCtrls.Add(mapCoordinate, turretCtrl);
         
@@ -42,7 +42,7 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
         {
             case EnemyType.Soldier1:
             case EnemyType.Soldier2:
-                enemyCtrl = await SpawnEntity<EnemySoldierCtrl>(ResourcesConfig.EnemyPrefab, enemyName, pos, enemyRoot);
+                enemyCtrl = await SpawnEntity<EnemySoldierCtrl>(EntityType.Enemy, ResourcesConfig.EnemyPrefab, enemyName, pos, enemyPool.transform);
                 break;
             case EnemyType.Jeep:
             case EnemyType.Truck:
@@ -51,7 +51,7 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
             case EnemyType.Tank3:
             case EnemyType.Tank4:
             case EnemyType.Tank5:
-                enemyCtrl = await SpawnEntity<EnemyCtrl>(ResourcesConfig.EnemyPrefab, enemyName, pos, enemyRoot);
+                enemyCtrl = await SpawnEntity<EnemyCtrl>(EntityType.Enemy, ResourcesConfig.EnemyPrefab, enemyName, pos, enemyPool.transform);
                 break;
         }
 
@@ -64,7 +64,24 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
         }
     }
     
-    private async UniTask<T> SpawnEntity<T>(string package, string entityName, Vector3 position, Transform root) where T : EntityBase
+    public async UniTaskVoid SpawnBullet<T>(Vector3 pos, float dmg, EnemyCtrl target) where T : EntityBase
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        BulletCtrl bulletCtrl = await SpawnEntity<BulletCtrl>(EntityType.Bullet, ResourcesConfig.BulletPrefab,
+            "Bullet", pos, bulletPool.transform);
+        
+        if (!bulletCtrls.ContainsKey(bulletCtrl.gameObject.GetInstanceID()))
+        {
+            bulletCtrl.OnSpawn((target, dmg));
+            bulletCtrls.Add(bulletCtrl.gameObject.GetInstanceID(), bulletCtrl);
+        }
+    }
+    
+    private async UniTask<T> SpawnEntity<T>(EntityType entityType, string package, string entityName, Vector3 position, Transform root) where T : EntityBase
     {
         if (!isUsingPooling)
         {
@@ -81,7 +98,7 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
         }
         else
         {
-            return await SpawnEntityViaPooling<T>(entityName, position, root);
+            return await SpawnEntityViaPooling<T>(entityType, entityName, position);
         }
     }
 
@@ -90,7 +107,7 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
         HealthBarManager.instance.CreateHealthBar(enemy.Uid, enemy.Position, enemy.MaxHp, enemy.CrrHp).Forget();
     }
 
-    
+
     #endregion Task - Spawn!!!
     
     
@@ -102,14 +119,14 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
         foreach (var turret in turretCtrls.Values)
         {
             turret.OnDespawn();
-            DespawnEntity(turret.gameObject);
+            DespawnEntity(EntityType.Turret, turret.gameObject);
         }
         turretCtrls.Clear();
 
         foreach (var enemy in enemyCtrls.Values)
         {
             enemy.OnDespawn();
-            DespawnEntity(enemy.gameObject);
+            DespawnEntity(EntityType.Enemy, enemy.gameObject);
         }
         enemyCtrls.Clear();
     }
@@ -122,7 +139,7 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
         }
         
         turretCtrls[mapCoordinate].OnDespawn();
-        DespawnEntity(turretCtrls[mapCoordinate].gameObject);
+        DespawnEntity(EntityType.Turret, turretCtrls[mapCoordinate].gameObject);
         turretCtrls.Remove(mapCoordinate);
     }
 
@@ -136,11 +153,25 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
         
         HealthBarManager.instance.DespawnHealthBar(uid);
         enemyCtrls[uid].OnDespawn();
-        DespawnEntity(enemyCtrls[uid].gameObject);
+        DespawnEntity(EntityType.Enemy, enemyCtrls[uid].gameObject);
         enemyCtrls.Remove(uid); 
+
+        GameEventMgr.GED.DispatcherEvent(GameEvent.OnEnemyDespawnCompleted, uid);
     }
-    
-    private void DespawnEntity(GameObject go)
+
+    public void DespawnBullet(GameObject bullet)
+    {
+        Debug.Log("DespawnBullet > bullet: " + bullet.name);
+        int bulletId = bullet.GetInstanceID();
+        if (!bulletCtrls.ContainsKey(bulletId))
+        {
+            return;
+        }
+        bulletCtrls[bulletId].OnDespawn();
+        bulletCtrls.Remove(bulletId); // ✅ Fix: Dùng cùng key
+    }
+
+    private void DespawnEntity(EntityType entityType, GameObject go)
     {
         // Debug.Log("DespawnEntity > uid: " + go.name);
         if (!isUsingPooling)
@@ -150,9 +181,8 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
         }
         else
         {
-            DespawnEntityToPool(go);
+            DespawnEntityToPool(entityType, go);
         }
     }
-    
     #endregion Despawn!!!
 }

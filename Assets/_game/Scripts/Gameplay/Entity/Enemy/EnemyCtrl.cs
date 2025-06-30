@@ -15,7 +15,7 @@ public class EnemyCtrl : EntityBase, IDamagable
     public float MaxHp { get; private set; }
     public ReactiveProperty<float> CrrHp { get; private set; }
     public ReactiveProperty<Vector3> Position { get; private set; }
-    private float speed;  //Unit persecond
+    private float speed;  //Unit per second
     private string name;
 
     private MapCoordinate target = MapCoordinate.oneNegative;
@@ -213,6 +213,7 @@ public class EnemyCtrl : EntityBase, IDamagable
 
     private void OnDead()
     {
+        Debug.Log($"[EnemyCtrl] OnDead > Uid: {Uid}, Id: {id}");
         EntityManager.instance.DespawnEnemy(this.Uid);
     }
     #endregion Task - IDamageable!!!

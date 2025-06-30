@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
@@ -186,15 +186,16 @@ public class TurretCtrl : EntityBase
 
     private async UniTaskVoid AttackTarget()
     {
-        while (isAttacking)
+        while (isAttacking && target != null)
         {
-            //Attack
-            targetCtrl.TakeDamage(attack);
-            
-            //Spawn Effect
-            
-            
-            //wait for nextTime
+            // Spawn bullet thay vì gây damage trực tiếp
+            EntityManager.instance.SpawnBullet<BulletCtrl>(
+                objectMachine.position,
+                attack,
+                targetCtrl
+            ).Forget();
+
+            // Wait for next shot
             await UniTask.WaitForSeconds(shooterGapTime);
         }
     }
