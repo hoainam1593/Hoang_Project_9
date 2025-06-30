@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class TurretCtrl : EntityBase
 {
@@ -9,6 +11,7 @@ public class TurretCtrl : EntityBase
     private string name;
     private MapCoordinate mapCoordinate;
 
+    // private List<Transform> inRangeEnemies;
     private Transform target;
     private EnemyCtrl targetCtrl;
     private int targetUid;
@@ -26,14 +29,24 @@ public class TurretCtrl : EntityBase
         attack = config.attack;
         range = config.range;
         speed = config.speed;
+        
+        // inRangeEnemies = new List<Transform>();
     }
 
     protected override void OnSpawnStart()
     {
         base.OnSpawnStart();
         Subscribes();
+
         gameObject.name = $"{name}[{mapCoordinate}]";
         gameObject.layer = LayerMask.NameToLayer("Player");
+        
+        var rig2D = gameObject.AddComponent<Rigidbody2D>();
+        rig2D.bodyType = RigidbodyType2D.Kinematic;
+        
+        var collider2D = gameObject.AddComponent<CircleCollider2D>();
+        collider2D.radius = range;
+        collider2D.isTrigger = true;
     }
 
     public override void OnDespawn()
@@ -44,6 +57,13 @@ public class TurretCtrl : EntityBase
     
     #endregion EntityBase
     
+    #region Main Stream
+
+    protected override void UpdateEachInterval()  //const: 0.02
+    {
+    }
+    
+    #endregion Main Stream!!
     
     #region Subscribes/UnSubscribes Event
 
@@ -69,48 +89,64 @@ public class TurretCtrl : EntityBase
     
     #endregion Subscribes/UnSubscribes!!
 
-    #region Main Stream
 
-    protected override void UpdateEachInterval()
+    #region DetectTarget
+
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (target == null)
+        if (target != null)
         {
-            DetectTarget();
             return;
         }
 
-        if (IsTargetOutOfRange())
+        if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
         {
-            ChangeTarget();
+            TargetFound(other);
         }
     }
     
-    #endregion Main Stream!!
-
-    private void DetectTarget()
+    private void OnTriggerStay2D(Collider2D other)
     {
-        var layerMask = LayerMask.GetMask("Enemy");
-        var hit = Physics2D.CircleCast(transform.position, range, Vector2.zero, range, layerMask: layerMask);
-        if (hit)
+        if (target != null)
         {
-            target = hit.transform;
-            targetCtrl = target.GetComponent<EnemyCtrl>();
-            targetUid = targetCtrl.Uid;
-            Debug.Log("target found: " + target.gameObject.name);
+            return;
+        }
+
+        if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+        {
+            TargetFound(other);
+        }
+    }
+    
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        if (other.gameObject.layer == LayerMask.NameToLayer("Enemy")
+            && other.gameObject == target.gameObject)
+        {
+            TargetOutOfRange();
         }
     }
 
-    private bool IsTargetOutOfRange()
+    private void TargetFound(Collider2D other)
     {
-        return ((target.position - transform.position).sqrMagnitude > range * range);
+        target = other.transform;
+        targetCtrl = target.GetComponent<EnemyCtrl>();
+        targetUid = targetCtrl.Uid;
+        Debug.Log("DetectTarget: " + target.gameObject.name);
     }
 
-    private void ChangeTarget()
+    private void TargetOutOfRange()
     {
+        Debug.Log("TargetOutOfRange: " + target.gameObject.name);
         target = null;
         targetCtrl = null;
         targetUid = -1;
-        DetectTarget();
     }
+    #endregion DetectTarget!!!
     
 }
