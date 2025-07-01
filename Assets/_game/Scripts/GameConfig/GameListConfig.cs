@@ -36,6 +36,7 @@ public class GameListConfig : IListConfigDeclaration
             new EnemyConfig(),
             new TurretConfig(),
             new MapWaveConfig(),
+            new PlayerConfig(),
         };
     }
 
