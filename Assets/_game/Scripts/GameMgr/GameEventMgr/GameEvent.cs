@@ -40,4 +40,8 @@ public enum GameEvent
     
     //Wave Events
     OnWaveComplete,
+    OnWaveStart,
+    OnAllWavesComplete,
+    OnWaveEnemySpawned,
+    OnWaveStateChanged,
 }

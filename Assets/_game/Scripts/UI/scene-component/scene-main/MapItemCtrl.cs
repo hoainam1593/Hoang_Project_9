@@ -20,7 +20,8 @@ public class MapItemCtrl : MonoBehaviour
         
         button.onClick.AddListener(() =>
         {
-            PlayerPrefs.SetString(PlayerPrefsConfig.Key_Select_Map, mapName);
+            PlayerPrefs.SetString(PlayerPrefsConfig.Key_Select_Map_Name, mapName);
+            PlayerPrefs.SetInt(PlayerPrefsConfig.Key_Select_Map_Id, itemData.Id);
             GameLauncher.instance.StartGame().Forget();
         });
 

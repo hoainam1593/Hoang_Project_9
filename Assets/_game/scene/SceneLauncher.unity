@@ -164,6 +164,53 @@ Transform:
   - {fileID: 4723482279769844202}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &233872929
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 233872931}
+  - component: {fileID: 233872930}
+  m_Layer: 0
+  m_Name: WaveManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &233872930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 233872929}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65539e4ddc4128345bc7d9cd7790891a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableDebugLogs: 1
+  delayBetweenWaves: 3
+  defaultSpawnPosition: {x: 0, y: 0, z: 0}
+--- !u!4 &233872931
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 233872929}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4723482279769844202}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &502367872
 GameObject:
   m_ObjectHideFlags: 0
@@ -577,6 +624,39 @@ MonoBehaviour:
     prefab: {fileID: 2606574970747478004, guid: db074148c7e9fc341b759371fb240a1d, type: 3}
     assetRef:
       m_AssetGUID: 75c8245e431705849ad294dc75b4c70f
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    preSpawnedAmount: 5
+    lifeTimeInSecs: 0
+  - name: tank-3
+    useAssetRef: 1
+    prefab: {fileID: 2606574970747478004, guid: db074148c7e9fc341b759371fb240a1d, type: 3}
+    assetRef:
+      m_AssetGUID: cfb91913c129bd94881db8afcdfe3796
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    preSpawnedAmount: 2
+    lifeTimeInSecs: 0
+  - name: tank-4
+    useAssetRef: 1
+    prefab: {fileID: 2606574970747478004, guid: db074148c7e9fc341b759371fb240a1d, type: 3}
+    assetRef:
+      m_AssetGUID: 9bff26a1cfa14974f8dd05950c8032a9
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    preSpawnedAmount: 2
+    lifeTimeInSecs: 0
+  - name: tank-5
+    useAssetRef: 1
+    prefab: {fileID: 2606574970747478004, guid: db074148c7e9fc341b759371fb240a1d, type: 3}
+    assetRef:
+      m_AssetGUID: 326e9bbbc9ea1884fb7affb862537212
       m_SubObjectName: 
       m_SubObjectGUID: 
       m_SubObjectType: 
@@ -1076,11 +1156,12 @@ Transform:
   - {fileID: 1332003660}
   - {fileID: 6401131113934728842}
   - {fileID: 3841820842715320880}
+  - {fileID: 2816555925348883911}
+  - {fileID: 9174812372117786458}
   - {fileID: 5683264957411989263}
   - {fileID: 516787335}
   - {fileID: 3950563041549614321}
-  - {fileID: 2816555925348883911}
-  - {fileID: 9174812372117786458}
+  - {fileID: 233872931}
   m_Father: {fileID: 86598741}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4723482279769844203

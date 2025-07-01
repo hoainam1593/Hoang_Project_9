@@ -31,6 +31,29 @@ public enum GameplayState
     Stopped
 }
 
+/// <summary>
+/// Wave management states
+/// </summary>
+public enum WaveState
+{
+    Waiting,    // Waiting to start
+    Spawning,   // Currently spawning enemies
+    Active,     // All enemies spawned, waiting for completion
+    Completed   // All enemies defeated or despawned
+}
+
+/// <summary>
+/// Wave system events
+/// </summary>
+public enum WaveEvent
+{
+    OnWaveStart,
+    OnWaveComplete,
+    OnAllWavesComplete,
+    OnWaveEnemySpawned,
+    OnWaveStateChanged
+}
+
 public static class ResourcesConfig
 {
     public const string TurretPrefab = "Assets/_game/AssetResources/Prefab/Turret";
@@ -41,5 +64,6 @@ public static class ResourcesConfig
 
 public static class PlayerPrefsConfig
 {
-    public const string Key_Select_Map = "Key_Select_Map";
+    public const string Key_Select_Map_Name = "Key_Select_Map_Name";
+    public const string Key_Select_Map_Id = "Key_Select_Map_Id";
 }

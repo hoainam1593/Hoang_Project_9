@@ -84,25 +84,11 @@ public partial class GameLauncher : SingletonMonoBehaviour<GameLauncher>
         {
             if (enableDebugLogs) Debug.Log("GameLauncher: Loading configurations");
             
-            // Create config list with default game configs
-            var configList = new List<IBaseConfig>
-            {
-                new MapConfig(),
-                new EnemyConfig(),
-                new TurretConfig(),
-            };
-            
             // Create GameListConfig with the config list
-            var gameConfig = new GameListConfig(configList);
+            var gameConfig = new GameListConfig();
             
             // Load all configs
             await ConfigManager.instance.LoadAllConfigs(gameConfig);
-            
-            if (enableDebugLogs)
-            {
-                var mapConfig = ConfigManager.instance.GetConfig<MapConfig>();
-                Debug.Log($"GameLauncher: Loaded {mapConfig.listConfigItems.Count} map configurations");
-            }
             
             if (enableDebugLogs) Debug.Log("GameLauncher: Configurations loaded successfully");
         }

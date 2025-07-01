@@ -89,6 +89,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             game.StartGame();
             currentState = GameState.Playing;
             
+            // Start wave system
+            await StartWaveSystem();
+            
             if (enableDebugLogs) Debug.Log("GameManager: Game started successfully");
         }
         catch (Exception ex)
@@ -116,6 +119,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             
             // Stop the game first
             game.ExitGame();
+            
+            // Stop wave system
+            WaveManager.instance?.StopWaveSystem();
             
             // Cleanup all systems
             await CleanupGameSystems();
@@ -171,6 +177,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             currentState = GameState.GameOver;
             game.ExitGame();
             
+            // Stop wave system
+            WaveManager.instance?.StopWaveSystem();
+            
             // Dispatch game over event
             GameEventMgr.GED.DispatcherEvent(GameEvent.OnGameOver);
         }
@@ -186,6 +195,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             if (enableDebugLogs) Debug.Log("GameManager: Victory!");
             currentState = GameState.Victory;
             game.ExitGame();
+            
+            // Stop wave system
+            WaveManager.instance?.StopWaveSystem();
             
             // Dispatch victory event
             GameEventMgr.GED.DispatcherEvent(GameEvent.OnVictory);
@@ -215,6 +227,12 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                 // HealthBarManager should be ready
             }
             
+            // Initialize wave manager
+            if (WaveManager.instance != null)
+            {
+                // WaveManager will be initialized when starting waves
+            }
+            
             // Load game data
             await LoadGameData();
             
@@ -237,7 +255,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             if (enableDebugLogs) Debug.Log("GameManager: Loading game data");
             
             // Load selected map
-            var selectedMap = PlayerPrefs.GetInt(PlayerPrefsConfig.Key_Select_Map, 0);
+            var selectedMap = PlayerPrefs.GetInt(PlayerPrefsConfig.Key_Select_Map_Id, 0);
             if (enableDebugLogs) Debug.Log($"GameManager: Loading map {selectedMap}");
             
             // Here you would load map-specific data
@@ -256,6 +274,36 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     }
 
     /// <summary>
+    /// Start the wave system for the current game session
+    /// </summary>
+    private async UniTask StartWaveSystem()
+    {
+        try
+        {
+            if (enableDebugLogs) Debug.Log("GameManager: Starting wave system");
+            
+            // Get selected map (for now, use map ID)
+            var selectedMap = PlayerPrefs.GetInt(PlayerPrefsConfig.Key_Select_Map_Id, 0);
+            
+            // Initialize wave manager with the selected map
+            WaveManager.instance.InitializeMap(selectedMap);
+
+            // Set spawn position (you might want to get this from map data)
+            var spawnEnemyPosition = PathFinding.instance.GetStartWorldPos();
+            WaveManager.instance.SetSpawnPosition(spawnEnemyPosition);
+            
+            // Start the wave system
+            WaveManager.instance.StartWaveSystem().Forget();
+            
+            if (enableDebugLogs) Debug.Log("GameManager: Wave system started");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"GameManager: Failed to start wave system - {ex.Message}");
+        }
+    }
+
+    /// <summary>
     /// Clean up all game systems
     /// </summary>
     private async UniTask CleanupGameSystems()
@@ -264,6 +312,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         
         try
         {
+            // Stop wave system
+            WaveManager.instance?.StopWaveSystem();
+            
             // Clear all entities
             EntityManager.instance?.ClearAll();
             
@@ -311,7 +362,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     {
         // Subscribe to relevant game events
         GameEventMgr.GED.Register(GameEvent.OnPlayerDeath, OnPlayerDeath);
-        GameEventMgr.GED.Register(GameEvent.OnWaveComplete, OnWaveComplete);
+        GameEventMgr.GED.Register(GameEvent.OnAllWavesComplete, OnAllWavesComplete);
         
         if (enableDebugLogs) Debug.Log("GameManager: Subscribed to game events");
     }
@@ -322,7 +373,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     private void UnsubscribeFromGameEvents()
     {
         GameEventMgr.GED.UnRegister(GameEvent.OnPlayerDeath, OnPlayerDeath);
-        GameEventMgr.GED.UnRegister(GameEvent.OnWaveComplete, OnWaveComplete);
+        GameEventMgr.GED.UnRegister(GameEvent.OnAllWavesComplete, OnAllWavesComplete);
         
         if (enableDebugLogs) Debug.Log("GameManager: Unsubscribed from game events");
     }
@@ -337,13 +388,12 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     }
 
     /// <summary>
-    /// Handle wave complete event
+    /// Handle all waves completed event
     /// </summary>
-    private void OnWaveComplete(object data)
+    private void OnAllWavesComplete(object data)
     {
-        if (enableDebugLogs) Debug.Log("GameManager: Wave completed");
-        // Check if all waves are complete for victory condition
-        // This logic should be implemented based on your wave system
+        if (enableDebugLogs) Debug.Log("GameManager: All waves completed");
+        Victory();
     }
 
     protected override void OnDestroy()

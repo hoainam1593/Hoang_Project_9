@@ -13,7 +13,7 @@ public partial class MapCtrl : SingletonMonoBehaviour<MapCtrl>
         mapGrid = gameObject.GetComponent<Grid>();
         Subscribes();
         
-        var mapName = PlayerPrefs.GetString(PlayerPrefsConfig.Key_Select_Map, "map1");
+        var mapName = PlayerPrefs.GetString(PlayerPrefsConfig.Key_Select_Map_Name, "map1");
         GenerateMap(mapName);
     }
 
