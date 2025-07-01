@@ -169,7 +169,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     /// <summary>
     /// Handle game over state
     /// </summary>
-    public void GameOver()
+    public async void GameOver()
     {
         if (currentState == GameState.Playing)
         {
@@ -180,6 +180,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             // Stop wave system
             WaveManager.instance?.StopWaveSystem();
             
+            // Show game over popup
+            await ShowGameOverPopup();
+            
             // Dispatch game over event
             GameEventMgr.GED.DispatcherEvent(GameEvent.OnGameOver);
         }
@@ -188,7 +191,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     /// <summary>
     /// Handle victory state
     /// </summary>
-    public void Victory()
+    public async void Victory()
     {
         if (currentState == GameState.Playing)
         {
@@ -199,8 +202,57 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             // Stop wave system
             WaveManager.instance?.StopWaveSystem();
             
+            // Generate random rewards
+            int fakeGoldBonus = UnityEngine.Random.Range(1000, 2501); // Random between 1000-2500
+            int fakeStar = UnityEngine.Random.Range(1, 4); // Random between 1-3
+            
+            if (enableDebugLogs) Debug.Log($"GameManager: Victory rewards - Gold: {fakeGoldBonus}, Stars: {fakeStar}");
+            
+            // Show victory popup with rewards
+            await ShowVictoryPopup(fakeGoldBonus, fakeStar);
+            
             // Dispatch victory event
             GameEventMgr.GED.DispatcherEvent(GameEvent.OnVictory);
+        }
+    }
+
+    /// <summary>
+    /// Show victory popup with random rewards
+    /// </summary>
+    private async UniTask ShowVictoryPopup(int goldBonus, int stars)
+    {
+        try
+        {
+            if (enableDebugLogs) Debug.Log("GameManager: Showing victory popup");
+            
+            var popup = await PopupManager.instance.OpenPopup<PopupVictory>();
+            popup.InitView(stars, goldBonus); // Note: PopupVictory.InitView expects (star, goldBonus) order
+            
+            if (enableDebugLogs) Debug.Log("GameManager: Victory popup displayed");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"GameManager: Failed to show victory popup - {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Show game over popup
+    /// </summary>
+    private async UniTask ShowGameOverPopup()
+    {
+        try
+        {
+            if (enableDebugLogs) Debug.Log("GameManager: Showing game over popup");
+            
+            var popup = await PopupManager.instance.OpenPopup<PopupGameOver>();
+            // PopupGameOver doesn't need initialization parameters
+            
+            if (enableDebugLogs) Debug.Log("GameManager: Game over popup displayed");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"GameManager: Failed to show game over popup - {ex.Message}");
         }
     }
     #endregion
@@ -362,8 +414,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     {
         // Subscribe to relevant game events
         GameEventMgr.GED.Register(GameEvent.OnPlayerDeath, OnPlayerDeath);
-        GameEventMgr.GED.Register(GameEvent.OnAllWavesComplete, OnAllWavesComplete);
-        
+
         if (enableDebugLogs) Debug.Log("GameManager: Subscribed to game events");
     }
 
@@ -373,7 +424,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     private void UnsubscribeFromGameEvents()
     {
         GameEventMgr.GED.UnRegister(GameEvent.OnPlayerDeath, OnPlayerDeath);
-        GameEventMgr.GED.UnRegister(GameEvent.OnAllWavesComplete, OnAllWavesComplete);
         
         if (enableDebugLogs) Debug.Log("GameManager: Unsubscribed from game events");
     }
@@ -385,15 +435,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     {
         if (enableDebugLogs) Debug.Log("GameManager: Player died");
         GameOver();
-    }
-
-    /// <summary>
-    /// Handle all waves completed event
-    /// </summary>
-    private void OnAllWavesComplete(object data)
-    {
-        if (enableDebugLogs) Debug.Log("GameManager: All waves completed");
-        Victory();
     }
 
     protected override void OnDestroy()

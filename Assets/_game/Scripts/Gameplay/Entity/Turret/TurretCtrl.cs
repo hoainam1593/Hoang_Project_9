@@ -23,8 +23,17 @@ public class TurretCtrl : EntityBase
     private EnemyCtrl targetCtrl;
     private int targetUid;
     private IDisposable lookTargetDisposable;
-    
+    private CircleCollider2D collider2D;
+
     #region EntityBase
+
+    private void Awake()
+    {
+        var rig2D = gameObject.AddComponent<Rigidbody2D>();
+        rig2D.bodyType = RigidbodyType2D.Kinematic;
+
+        collider2D = gameObject.AddComponent<CircleCollider2D>();
+    }
 
     protected override void InitData(object data)
     {
@@ -47,11 +56,7 @@ public class TurretCtrl : EntityBase
 
         gameObject.name = $"{name}[{mapCoordinate}]";
         gameObject.layer = LayerMask.NameToLayer("Player");
-        
-        var rig2D = gameObject.AddComponent<Rigidbody2D>();
-        rig2D.bodyType = RigidbodyType2D.Kinematic;
-        
-        var collider2D = gameObject.AddComponent<CircleCollider2D>();
+
         collider2D.radius = range;
         collider2D.isTrigger = true;
     }
@@ -96,6 +101,7 @@ public class TurretCtrl : EntityBase
         if (enemyUId == targetUid)
         {
             RemoveTarget();
+            StopAttack();
         }
     }
     
@@ -161,6 +167,7 @@ public class TurretCtrl : EntityBase
     {
         Debug.Log("TargetOutOfRange: " + target.gameObject.name);
         RemoveTarget();
+        StopAttack();
     }
 
     private void RemoveTarget()
