@@ -29,13 +29,13 @@ public partial class MapCtrl
         }
     }
 
-    private TurretSelectPopup popup;
+    private PopupTurretSelect popup;
     private async UniTaskVoid ShowTurretSelectPopup(Vector3 viewPos, MapCoordinate clickedCell)
     {
         // Debug.Log("ShowTurretSelectPopup");
         var worldPos = ConvertScreenPosToCenterTileWorldPos(viewPos);
         selectedCell = clickedCell;
-        popup = await PopupManager.instance.OpenPopupWorld<TurretSelectPopup>();
+        popup = await PopupManager.instance.OpenPopupWorld<PopupTurretSelect>();
         popup.InitView(clickedCell, worldPos, WorldTileSize);
     }
 

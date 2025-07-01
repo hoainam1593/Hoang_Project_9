@@ -1,7 +1,7 @@
 using UnityEngine.UI;
 using UnityEngine;
 
-public class TurretSelectPopup : BasePopup
+public class PopupTurretSelect : BasePopup
 {
     [Space(10)]
     [SerializeField] private Button gunButton;
