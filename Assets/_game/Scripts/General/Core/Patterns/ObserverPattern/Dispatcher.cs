@@ -27,7 +27,7 @@ public class Dispatcher<T> where T : new()
         _callbacks[e] -= callback;
     }
 
-    public void DispatcherEvent(T e, object data)
+    public void DispatcherEvent(T e, object data = null)
     {
         if (!_callbacks.ContainsKey(e))
         {

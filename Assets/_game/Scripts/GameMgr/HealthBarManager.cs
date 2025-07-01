@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using System.Collections.Generic;
 using R3;
@@ -35,7 +34,26 @@ public class HealthBarManager : SingletonMonoBehaviour<HealthBarManager>
         {
             return;
         }
+        pool.Despawn(healthBars[enemyUid].gameObject);
         healthBars[enemyUid].OnDespawn();
         healthBars.Remove(enemyUid);
+    }
+
+    /// <summary>
+    /// Clear all health bars - for cleanup when exiting game
+    /// </summary>
+    public void ClearAll()
+    {
+        Debug.Log("HealthBarManager: Clearing all health bars");
+        
+        foreach (var healthBar in healthBars.Values)
+        {
+            if (healthBar != null)
+            {
+                healthBar.OnDespawn();
+            }
+        }
+        
+        healthBars.Clear();
     }
 }

@@ -131,6 +131,18 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
             DespawnEntity(EntityType.Enemy, enemy.gameObject);
         }
         enemyCtrls.Clear();
+
+        foreach (var bullet in bulletCtrls.Values)
+        {
+            bullet.OnDespawn();
+            DespawnEntity(EntityType.Bullet, bullet.gameObject);
+        }
+
+        // Cleanup all object pools if using pooling
+        if (isUsingPooling)
+        {
+            ClearAllObjectPools();
+        }
     }
     
     public void DespawnTurret(MapCoordinate mapCoordinate)
@@ -187,5 +199,29 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
             DespawnEntityToPool(entityType, go);
         }
     }
+
+    /// <summary>
+    /// Clear all object pools and reset dictionary states
+    /// </summary>
+    public void ClearAllObjectPools()
+    {
+        if (turretPool != null)
+        {
+            turretPool.DespawnAll();
+        }
+
+        if (enemyPool != null)
+        {
+            enemyPool.DespawnAll();
+        }
+
+        if (bulletPool != null)
+        {
+            bulletPool.DespawnAll();
+        }
+
+        Debug.Log("[EntityManager] All object pools cleared");
+    }
+
     #endregion Despawn!!!
 }

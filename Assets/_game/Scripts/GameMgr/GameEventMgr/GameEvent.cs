@@ -25,7 +25,19 @@ public enum GameEvent
     //Enemy
     OnEnemyReachHallGate,
     
-    //Game
+    //Game State Events
     OnGameStart,
+    OnGameStarted,
     OnGameExit,
+    OnGameExited,
+    OnGamePaused,
+    OnGameResumed,
+    OnGameOver,
+    OnVictory,
+    
+    //Player Events
+    OnPlayerDeath,
+    
+    //Wave Events
+    OnWaveComplete,
 }

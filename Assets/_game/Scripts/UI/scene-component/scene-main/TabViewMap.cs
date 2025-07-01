@@ -1,8 +1,6 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using Cysharp.Threading.Tasks;
 
 
@@ -21,7 +19,8 @@ public class MapItemData
 }
 
 public class TabViewMap : MonoBehaviour
-{    
+{
+    [SerializeField] private GameObject mapItemPrefab;
     [SerializeField] private ObjectPool pool;
     [SerializeField] private Transform content;
 
@@ -43,6 +42,12 @@ public class TabViewMap : MonoBehaviour
         CreateItems().Forget();
     }
 
+    private void OnDestroy()
+    {
+        ClearAllItems();
+        //pool.DespawnAll();
+    }
+
     #region CreateView
 
     private void ClearAllItems()
@@ -60,7 +65,7 @@ public class TabViewMap : MonoBehaviour
 
     private void RemoveItem(GameObject go)
     {
-        pool.Despawn(go);
+        //pool.Despawn(go);
     }
         
 
@@ -72,11 +77,11 @@ public class TabViewMap : MonoBehaviour
         createItemCompleted = false;
         foreach (var data in itemsData)
         {
-                var go = await CreateItem(data);
-                if (!items.Contains(go))
-                {
-                    items.Add(go);
-                }
+            var go = await CreateItem(data);
+            if (!items.Contains(go))
+            {
+                items.Add(go);
+            }
         }
 
         createItemCompleted = true;
@@ -85,8 +90,8 @@ public class TabViewMap : MonoBehaviour
     private async UniTask<GameObject> CreateItem(MapItemData data)
     {
         // Debug.Log("Creating item > map: " + data.Id);
-        // var newItem = GameObject.Instantiate(mapItemPrefab, Vector3.zero, Quaternion.identity, content);
-        var newItem = await pool.Spawn("MapItem");
+        var newItem = GameObject.Instantiate(mapItemPrefab, Vector3.zero, Quaternion.identity, content);
+        //var newItem = await pool.Spawn("MapItem");
         newItem.transform.SetParent(content);
         newItem.transform.SetAsLastSibling();
         
