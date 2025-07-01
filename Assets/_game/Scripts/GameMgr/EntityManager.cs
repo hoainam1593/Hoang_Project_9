@@ -73,7 +73,9 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
 
         BulletCtrl bulletCtrl = await SpawnEntity<BulletCtrl>(EntityType.Bullet, ResourcesConfig.BulletPrefab,
             "Bullet", pos, bulletPool.transform);
-        
+
+        //Debug.Log("SpawnBullet > bulletCtrl: " + bulletCtrl.gameObject.GetInstanceID());
+
         if (!bulletCtrls.ContainsKey(bulletCtrl.gameObject.GetInstanceID()))
         {
             bulletCtrl.OnSpawn((target, dmg));
@@ -161,14 +163,15 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
 
     public void DespawnBullet(GameObject bullet)
     {
-        Debug.Log("DespawnBullet > bullet: " + bullet.name);
         int bulletId = bullet.GetInstanceID();
+        //Debug.Log("DespawnBullet > bulletCtrl: " + bulletId);
         if (!bulletCtrls.ContainsKey(bulletId))
         {
             return;
         }
-        bulletCtrls[bulletId].OnDespawn();
-        bulletCtrls.Remove(bulletId); // ✅ Fix: Dùng cùng key
+        bulletCtrls[bulletId].OnDespawn(); 
+        DespawnEntity(EntityType.Enemy, bulletCtrls[bulletId].gameObject);
+        bulletCtrls.Remove(bulletId);
     }
 
     private void DespawnEntity(EntityType entityType, GameObject go)

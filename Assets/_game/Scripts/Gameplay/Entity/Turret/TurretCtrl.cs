@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using R3;
+using Cysharp.Threading.Tasks.CompilerServices;
 
 public class TurretCtrl : EntityBase
 {
@@ -15,6 +16,7 @@ public class TurretCtrl : EntityBase
     private MapCoordinate mapCoordinate;
     private const float DefaultForward = 90f;
     [SerializeField] private Transform objectMachine;
+    [SerializeField] private List<Transform> gunHead;
 
     private bool isAttacking = false;
     private Transform target;
@@ -175,7 +177,7 @@ public class TurretCtrl : EntityBase
     private void StartAttack()
     {
         isAttacking = true;
-        AttackTarget().Forget();
+        SpawnBullets().Forget();
     }
 
     private void StopAttack()
@@ -184,20 +186,29 @@ public class TurretCtrl : EntityBase
     }
 
 
-    private async UniTaskVoid AttackTarget()
+    private async UniTaskVoid SpawnBullets()
     {
         while (isAttacking && target != null)
         {
-            // Spawn bullet thay vì gây damage trực tiếp
-            EntityManager.instance.SpawnBullet<BulletCtrl>(
-                objectMachine.position,
-                attack,
-                targetCtrl
-            ).Forget();
+            for (int i = 0; i < gunHead.Count; i++)
+            {
+                SpawnBullet(gunHead[i]);
+            }
 
             // Wait for next shot
             await UniTask.WaitForSeconds(shooterGapTime);
         }
+    }
+
+    private void SpawnBullet(Transform gunHead)
+    {            
+        // Spawn bullet thay vì gây damage trực tiếp
+        EntityManager.instance.SpawnBullet<BulletCtrl>(
+            gunHead.position,
+            attack,
+            targetCtrl
+        ).Forget();
+
     }
 
     private void LookTarget()
