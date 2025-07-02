@@ -95,7 +95,7 @@ public class TabViewMap : MonoBehaviour
         newItem.transform.SetParent(content);
         newItem.transform.SetAsLastSibling();
         
-        var itemCtrl = newItem.GetOrAddComponent<MapItemCtrl>();
+        var itemCtrl = newItem.GetOrAddComponent<MapItemUICtrl>();
         itemCtrl.InitView(data);
         
         return newItem;
@@ -112,10 +112,10 @@ public class TabViewMap : MonoBehaviour
         string mapName = null;
         var mapConfig = ConfigManager.instance.GetConfig<MapConfig>();
         var mapModel = PlayerModelManager.instance.GetPlayerModel<MapModel>();
-        foreach (var chapter in mapModel.Chapters)
+        foreach (var map in mapModel.Maps) // Updated to use Maps instead of Chapters
         {
-            mapName = mapConfig.GetMapName(chapter.Id);
-            itemsData.Add(new MapItemData(chapter.Id, chapter.Star, mapName));
+            mapName = mapConfig.GetMapName(map.Id);
+            itemsData.Add(new MapItemData(map.Id, map.Star, mapName));
         }
     }
     

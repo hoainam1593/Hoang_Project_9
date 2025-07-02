@@ -35,10 +35,12 @@ public partial class GameLauncher : SingletonMonoBehaviour<GameLauncher>
             
             // Load configurations first
             await LoadConfigurations();
-            
+
             // Load player models
             LoadPlayerModels();
-            
+
+            PlayerCtrl.instance.Initialize();
+
             // Initialize GameManager and launch game
             await GameManager.instance.LaunchGame();
             
@@ -110,9 +112,10 @@ public partial class GameLauncher : SingletonMonoBehaviour<GameLauncher>
             List<BasePlayerModel> models = new List<BasePlayerModel>()
             {
                 new MapModel(),
+                new PlayerModel(), // Add the new PlayerModel
             };
             
-            PlayerModelManager.instance.LoadAllModels(models, "MapModel");
+            PlayerModelManager.instance.LoadAllModels(models, "PlayerModel"); // Changed default model name to PlayerModel
             
             if (enableDebugLogs) Debug.Log("GameLauncher: Player models loaded successfully");
         }

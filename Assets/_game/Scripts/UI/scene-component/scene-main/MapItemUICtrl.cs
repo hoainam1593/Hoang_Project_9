@@ -1,9 +1,8 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
-using UnityEngine.Serialization;
 
-public class MapItemCtrl : MonoBehaviour
+public class MapItemUICtrl : MonoBehaviour
 {
     [SerializeField] private Button button;
     [SerializeField] private TMPro.TextMeshProUGUI number;
@@ -12,12 +11,12 @@ public class MapItemCtrl : MonoBehaviour
     [SerializeField] private List<Image> starsIcon;
 
     string mapName;
-    
+
     public void InitView(MapItemData itemData)
     {
         number.text = itemData.Id.ToString();
         mapName = itemData.Name;
-        
+
         button.onClick.AddListener(() =>
         {
             PlayerPrefs.SetString(PlayerPrefsConfig.Key_Select_Map_Name, mapName);
@@ -35,7 +34,7 @@ public class MapItemCtrl : MonoBehaviour
         {
             return;
         }
-        
+
         for (int i = 0; i < number; i++)
         {
             starsIcon[i].enabled = true;

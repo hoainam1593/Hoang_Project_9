@@ -1,17 +1,17 @@
-public class ChapterObj : IFileStreamObject
+public class MapInfo : IFileStreamObject
 {
     public int ModelVersion => 1;
 
     public int Id;
     public int Star;
 
-    public ChapterObj(int id, int star)
+    public MapInfo(int id, int star)
     {
         this.Id = id;
         this.Star = star;
     }
 
-    public ChapterObj()
+    public MapInfo()
     {
         this.Id = 0;
         this.Star = -1;

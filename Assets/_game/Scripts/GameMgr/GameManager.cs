@@ -85,6 +85,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             // Initialize game systems
             await InitializeGameSystems();
             
+            // Dispatch game start event for systems to reset/initialize
+            GameEventMgr.GED.DispatcherEvent(GameEvent.OnGameStart);
+            
             // Start the game
             game.StartGame();
             currentState = GameState.Playing;
@@ -205,17 +208,20 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             // Stop wave system
             WaveManager.instance?.StopWaveSystem();
             
-            // Generate random rewards
-            int fakeGoldBonus = UnityEngine.Random.Range(1000, 2501); // Random between 1000-2500
+            // Generate rewards
+            int goldBonus = UnityEngine.Random.Range(1000, 2501); // Random between 1000-2500
             int fakeStar = UnityEngine.Random.Range(1, 4); // Random between 1-3
             
-            if (enableDebugLogs) Debug.Log($"GameManager: Victory rewards - Gold: {fakeGoldBonus}, Stars: {fakeStar}");
+            if (enableDebugLogs) Debug.Log($"GameManager: Victory rewards - Gold: {goldBonus}, Stars: {fakeStar}");
+            
+            // Update gold with battle bonus
+            PlayerCtrl.instance?.UpdateGoldWithBonus(goldBonus);
             
             // Update map progress and unlock next level
             UpdateMapProgress(fakeStar);
             
             // Show victory popup with rewards
-            await ShowVictoryPopup(fakeGoldBonus, fakeStar);
+            await ShowVictoryPopup(goldBonus, fakeStar);
             
             // Dispatch victory event
             GameEventMgr.GED.DispatcherEvent(GameEvent.OnVictory);
@@ -234,10 +240,10 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             var mapConfig = ConfigManager.instance.GetConfig<MapConfig>();
             
             // Update current map's star rating if it's better than before
-            var currentChapter = mapModel.Chapters.Find(chapter => chapter.Id == currentMapId);
-            if (currentChapter != null && (currentChapter.Star == -1 || stars > currentChapter.Star))
+            var currentMap = mapModel.Maps.Find(map => map.Id == currentMapId);
+            if (currentMap != null && (currentMap.Star == -1 || stars > currentMap.Star))
             {
-                currentChapter.Star = stars;
+                currentMap.Star = stars;
                 if (enableDebugLogs) Debug.Log($"GameManager: Updated map {currentMapId} star rating to {stars}");
             }
             
@@ -245,15 +251,15 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             if (stars > 0)
             {
                 int nextMapId = currentMapId + 1;
-                var nextChapter = mapModel.Chapters.Find(chapter => chapter.Id == nextMapId);
+                var nextMap = mapModel.Maps.Find(map => map.Id == nextMapId);
                 
                 // Check if next map exists in config and is currently locked
-                if (nextChapter != null && nextChapter.Star == -1)
+                if (nextMap != null && nextMap.Star == -1)
                 {
                     var nextMapItem = mapConfig.GetMapItem(nextMapId);
                     if (nextMapItem != null)
                     {
-                        nextChapter.Star = 0; // Unlock with 0 stars (playable but not completed)
+                        nextMap.Star = 0; // Unlock with 0 stars (playable but not completed)
                         if (enableDebugLogs) Debug.Log($"GameManager: Unlocked next level - Map {nextMapId}");
                     }
                 }
@@ -351,7 +357,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             var mapConfig = ConfigManager.instance.GetConfig<MapConfig>();
             
             // Check if next map exists and is unlocked
-            var nextChapter = mapModel.Chapters.Find(chapter => chapter.Id == nextMapId);
+            var nextMap = mapModel.Maps.Find(map => map.Id == nextMapId);
             var nextMapItem = mapConfig.GetMapItem(nextMapId);
             
             if (nextMapItem == null)
@@ -360,7 +366,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                 return;
             }
             
-            if (nextChapter == null || nextChapter.Star == -1)
+            if (nextMap == null || nextMap.Star == -1)
             {
                 if (enableDebugLogs) Debug.LogWarning($"GameManager: Next map {nextMapId} is not unlocked yet");
                 return;
@@ -511,7 +517,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             {
                 // WaveManager will be initialized when starting waves
             }
-            
+
             // Load game data
             await LoadGameData();
             

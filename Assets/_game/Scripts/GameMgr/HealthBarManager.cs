@@ -5,7 +5,7 @@ using Cysharp.Threading.Tasks;
 
 public class HealthBarManager : SingletonMonoBehaviour<HealthBarManager>
 {
-    private Dictionary<int, HealthBarCtrl> healthBars = new Dictionary<int, HealthBarCtrl>();
+    private Dictionary<int, HealthBarUICtrl> healthBars = new Dictionary<int, HealthBarUICtrl>();
     [SerializeField] private Canvas worldCanvas;
     [SerializeField] private ObjectPool pool;
 
@@ -19,7 +19,7 @@ public class HealthBarManager : SingletonMonoBehaviour<HealthBarManager>
         }
         
         var go = await pool.Spawn("EnemyHealthBar");
-        var healthBarCtrl = go.GetOrAddComponent<HealthBarCtrl>();
+        var healthBarCtrl = go.GetOrAddComponent<HealthBarUICtrl>();
         healthBarCtrl.Init(pos, maxHp, crrHp);
 
         if (!healthBars.ContainsKey(enemyUid))

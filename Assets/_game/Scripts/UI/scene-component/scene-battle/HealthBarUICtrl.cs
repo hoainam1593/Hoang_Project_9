@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using R3;
 
-public class HealthBarCtrl : MonoBehaviour
+public class HealthBarUICtrl : MonoBehaviour
 {
     private static Vector3 fixedPosition => Vector3.up * 0.1f;
     private Slider slider;
