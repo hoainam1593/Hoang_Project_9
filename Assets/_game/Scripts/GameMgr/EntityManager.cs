@@ -64,7 +64,7 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
         }
     }
     
-    public async UniTaskVoid SpawnBullet<T>(Vector3 pos, float dmg, EnemyCtrl target) where T : EntityBase
+    public async UniTaskVoid SpawnBullet<T>(Vector3 pos, float dmg, EnemyCtrl target, float turretRange = 3f) where T : EntityBase
     {
         if (target == null)
         {
@@ -78,7 +78,7 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
 
         if (!bulletCtrls.ContainsKey(bulletCtrl.gameObject.GetInstanceID()))
         {
-            bulletCtrl.OnSpawn((target, dmg));
+            bulletCtrl.OnSpawn((target, dmg, turretRange));
             bulletCtrls.Add(bulletCtrl.gameObject.GetInstanceID(), bulletCtrl);
         }
     }

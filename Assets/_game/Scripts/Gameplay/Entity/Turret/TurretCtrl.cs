@@ -213,7 +213,8 @@ public class TurretCtrl : EntityBase
         EntityManager.instance.SpawnBullet<BulletCtrl>(
             gunHead.position,
             attack,
-            targetCtrl
+            targetCtrl,
+            range
         ).Forget();
 
     }

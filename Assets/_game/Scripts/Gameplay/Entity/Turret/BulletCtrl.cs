@@ -8,21 +8,40 @@ public class BulletCtrl : EntityBase
     private float dmg;
     private Vector3 direction;
     
+    // Auto-despawn properties
+    private float spawnTime;
+    private Vector3 spawnPosition;
+    private float turretRange;
+    private const float BULLET_LIFETIME = 5f; // 5 seconds lifetime
+    
     public const float speed = 10f;
+
+    // Debug logging toggle (you can remove this if not needed)
+    private bool enableDebugLogs = false;
 
     #region EntityBase
     protected override void InitData(object data)
     {
-        var bulletData = ((EnemyCtrl target, float dmg))data;
+        var bulletData = ((EnemyCtrl target, float dmg, float turretRange))data;
         this.Target = bulletData.target;
         this.targetUid = Target.Uid;
         this.dmg = bulletData.dmg;
+        this.turretRange = bulletData.turretRange;
     }
 
     protected override void OnSpawnStart()
     {
         base.OnSpawnStart();
         Subscribes();
+        
+        // Initialize auto-despawn tracking
+        spawnTime = Time.time;
+        spawnPosition = transform.position;
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"[BulletCtrl] Spawned at {spawnPosition} with turret range {turretRange}");
+        }
     }
     
     public override void OnDespawn()
@@ -33,6 +52,28 @@ public class BulletCtrl : EntityBase
 
     protected override void OnUpdate()
     {
+        // Check for auto-despawn conditions
+        if (ShouldDespawnByLifetime())
+        {
+            if (enableDebugLogs)
+            {
+                Debug.Log($"[BulletCtrl] Despawning due to lifetime exceeded: {Time.time - spawnTime}s");
+            }
+            DespawnSelf();
+            return;
+        }
+        
+        if (ShouldDespawnByRange())
+        {
+            if (enableDebugLogs)
+            {
+                float distance = Vector3.Distance(transform.position, spawnPosition);
+                Debug.Log($"[BulletCtrl] Despawning due to range exceeded: {distance} > {turretRange}");
+            }
+            DespawnSelf();
+            return;
+        }
+        
         if (Target == null)
         {
             DespawnSelf();
@@ -47,6 +88,23 @@ public class BulletCtrl : EntityBase
     {
         direction = (Target.transform.position - transform.position).normalized;
         transform.position += direction * speed * Time.deltaTime;
+    }
+
+    /// <summary>
+    /// Check if bullet should despawn due to exceeding lifetime (5 seconds)
+    /// </summary>
+    private bool ShouldDespawnByLifetime()
+    {
+        return Time.time - spawnTime >= BULLET_LIFETIME;
+    }
+
+    /// <summary>
+    /// Check if bullet should despawn due to exceeding turret range
+    /// </summary>
+    private bool ShouldDespawnByRange()
+    {
+        float distanceFromSpawn = Vector3.Distance(transform.position, spawnPosition);
+        return distanceFromSpawn >= turretRange;
     }
 
     #endregion EntityBase
