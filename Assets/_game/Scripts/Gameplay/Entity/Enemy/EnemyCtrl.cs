@@ -1,4 +1,5 @@
 using R3;
+using System.Text;
 using UnityEngine;
 
 public class EnemyCtrl : EntityBase, IDamagable
@@ -18,11 +19,23 @@ public class EnemyCtrl : EntityBase, IDamagable
     private float speed;  //Unit per second
     private string name;
 
-    private MapCoordinate target = MapCoordinate.oneNegative;
+    // Current path tracking - CONVERTED TO PathEntry
+    private PathEntry target = null;
     private Vector3 targetPos;
     private Vector3 direction;
     private bool isMoving;
     private const float DefaultForward = 90f;
+
+    // Curved corner movement variables - CONVERTED TO PathEntry
+    private PathEntry currentPathEntry = null;
+    private PathEntry nextPathEntry = null;
+    private PathEntry nextNextPathEntry = null;
+    private bool isInCorner = false;
+    private bool cornerTriggered = false; // Flag to prevent multiple corner triggers
+    private Vector3 cornerStartPos;
+    private Vector3 cornerExitPos;
+    [SerializeField] private float curveIntensity = 0.3f; // How curved the corners should be (0-1)
+    [SerializeField] private float cornerDetectionDistance = 0.3f; // Distance from tile center to start corner detection
     
     private static int GenerateUid()
     {
@@ -36,7 +49,58 @@ public class EnemyCtrl : EntityBase, IDamagable
         {
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(targetPos, 0.1f);
+
+            // Draw corner visualization
+            //if (isInCorner)
+            //{
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawSphere(cornerStartPos, 0.08f);
+                Gizmos.color = Color.green;
+                Gizmos.DrawSphere(cornerExitPos, 0.08f);
+                
+                // Draw curve path
+                Gizmos.color = Color.cyan;
+                Vector3 lastPos = cornerStartPos;
+                for (float t = 0.1f; t <= 1f; t += 0.1f)
+                {
+                    Vector3 curvePos = PathFinding.instance.GetCurvedPosition(cornerStartPos, cornerExitPos, 
+                        Vector3.Lerp(cornerStartPos, cornerExitPos, t), curveIntensity);
+                    Gizmos.DrawLine(lastPos, curvePos);
+                    lastPos = curvePos;
+                }
+            //}
+            
+            // Draw lookahead visualization with proper null checks
+            if (IsValidPathEntry(nextPathEntry))
+            {
+                Gizmos.color = Color.blue;
+                Vector3 nextPos = PathFinding.instance.GetWorldPos(nextPathEntry.mapCoordinate);
+                Gizmos.DrawSphere(nextPos, 0.06f);
+            }
+            
+            if (IsValidPathEntry(nextNextPathEntry))
+            {
+                Gizmos.color = Color.magenta;
+                Vector3 nextNextPos = PathFinding.instance.GetWorldPos(nextNextPathEntry.mapCoordinate);
+                Gizmos.DrawSphere(nextNextPos, 0.06f);
+            }
         }
+    }
+
+    /// <summary>
+    /// Check if a PathEntry is valid (not null)
+    /// </summary>
+    private bool IsValidPathEntry(PathEntry entry)
+    {
+        return entry != null && entry.mapCoordinate != null && entry.mapCoordinate != MapCoordinate.oneNegative;
+    }
+
+    /// <summary>
+    /// Check if a MapCoordinate is valid (not null and not oneNegative) - for backward compatibility
+    /// </summary>
+    private bool IsValidPathPoint(MapCoordinate point)
+    {
+        return point != null && point != MapCoordinate.oneNegative;
     }
 
     #region Task - Spawn / Despawn
@@ -65,8 +129,6 @@ public class EnemyCtrl : EntityBase, IDamagable
         base.OnSpawnStart();
         gameObject.name = $"{name}[{Uid}]";
         gameObject.layer = LayerMask.NameToLayer("Enemy");
-
-        CreateHealthBar();
     }
 
     protected override void OnSpawnComplete()
@@ -76,18 +138,6 @@ public class EnemyCtrl : EntityBase, IDamagable
     }
     
     #endregion Task - Spawn / Despawn!!!
-    
-    #region Task - Create HealthBar
-
-    private void CreateHealthBar()
-    {
-        //New HealthBarCtrl
-        //Load prefab & SpawnPrefab
-        //OnMoving => HealthBarCtrl.UpdatePosition();
-        //IChangeablePositionUI
-    }
-    
-    #endregion Task - Create HealthBar!
     
     #region Task - MainLoop
     
@@ -101,6 +151,7 @@ public class EnemyCtrl : EntityBase, IDamagable
         if (isMoving)
         {
             Moving();
+            Rotate();
         }
     }
         
@@ -118,27 +169,152 @@ public class EnemyCtrl : EntityBase, IDamagable
     #region Task - UpdateTarget
     private void UpdateTarget()
     {
+        if (target.isCorner && CheckForCornerStart())
+        {
+            StartMoveIntoCorner();
+            return;
+        }
+
+        // Check if we're in corner movement mode
+        if (isInCorner)
+        {
+            // Check if corner movement is complete
+            if (CheckForCornerCompleted())
+            {
+               
+                MoveOutOfCorner();
+
+                NextStep();
+            }
+            return;
+        }
+
         if (IsReachTarget())
         {
             if (IsEndOfPath())
             {
                 EndMove();
+                return;
+            }
+
+            NextStep();
+        }
+    }
+
+    private void NextStep()
+    {
+        GetNewTarget();
+        UpdateLookahead();
+        CheckForCornerAheadOptimized();
+    }
+
+    // Cached corner detection results
+    private Vector3 cachedCornerStart;
+    private Vector3 cachedCornerExit;
+
+    private void StartMoveIntoCorner()
+    {                
+        Debug.Log($"Enemy[{Uid}] > StartMoveIntoCorner");
+        // Trigger corner movement (only once per target)
+        isInCorner = true;
+        cornerTriggered = true;
+        cornerStartPos = cachedCornerStart;
+        cornerExitPos = cachedCornerExit;
+    }
+
+    private void MoveOutOfCorner()
+    {
+        Debug.Log($"Enemy[{Uid}] > MoveOutOfCorner");
+        isInCorner = false;
+        cornerTriggered = false; // Reset corner trigger for next corner
+    }
+
+    private void CheckForCornerAheadOptimized()
+    {
+        // Only check for corner if we have valid target entry
+        if (!IsValidPathEntry(target) || !target.isCorner)
+        {
+            return;
+        }
+
+        // NEW LOGIC: Check if target itself is a corner using target.isCorner
+        bool hasCorner = target.isCorner;
+        
+        Debug.Log($"[EnemyCtrl {Uid}] CheckForCornerAheadOptimized: target={target} hasCorner={hasCorner}");
+        if (hasCorner)
+        {
+            // Calculate corner positions once and cache them
+            // We need current, next and next-next for corner calculation
+            if (IsValidPathEntry(currentPathEntry) && IsValidPathEntry(nextPathEntry) && IsValidPathEntry(nextNextPathEntry))
+            {
+                PathFinding.instance.GetCornerPositions(target, out cachedCornerStart, out cachedCornerExit);
+                
+                // Update instance variables for visualization
+                cornerStartPos = cachedCornerStart;
+                cornerExitPos = cachedCornerExit;
+
+                DebugCorner();
             }
             else
             {
-                GetNewTarget();
-                Rotate();
+                Debug.LogWarning($"[EnemyCtrl {Uid}] Corner detected but missing path entries for calculation");
             }
         }
+        else
+        {
+            Debug.Log($"[EnemyCtrl {Uid}] No corner detected - continuing straight path");
+        }
+    }
+
+    private void UpdateLookahead()
+    {
+        currentPathEntry = nextPathEntry;
+        nextPathEntry = PathFinding.instance.GetNextEntry(target.mapCoordinate);
+        if (IsValidPathEntry(nextPathEntry))
+        {
+            nextNextPathEntry = PathFinding.instance.GetNextNextEntry(target.mapCoordinate);
+        }
+        else
+        {
+            nextNextPathEntry = null;
+        }
+    }
+
+    private bool CheckForCornerStart()
+    {
+        Debug.Log($"[EnemyCtrl {Uid}] CheckForCornerStart > target: {target} > cornerTriggered: {cornerTriggered} > isCorner: {target.isCorner}");
+
+        if (cornerTriggered || !target.isCorner)
+        {
+            return false;
+        }
+
+        // Use cached corner detection results - no duplicate calls!
+        // Check if we've reached or passed the corner entry position
+        float distanceToEntry = Vector3.Distance(transform.position, cachedCornerStart);
+        Debug.Log($"[EnemyCtrl {Uid}] CheckForCornerStart > distance from:{transform.position} to {cachedCornerStart} is: {distanceToEntry}");
+
+        // Use a smaller threshold since we want to trigger exactly at the edge
+        return (distanceToEntry <= 0.1f);
+    }
+
+    private bool CheckForCornerCompleted()
+    {
+        return Vector3.Distance(transform.position, cornerExitPos) < 0.1f;
     }
 
     private void GetFirstTarget()
     {
-        target = PathFinding.instance.GetStartPoint();
-        targetPos = PathFinding.instance.GetWorldPos(target);
-        // Debug.Log("NewPos: " +  target);
-        direction =  targetPos - transform.position;
-        direction.z = 0;
+        var startEntry = PathFinding.instance.GetStartEntry();
+        target = PathFinding.instance.GetNextEntry(startEntry.mapCoordinate);
+        if (IsValidPathEntry(target))
+        {
+            targetPos = PathFinding.instance.GetWorldPos(target.mapCoordinate);
+            direction = targetPos - transform.position;
+            direction.z = 0;
+            
+            UpdateLookahead();
+        }
     }
 
     private bool IsReachTarget()
@@ -149,15 +325,19 @@ public class EnemyCtrl : EntityBase, IDamagable
 
     private bool IsEndOfPath()
     {
-        return PathFinding.instance.IsEnd(target);
+        return PathFinding.instance.IsEnd(target.mapCoordinate);
     }
 
     private void GetNewTarget()
     {
-        target = PathFinding.instance.GetNextPoint(target);
-        targetPos = PathFinding.instance.GetWorldPos(target);
-        direction =  targetPos - transform.position;
-        direction.z = 0;
+        // NEW LOGIC: Get next PathEntry instead of MapCoordinate
+        target = nextPathEntry;
+        if (IsValidPathEntry(target))
+        {
+            targetPos = PathFinding.instance.GetWorldPos(target.mapCoordinate);
+            direction = targetPos - transform.position;
+            direction.z = 0;
+        }
     }
     
     #endregion Task - UpdateTarget!!!
@@ -167,16 +347,53 @@ public class EnemyCtrl : EntityBase, IDamagable
     private void StartMove()
     {
         GetFirstTarget();
-        GetNewTarget();
-        Rotate();
-        isMoving = true;
+        if (IsValidPathEntry(target))
+        {
+            Rotate();
+            isMoving = true;
+        }
     }
 
     private void Moving()
     {
-        var newPos = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
+        Vector3 newPos;
+        
+        if (isInCorner)
+        {
+            // Use curved movement for corners
+            newPos = MovingInCorner();
+        }
+        else
+        {
+            // Use straight line movement
+            newPos = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
+        }
+        
         transform.position = newPos;
         Position.Value = newPos;
+    }
+
+    private Vector3 MovingInCorner()
+    {
+        // Calculate progress along the corner curve
+        float totalCornerDistance = Vector3.Distance(cornerStartPos, cornerExitPos);
+        float currentDistance = Vector3.Distance(cornerStartPos, transform.position);
+        float t = Mathf.Clamp01(currentDistance / totalCornerDistance);
+        
+        // Get curved position
+        Vector3 targetCurvePos = PathFinding.instance.GetCurvedPosition(
+            cornerStartPos, cornerExitPos, transform.position, curveIntensity);
+        
+        // Move towards the curved target position
+        Vector3 newPos = Vector3.MoveTowards(transform.position, targetCurvePos, speed * Time.deltaTime);
+        
+        // If we're very close to the curve target, move directly towards exit
+        if (Vector3.Distance(transform.position, targetCurvePos) < 0.05f)
+        {
+            newPos = Vector3.MoveTowards(transform.position, cornerExitPos, speed * Time.deltaTime);
+        }
+        
+        return newPos;
     }
 
     private void EndMove()
@@ -188,7 +405,17 @@ public class EnemyCtrl : EntityBase, IDamagable
     
     private void Rotate()
     {
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - DefaultForward;
+        Vector3 rotationDirection = direction;
+        
+        // If in corner, rotate towards the curve direction
+        if (isInCorner)
+        {
+            Vector3 targetCurvePos = PathFinding.instance.GetCurvedPosition(
+                cornerStartPos, cornerExitPos, transform.position, curveIntensity);
+            rotationDirection = (targetCurvePos - transform.position).normalized;
+        }
+        
+        float angle = Mathf.Atan2(rotationDirection.y, rotationDirection.x) * Mathf.Rad2Deg - DefaultForward;
         transform.rotation = Quaternion.Euler(0, 0, angle);
     }
     
@@ -217,4 +444,37 @@ public class EnemyCtrl : EntityBase, IDamagable
         EntityManager.instance.DespawnEnemy(this.Uid);
     }
     #endregion Task - IDamageable!!!
+
+
+
+
+    #region Debug/Log
+    private void DebugCorner()
+    {
+        var strBuilder = new StringBuilder();
+
+        // Debug log all position values when IsCornerAhead is called
+        strBuilder.AppendLine($"[EnemyCtrl {Uid}] === CORNER DETECTION DEBUG ===");
+        strBuilder.AppendLine($"PathEntry: {currentPathEntry} => {target} => {nextPathEntry} => {nextNextPathEntry}");
+
+        // Convert coordinates to world positions for better understanding
+        var currentWorldPos = IsValidPathEntry(currentPathEntry) ? PathFinding.instance.GetWorldPos(currentPathEntry.mapCoordinate) : Vector3.zero;
+        var targetWorldPos = IsValidPathEntry(target) ? PathFinding.instance.GetWorldPos(target.mapCoordinate) : Vector3.zero;
+        var nextWorldPos = IsValidPathEntry(nextPathEntry) ? PathFinding.instance.GetWorldPos(nextPathEntry.mapCoordinate) : Vector3.zero;
+        var nextNextWorldPos = IsValidPathEntry(nextNextPathEntry) ? PathFinding.instance.GetWorldPos(nextNextPathEntry.mapCoordinate) : Vector3.zero;
+
+        strBuilder.AppendLine($"World Pos: {Vector3ToPos(currentWorldPos)} => {Vector3ToPos(targetWorldPos)} => {Vector3ToPos(nextWorldPos)} => {Vector3ToPos(nextNextWorldPos)} real Pos: {transform.position}");
+        strBuilder.AppendLine($"CORNER DETECTED >> start: {Vector3ToPos(cachedCornerStart)} => exit:{Vector3ToPos(cachedCornerExit)}");
+        strBuilder.AppendLine($"Target IsCorner: {target?.isCorner}");
+        strBuilder.AppendLine($"[EnemyCtrl {Uid}] === END CORNER DETECTION DEBUG ===");
+
+        Debug.Log(strBuilder.ToString());
+    }
+
+    private string Vector3ToPos(Vector3 pos)
+    {
+        return $"({pos.x:F1}, {pos.y:F1})";
+    }
+
+    #endregion Debug/Log!!!
 }

@@ -52,4 +52,9 @@ public class MapCoordinate
     {
         return (x, y).GetHashCode();
     }
+
+    public static MapCoordinate operator-(MapCoordinate a, MapCoordinate b)
+    {
+        return new MapCoordinate(a.x - b.x, a.y - b.y);
+    }
 }

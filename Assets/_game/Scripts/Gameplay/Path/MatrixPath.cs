@@ -15,7 +15,7 @@ public class MatrixPath<T> where T : class
 
     public MatrixPath(List<T> points)
     {
-        this.points = points;
+        this.points = points ?? new List<T>();
     }
 
     public void Reverse()
@@ -25,7 +25,7 @@ public class MatrixPath<T> where T : class
 
     public void Add(T point)
     {
-        if (!points.Contains(point))
+        if (point != null && !points.Contains(point))
         {
             points.Add(point);
         }
@@ -33,8 +33,12 @@ public class MatrixPath<T> where T : class
 
     public T GetRoot()
     {
-        crrIdx = 0;
-        return points[crrIdx];
+        if (points.Count > 0)
+        {
+            crrIdx = 0;
+            return points[crrIdx];
+        }
+        return null;
     }
 
     public T Next()
@@ -53,7 +57,18 @@ public class MatrixPath<T> where T : class
         var index = IndexOf(point);
         if (index != -1 && index < points.Count - 1)
         {
-            return points[index+1];
+            return points[index + 1];
+        }
+
+        return null;
+    }
+
+    public T Previous(T point)
+    {
+        var index = IndexOf(point);
+        if (index > 0)
+        {
+            return points[index - 1];
         }
 
         return null;
@@ -67,17 +82,30 @@ public class MatrixPath<T> where T : class
     public bool IsEnd(T point)
     {
         var index = IndexOf(point);
-        if (index == points.Count - 1)
-        {
-            return true;
-        }
-
-        return false;
+        return index == points.Count - 1;
     }
 
     public bool IsEnd()
     {
         return crrIdx == points.Count - 1;
+    }
+
+    public bool IsStart(T point)
+    {
+        var index = IndexOf(point);
+        return index == 0;
+    }
+
+    public int Count => points.Count;
+
+    public T this[int index]
+    {
+        get
+        {
+            if (index >= 0 && index < points.Count)
+                return points[index];
+            return null;
+        }
     }
 
     public override string ToString()

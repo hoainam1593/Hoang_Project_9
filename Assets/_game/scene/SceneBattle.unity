@@ -727,6 +727,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26c8fa310d1348318d3d2fc0e8fd1596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  curveIntensity: 0.3
+  cornerDetectionDistance: 0.3
   soldierBody: {fileID: 3439978029866437034}
   soldierHead: {fileID: 1750420421810761778}
   soldierDied: {fileID: 45904029159257739}
@@ -2418,6 +2420,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26c8fa310d1348318d3d2fc0e8fd1596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  curveIntensity: 0.3
+  cornerDetectionDistance: 0.3
   soldierBody: {fileID: 6407916039601068266}
   soldierHead: {fileID: 1935756963676887059}
   soldierDied: {fileID: 6909002274977201072}
@@ -10480,6 +10484,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26c8fa310d1348318d3d2fc0e8fd1596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  curveIntensity: 0.3
+  cornerDetectionDistance: 0.3
   soldierBody: {fileID: 8027394871352233713}
   soldierHead: {fileID: 662162246129553507}
   soldierDied: {fileID: 6611231342953285116}
@@ -11193,6 +11199,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26c8fa310d1348318d3d2fc0e8fd1596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  curveIntensity: 0.3
+  cornerDetectionDistance: 0.3
   soldierBody: {fileID: 3979107264252037509}
   soldierHead: {fileID: 4744647578163935905}
   soldierDied: {fileID: 7307643173966775838}
@@ -12062,6 +12070,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26c8fa310d1348318d3d2fc0e8fd1596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  curveIntensity: 0.3
+  cornerDetectionDistance: 0.3
   soldierBody: {fileID: 4000520015380756053}
   soldierHead: {fileID: 8783612327069216243}
   soldierDied: {fileID: 6498064122645145980}
@@ -12479,6 +12489,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26c8fa310d1348318d3d2fc0e8fd1596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  curveIntensity: 0.3
+  cornerDetectionDistance: 0.3
   soldierBody: {fileID: 3773408354202136862}
   soldierHead: {fileID: 4785849965176279794}
   soldierDied: {fileID: 3078704088737171829}
@@ -13085,6 +13097,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26c8fa310d1348318d3d2fc0e8fd1596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  curveIntensity: 0.3
+  cornerDetectionDistance: 0.3
   soldierBody: {fileID: 3073418586309871776}
   soldierHead: {fileID: 8168932131925155205}
   soldierDied: {fileID: 8434323257629515154}
@@ -14536,6 +14550,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26c8fa310d1348318d3d2fc0e8fd1596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  curveIntensity: 0.3
+  cornerDetectionDistance: 0.3
   soldierBody: {fileID: 2685674700262450011}
   soldierHead: {fileID: 2812295347419865450}
   soldierDied: {fileID: 6836803003385508862}
@@ -15250,6 +15266,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26c8fa310d1348318d3d2fc0e8fd1596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  curveIntensity: 0.3
+  cornerDetectionDistance: 0.3
   soldierBody: {fileID: 2714747940859413110}
   soldierHead: {fileID: 5895896372152287615}
   soldierDied: {fileID: 2266810975550917070}
@@ -16768,6 +16786,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26c8fa310d1348318d3d2fc0e8fd1596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  curveIntensity: 0.3
+  cornerDetectionDistance: 0.3
   soldierBody: {fileID: 8044070380176680423}
   soldierHead: {fileID: 4659053519334754287}
   soldierDied: {fileID: 7130853367952176835}
@@ -17226,6 +17246,6 @@ SceneRoots:
   - {fileID: 966007302}
   - {fileID: 562191797}
   - {fileID: 7164347035185179315}
-  - {fileID: 1442442531}
   - {fileID: 7185719175094902586}
   - {fileID: 1763413499}
+  - {fileID: 1442442531}
