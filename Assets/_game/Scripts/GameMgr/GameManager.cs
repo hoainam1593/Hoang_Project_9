@@ -117,6 +117,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             if (enableDebugLogs) Debug.Log("GameManager: Exiting game");
             currentState = GameState.Loading;
             
+            // Close all popups before exiting
+            PopupManager.instance?.CloseAllPopup();
+            
             // Stop the game first
             game.ExitGame();
             
@@ -208,11 +211,197 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             
             if (enableDebugLogs) Debug.Log($"GameManager: Victory rewards - Gold: {fakeGoldBonus}, Stars: {fakeStar}");
             
+            // Update map progress and unlock next level
+            UpdateMapProgress(fakeStar);
+            
             // Show victory popup with rewards
             await ShowVictoryPopup(fakeGoldBonus, fakeStar);
             
             // Dispatch victory event
             GameEventMgr.GED.DispatcherEvent(GameEvent.OnVictory);
+        }
+    }
+
+    /// <summary>
+    /// Update map progress and unlock next level if conditions are met
+    /// </summary>
+    private void UpdateMapProgress(int stars)
+    {
+        try
+        {
+            var currentMapId = PlayerPrefs.GetInt(PlayerPrefsConfig.Key_Select_Map_Id, 0);
+            var mapModel = PlayerModelManager.instance.GetPlayerModel<MapModel>();
+            var mapConfig = ConfigManager.instance.GetConfig<MapConfig>();
+            
+            // Update current map's star rating if it's better than before
+            var currentChapter = mapModel.Chapters.Find(chapter => chapter.Id == currentMapId);
+            if (currentChapter != null && (currentChapter.Star == -1 || stars > currentChapter.Star))
+            {
+                currentChapter.Star = stars;
+                if (enableDebugLogs) Debug.Log($"GameManager: Updated map {currentMapId} star rating to {stars}");
+            }
+            
+            // Unlock next level if current map is completed with at least 1 star
+            if (stars > 0)
+            {
+                int nextMapId = currentMapId + 1;
+                var nextChapter = mapModel.Chapters.Find(chapter => chapter.Id == nextMapId);
+                
+                // Check if next map exists in config and is currently locked
+                if (nextChapter != null && nextChapter.Star == -1)
+                {
+                    var nextMapItem = mapConfig.GetMapItem(nextMapId);
+                    if (nextMapItem != null)
+                    {
+                        nextChapter.Star = 0; // Unlock with 0 stars (playable but not completed)
+                        if (enableDebugLogs) Debug.Log($"GameManager: Unlocked next level - Map {nextMapId}");
+                    }
+                }
+            }
+            
+            // Save the updated model
+            PlayerModelManager.instance.SaveModel(mapModel);
+            
+            if (enableDebugLogs) Debug.Log("GameManager: Map progress updated and saved");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"GameManager: Failed to update map progress - {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Retry the current game (replay the same map)
+    /// </summary>
+    /// <remarks>
+    /// When RetryGame is called, the game doesn't reload the scene (SceneBattle),
+    /// so MonoBehaviour components don't get their Start() method called again.
+    /// This means UI components like PlayerInfoCtrl that initialize their values
+    /// in Start() won't reset automatically. To fix this, we dispatch an OnGameRetry
+    /// event that UI components can listen to and use to reset their state.
+    /// </remarks>
+    public async UniTask RetryGame()
+    {
+        if (currentState != GameState.GameOver && currentState != GameState.Victory && currentState != GameState.MainMenu)
+        {
+            if (enableDebugLogs) Debug.LogWarning($"GameManager: Cannot retry game from state {currentState}");
+            return;
+        }
+        
+        try
+        {
+            if (enableDebugLogs) Debug.Log("GameManager: Retrying current game");
+            
+            // Close all popups first
+            PopupManager.instance?.CloseAllPopup();
+            
+            // If we're currently in game, clean up first
+            if (currentState != GameState.MainMenu)
+            {
+                currentState = GameState.Loading;
+                
+                // Stop current game
+                game.ExitGame();
+                
+                // Stop wave system
+                WaveManager.instance?.StopWaveSystem();
+                
+                // Cleanup systems
+                await CleanupGameSystems();
+                
+                // Reset state to MainMenu after cleanup so StartGame() can proceed
+                currentState = GameState.MainMenu;
+            }
+            
+            // Dispatch retry event to reset UI components that don't get reinitialized
+            // This is crucial for components like PlayerInfoCtrl that set their initial
+            // values in Start() but need to be reset when retrying without scene reload
+            GameEventMgr.GED.DispatcherEvent(GameEvent.OnGameRetry);
+            
+            // The selected map should remain the same (stored in PlayerPrefs)
+            // Start the game again with the same map
+            await StartGame();
+            
+            if (enableDebugLogs) Debug.Log("GameManager: Game retried successfully");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"GameManager: Failed to retry game - {ex.Message}");
+            currentState = GameState.MainMenu;
+        }
+    }
+
+    /// <summary>
+    /// Play the next level if it's unlocked
+    /// </summary>
+    public async UniTask NextLevel()
+    {
+        if (currentState != GameState.Victory && currentState != GameState.MainMenu)
+        {
+            if (enableDebugLogs) Debug.LogWarning($"GameManager: Cannot go to next level from state {currentState}");
+            return;
+        }
+        
+        try
+        {
+            var currentMapId = PlayerPrefs.GetInt(PlayerPrefsConfig.Key_Select_Map_Id, 0);
+            int nextMapId = currentMapId + 1;
+            
+            var mapModel = PlayerModelManager.instance.GetPlayerModel<MapModel>();
+            var mapConfig = ConfigManager.instance.GetConfig<MapConfig>();
+            
+            // Check if next map exists and is unlocked
+            var nextChapter = mapModel.Chapters.Find(chapter => chapter.Id == nextMapId);
+            var nextMapItem = mapConfig.GetMapItem(nextMapId);
+            
+            if (nextMapItem == null)
+            {
+                if (enableDebugLogs) Debug.LogWarning($"GameManager: Next map {nextMapId} does not exist in config");
+                return;
+            }
+            
+            if (nextChapter == null || nextChapter.Star == -1)
+            {
+                if (enableDebugLogs) Debug.LogWarning($"GameManager: Next map {nextMapId} is not unlocked yet");
+                return;
+            }
+            
+            if (enableDebugLogs) Debug.Log($"GameManager: Starting next level - Map {nextMapId}");
+            
+            // Close all popups first
+            PopupManager.instance?.CloseAllPopup();
+            
+            // Update selected map in PlayerPrefs
+            PlayerPrefs.SetInt(PlayerPrefsConfig.Key_Select_Map_Id, nextMapId);
+            PlayerPrefs.SetString(PlayerPrefsConfig.Key_Select_Map_Name, nextMapItem.mapName);
+            
+            // If we're currently in game, clean up first
+            if (currentState != GameState.MainMenu)
+            {
+                currentState = GameState.Loading;
+                
+                // Stop current game
+                game.ExitGame();
+                
+                // Stop wave system
+                WaveManager.instance?.StopWaveSystem();
+                
+                // Cleanup systems
+                await CleanupGameSystems();
+                
+                // Reset state to MainMenu after cleanup so StartGame() can proceed
+                currentState = GameState.MainMenu;
+            }
+            
+            // Start the game with the new map
+            await StartGame();
+            
+            if (enableDebugLogs) Debug.Log($"GameManager: Successfully started next level - Map {nextMapId}");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"GameManager: Failed to start next level - {ex.Message}");
+            currentState = GameState.MainMenu;
         }
     }
 
@@ -225,14 +414,52 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         {
             if (enableDebugLogs) Debug.Log("GameManager: Showing victory popup");
             
-            var popup = await PopupManager.instance.OpenPopup<PopupVictory>();
-            popup.InitView(stars, goldBonus); // Note: PopupVictory.InitView expects (star, goldBonus) order
+            // Check if current level is the max level
+            bool isMaxLevel = IsCurrentLevelMaxLevel();
             
-            if (enableDebugLogs) Debug.Log("GameManager: Victory popup displayed");
+            var popup = await PopupManager.instance.OpenPopup<PopupVictory>();
+            popup.InitView(stars, goldBonus, isMaxLevel); // Pass max level information
+            
+            if (enableDebugLogs) Debug.Log($"GameManager: Victory popup displayed (Max Level: {isMaxLevel})");
         }
         catch (Exception ex)
         {
             Debug.LogError($"GameManager: Failed to show victory popup - {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Check if the current level is the maximum level available in the game
+    /// </summary>
+    /// <returns>True if current level is the max level, false otherwise</returns>
+    private bool IsCurrentLevelMaxLevel()
+    {
+        try
+        {
+            var currentMapId = PlayerPrefs.GetInt(PlayerPrefsConfig.Key_Select_Map_Id, 0);
+            var mapConfig = ConfigManager.instance.GetConfig<MapConfig>();
+            
+            // Find the highest map ID in the config
+            int maxMapId = -1;
+            foreach (var mapItem in mapConfig.listConfigItems)
+            {
+                if (mapItem.mapId > maxMapId)
+                {
+                    maxMapId = mapItem.mapId;
+                }
+            }
+            
+            // Check if current map is the max map
+            bool isMaxLevel = currentMapId >= maxMapId;
+            
+            if (enableDebugLogs) Debug.Log($"GameManager: Current map {currentMapId}, Max map {maxMapId}, IsMaxLevel: {isMaxLevel}");
+            
+            return isMaxLevel;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"GameManager: Error checking max level - {ex.Message}");
+            return false; // Default to false if there's an error
         }
     }
 

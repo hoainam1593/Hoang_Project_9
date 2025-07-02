@@ -34,6 +34,7 @@ public enum GameEvent
     OnGameResumed,
     OnGameOver,
     OnVictory,
+    OnGameRetry,
     
     //Player Events
     OnPlayerDeath,

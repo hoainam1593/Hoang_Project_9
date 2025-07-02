@@ -25,7 +25,7 @@ public class PopupGameOver : BasePopup
 
         buttonRetry.onClick.AddListener(() =>
         {
-            //GameManager.instance?.RetryGame().Forget();
+            GameManager.instance?.RetryGame().Forget();
             ClosePopup();
         });
     }

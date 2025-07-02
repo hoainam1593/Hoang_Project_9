@@ -315,6 +315,7 @@ MonoBehaviour:
   - {fileID: 5784063863431573642}
   buttonExit: {fileID: 3846115647114978234}
   buttonNextLevel: {fileID: 7656970371363875144}
+  textNextLevel: {fileID: 1491293278207606433}
 --- !u!1 &2060531923205642204
 GameObject:
   m_ObjectHideFlags: 0

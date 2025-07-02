@@ -10,7 +10,7 @@ public class PopupVictory : BasePopup
     [SerializeField] private List<Image> starImages;
     [SerializeField] private Button buttonExit;
     [SerializeField] private Button buttonNextLevel;
-
+    [SerializeField] private TMPro.TextMeshProUGUI textNextLevel; // Text component for button text
 
     protected override void Start()
     {
@@ -29,7 +29,7 @@ public class PopupVictory : BasePopup
 
         buttonNextLevel.onClick.AddListener(() =>
         {
-            //GameManager.instance?.NextLevel().Forget();
+            GameManager.instance?.NextLevel().Forget();
             ClosePopup();
         });
     }
@@ -43,10 +43,50 @@ public class PopupVictory : BasePopup
         buttonNextLevel.onClick.RemoveAllListeners();
     }
 
-    public void InitView(int star, int goldBonus)
+    /// <summary>
+    /// Initialize the victory popup view
+    /// </summary>
+    /// <param name="star">Number of stars earned (1-3)</param>
+    /// <param name="goldBonus">Gold bonus amount</param>
+    /// <param name="isMaxLevel">Whether this is the maximum level available</param>
+    public void InitView(int star, int goldBonus, bool isMaxLevel = false)
     {
         textGoldBonus.text = goldBonus.ToString();
         FillStar(star);
+        
+        // Handle max level UI changes
+        if (isMaxLevel)
+        {
+            // Disable the next level button
+            buttonNextLevel.interactable = false;
+            
+            // Change button text to "Max Level"
+            if (textNextLevel != null)
+            {
+                textNextLevel.text = "Max Level";
+            }
+        }
+        else
+        {
+            // Ensure button is enabled for normal levels
+            buttonNextLevel.interactable = true;
+            
+            // Set normal button text
+            if (textNextLevel != null)
+            {
+                textNextLevel.text = "Next Level";
+            }
+        }
+    }
+
+    /// <summary>
+    /// Overload for backward compatibility
+    /// </summary>
+    /// <param name="star">Number of stars earned (1-3)</param>
+    /// <param name="goldBonus">Gold bonus amount</param>
+    public void InitView(int star, int goldBonus)
+    {
+        InitView(star, goldBonus, false);
     }
 
     private void FillStar(int star)
