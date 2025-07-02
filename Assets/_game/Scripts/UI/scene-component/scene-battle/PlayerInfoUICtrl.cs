@@ -36,7 +36,7 @@ public class PlayerInfoUICtrl : MonoBehaviour
         // Get in-game player info from PlayerCtrl
         if (PlayerCtrl.instance != null)
         {
-            playerInfo = PlayerCtrl.instance.GetInGamePlayerInfo();
+            playerInfo = PlayerCtrl.instance.GetPlayerInfo();
             
             // Set up UI subscriptions
             if (playerInfo != null)

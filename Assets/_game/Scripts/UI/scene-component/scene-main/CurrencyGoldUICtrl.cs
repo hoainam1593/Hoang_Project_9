@@ -1,4 +1,5 @@
 using UnityEngine;
+using R3;
 
 public class CurrencyGoldUICtrl : MonoBehaviour
 {
@@ -6,5 +7,14 @@ public class CurrencyGoldUICtrl : MonoBehaviour
 
     private void Start()
     {
+        var playerInfo = PlayerCtrl.instance.GetPlayerInfo();
+
+        goldText.text = playerInfo.Gold.ToString();
+
+        playerInfo.Gold.Subscribe(
+            onNext: (value) => {
+                goldText.text = value.ToString();
+            }
+        );
     }
 }

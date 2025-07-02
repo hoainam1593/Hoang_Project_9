@@ -45,7 +45,7 @@ public class TabViewMap : MonoBehaviour
     private void OnDestroy()
     {
         ClearAllItems();
-        //pool.DespawnAll();
+        pool?.DespawnAll();
     }
 
     #region CreateView
@@ -65,7 +65,7 @@ public class TabViewMap : MonoBehaviour
 
     private void RemoveItem(GameObject go)
     {
-        //pool.Despawn(go);
+        pool?.Despawn(go);
     }
         
 
@@ -90,8 +90,8 @@ public class TabViewMap : MonoBehaviour
     private async UniTask<GameObject> CreateItem(MapItemData data)
     {
         // Debug.Log("Creating item > map: " + data.Id);
-        var newItem = GameObject.Instantiate(mapItemPrefab, Vector3.zero, Quaternion.identity, content);
-        //var newItem = await pool.Spawn("MapItem");
+        //var newItem = GameObject.Instantiate(mapItemPrefab, Vector3.zero, Quaternion.identity, content);
+        var newItem = await pool.Spawn("MapItem");
         newItem.transform.SetParent(content);
         newItem.transform.SetAsLastSibling();
         

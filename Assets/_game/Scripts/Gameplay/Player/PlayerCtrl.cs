@@ -22,9 +22,6 @@ public class PlayerCtrl : SingletonMonoBehaviour<PlayerCtrl>
     private PlayerConfigItem playerConfig;
     private PlayerModel playerModel;
 
-    // Events for UI updates
-    public event Action<int> OnGoldChanged;
-
     /// <summary>
     /// Initialize player data from config and persistent model
     /// </summary>
@@ -58,7 +55,7 @@ public class PlayerCtrl : SingletonMonoBehaviour<PlayerCtrl>
             // Subscribe to gold changes to save data
             gold.Subscribe(value => {
                 playerModel.Gold = value;
-                OnGoldChanged?.Invoke(value);
+                //Dispatcher Event goldChange
                 SavePlayerModel();
             });
 
@@ -239,12 +236,13 @@ public class PlayerCtrl : SingletonMonoBehaviour<PlayerCtrl>
     /// <summary>
     /// Get in-game player info for UI display
     /// </summary>
-    public InGamePlayerInfo GetInGamePlayerInfo()
+    public InGamePlayerInfo GetPlayerInfo()
     {
         return new InGamePlayerInfo
         {
             HP = inGameHP,
-            Coin = inGameCoin
+            Coin = inGameCoin,
+            Gold = gold,
         };
     }
 
@@ -310,4 +308,5 @@ public class InGamePlayerInfo
 {
     public ReactiveProperty<int> HP;
     public ReactiveProperty<int> Coin;
+    public ReactiveProperty<int> Gold;
 }
