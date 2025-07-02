@@ -11,7 +11,7 @@ public class PlayerInfoUICtrl : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textHp;
     [SerializeField] private TextMeshProUGUI textCoin;
 
-    private InGamePlayerInfo playerInfo;
+    private PlayerInfo playerInfo;
 
     void Awake()
     {

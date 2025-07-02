@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
-public partial class GameLauncher : SingletonMonoBehaviour<GameLauncher>
+public class GameLauncher : SingletonMonoBehaviour<GameLauncher>
 {
     [Header("Debug")]
     [SerializeField] private bool enableDebugLogs = true;

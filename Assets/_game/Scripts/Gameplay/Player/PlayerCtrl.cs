@@ -236,9 +236,9 @@ public class PlayerCtrl : SingletonMonoBehaviour<PlayerCtrl>
     /// <summary>
     /// Get in-game player info for UI display
     /// </summary>
-    public InGamePlayerInfo GetPlayerInfo()
+    public PlayerInfo GetPlayerInfo()
     {
-        return new InGamePlayerInfo
+        return new PlayerInfo
         {
             HP = inGameHP,
             Coin = inGameCoin,
@@ -304,7 +304,7 @@ public class PlayerCtrl : SingletonMonoBehaviour<PlayerCtrl>
 /// Data structure for in-game player information (simplified)
 /// </summary>
 [System.Serializable]
-public class InGamePlayerInfo
+public class PlayerInfo
 {
     public ReactiveProperty<int> HP;
     public ReactiveProperty<int> Coin;

@@ -126,9 +126,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             // Stop the game first
             game.ExitGame();
             
-            // Stop wave system
-            WaveManager.instance?.StopWaveSystem();
-            
             // Cleanup all systems
             await CleanupGameSystems();
             
