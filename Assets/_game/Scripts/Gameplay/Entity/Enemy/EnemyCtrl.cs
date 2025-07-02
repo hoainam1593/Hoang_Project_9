@@ -29,7 +29,7 @@ public class EnemyCtrl : EntityBase, IDamagable
     // Curved corner movement variables - CONVERTED TO PathEntry
     private PathEntry currentPathEntry = null;
     private PathEntry nextPathEntry = null;
-    private PathEntry nextNextPathEntry = null;
+    private PathEntry prePathEntry = null;
     private bool isInCorner = false;
     private bool cornerTriggered = false; // Flag to prevent multiple corner triggers
     private Vector3 cornerStartPos;
@@ -78,10 +78,10 @@ public class EnemyCtrl : EntityBase, IDamagable
                 Gizmos.DrawSphere(nextPos, 0.06f);
             }
             
-            if (IsValidPathEntry(nextNextPathEntry))
+            if (IsValidPathEntry(prePathEntry))
             {
                 Gizmos.color = Color.magenta;
-                Vector3 nextNextPos = PathFinding.instance.GetWorldPos(nextNextPathEntry.mapCoordinate);
+                Vector3 nextNextPos = PathFinding.instance.GetWorldPos(prePathEntry.mapCoordinate);
                 Gizmos.DrawSphere(nextNextPos, 0.06f);
             }
         }
@@ -245,7 +245,7 @@ public class EnemyCtrl : EntityBase, IDamagable
         {
             // Calculate corner positions once and cache them
             // We need current, next and next-next for corner calculation
-            if (IsValidPathEntry(currentPathEntry) && IsValidPathEntry(nextPathEntry) && IsValidPathEntry(nextNextPathEntry))
+            if (IsValidPathEntry(currentPathEntry) && IsValidPathEntry(nextPathEntry) && IsValidPathEntry(prePathEntry))
             {
                 PathFinding.instance.GetCornerPositions(target, out cachedCornerStart, out cachedCornerExit);
                 
@@ -268,16 +268,9 @@ public class EnemyCtrl : EntityBase, IDamagable
 
     private void UpdateLookahead()
     {
+        prePathEntry = currentPathEntry;
         currentPathEntry = nextPathEntry;
         nextPathEntry = PathFinding.instance.GetNextEntry(target.mapCoordinate);
-        if (IsValidPathEntry(nextPathEntry))
-        {
-            nextNextPathEntry = PathFinding.instance.GetNextNextEntry(target.mapCoordinate);
-        }
-        else
-        {
-            nextNextPathEntry = null;
-        }
     }
 
     private bool CheckForCornerStart()
@@ -454,16 +447,16 @@ public class EnemyCtrl : EntityBase, IDamagable
         var strBuilder = new StringBuilder();
 
         // Debug log all position values when IsCornerAhead is called
-        strBuilder.AppendLine($"[EnemyCtrl {Uid}] === CORNER DETECTION DEBUG ===");
-        strBuilder.AppendLine($"PathEntry: {currentPathEntry} => {target} => {nextPathEntry} => {nextNextPathEntry}");
+        strBuilder.AppendLine($"[EnemyCtrl {Uid}] CheckForCornerAheadOptimized");
+        strBuilder.AppendLine($"PathEntry: {currentPathEntry} => {target} => {nextPathEntry} => {prePathEntry}");
 
         // Convert coordinates to world positions for better understanding
         var currentWorldPos = IsValidPathEntry(currentPathEntry) ? PathFinding.instance.GetWorldPos(currentPathEntry.mapCoordinate) : Vector3.zero;
         var targetWorldPos = IsValidPathEntry(target) ? PathFinding.instance.GetWorldPos(target.mapCoordinate) : Vector3.zero;
         var nextWorldPos = IsValidPathEntry(nextPathEntry) ? PathFinding.instance.GetWorldPos(nextPathEntry.mapCoordinate) : Vector3.zero;
-        var nextNextWorldPos = IsValidPathEntry(nextNextPathEntry) ? PathFinding.instance.GetWorldPos(nextNextPathEntry.mapCoordinate) : Vector3.zero;
+        var preWorldPos = IsValidPathEntry(prePathEntry) ? PathFinding.instance.GetWorldPos(prePathEntry.mapCoordinate) : Vector3.zero;
 
-        strBuilder.AppendLine($"World Pos: {Vector3ToPos(currentWorldPos)} => {Vector3ToPos(targetWorldPos)} => {Vector3ToPos(nextWorldPos)} => {Vector3ToPos(nextNextWorldPos)} real Pos: {transform.position}");
+        strBuilder.AppendLine($"World Pos: {Vector3ToPos(preWorldPos)} => {Vector3ToPos(currentWorldPos)} => {Vector3ToPos(targetWorldPos)} => {Vector3ToPos(nextWorldPos)} real Pos: {transform.position}");
         strBuilder.AppendLine($"CORNER DETECTED >> start: {Vector3ToPos(cachedCornerStart)} => exit:{Vector3ToPos(cachedCornerExit)}");
         strBuilder.AppendLine($"Target IsCorner: {target?.isCorner}");
         strBuilder.AppendLine($"[EnemyCtrl {Uid}] === END CORNER DETECTION DEBUG ===");
