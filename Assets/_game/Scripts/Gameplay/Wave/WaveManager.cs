@@ -38,7 +38,7 @@ public class WaveManager : SingletonMonoBehaviour<WaveManager>
     /// <summary>
     /// Initialize wave system for a specific map
     /// </summary>
-    public void InitializeMap(int mapId)
+    public void Initialize(int mapId)
     {
         try
         {
@@ -75,6 +75,7 @@ public class WaveManager : SingletonMonoBehaviour<WaveManager>
             currentWave = null;
             isWaveSystemActive = false;
 
+            GameEventMgr.GED.DispatcherEvent(GameEvent.OnWaveManagerInit, currentMapWaves.Count);
             if (enableDebugLogs) Debug.Log($"[WaveManager] Map {mapId} initialized with {currentMapWaves.Count} waves");
         }
         catch (System.Exception ex)

@@ -38,8 +38,9 @@ public enum GameEvent
     
     //Player Events
     OnPlayerDeath,
-    
+
     //Wave Events
+    OnWaveManagerInit,
     OnWaveComplete,
     OnWaveStart,
     OnAllWavesComplete,

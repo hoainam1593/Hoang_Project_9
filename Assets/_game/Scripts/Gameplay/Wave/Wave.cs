@@ -41,7 +41,7 @@ public class Wave
         Debug.Log($"[Wave] Starting wave {WaveId} - {Config.enemyType} x{Config.num} (gap: {Config.gapTime}s)");
         
         ChangeState(WaveState.Spawning);
-        GameEventMgr.GED.DispatcherEvent(GameEvent.OnWaveStart, WaveId);
+        GameEventMgr.GED.DispatcherEvent(GameEvent.OnWaveStart, (WaveId, Config.num));
         
         await SpawnEnemies(spawnPosition);
     }

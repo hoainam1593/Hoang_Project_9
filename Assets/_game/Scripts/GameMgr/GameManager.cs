@@ -568,7 +568,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             var selectedMap = PlayerPrefs.GetInt(PlayerPrefsConfig.Key_Select_Map_Id, 0);
             
             // Initialize wave manager with the selected map
-            WaveManager.instance.InitializeMap(selectedMap);
+            WaveManager.instance.Initialize(selectedMap);
 
             // Set spawn position (you might want to get this from map data)
             var spawnEnemyPosition = PathFinding.instance.GetStartWorldPos();

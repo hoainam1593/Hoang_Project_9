@@ -59,6 +59,7 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
         {
             enemyCtrl.OnSpawn(enemyId);
             enemyCtrls.Add(enemyCtrl.Uid, enemyCtrl);
+            GameEventMgr.GED.DispatcherEvent(GameEvent.OnEnemySpawnCompleted, enemyCtrl.Uid);
 
             SpawnHealthBar(enemyCtrl);
         }

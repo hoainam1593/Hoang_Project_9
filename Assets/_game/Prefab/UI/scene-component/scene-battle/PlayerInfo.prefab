@@ -502,6 +502,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textHp: {fileID: 5520754470880912268}
   textCoin: {fileID: 3699799697785089076}
+  textWave: {fileID: 184449070193913581}
 --- !u!1 &5482589532022601841
 GameObject:
   m_ObjectHideFlags: 0

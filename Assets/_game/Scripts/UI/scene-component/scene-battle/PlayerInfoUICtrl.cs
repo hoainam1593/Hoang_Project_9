@@ -10,7 +10,10 @@ public class PlayerInfoUICtrl : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI textHp;
     [SerializeField] private TextMeshProUGUI textCoin;
+    [SerializeField] private TextMeshProUGUI textWave;
 
+
+    private int waveCount;
     private PlayerInfo playerInfo;
 
     void Awake()
@@ -64,6 +67,10 @@ public class PlayerInfoUICtrl : MonoBehaviour
             // Fallback to config values
             InitializeFallbackPlayerInfo();
         }
+
+
+        waveCount = WaveManager.instance.TotalWaves;
+        textWave.text = $"Wave: 0/{waveCount}";
     }
 
     /// <summary>
@@ -103,12 +110,16 @@ public class PlayerInfoUICtrl : MonoBehaviour
     private void SubscribeEvents()
     {
         GameEventMgr.GED.Register(GameEvent.OnGameRetry, OnGameRetry);
+        GameEventMgr.GED.Register(GameEvent.OnWaveManagerInit, OnWaveManagerInit);
+        GameEventMgr.GED.Register(GameEvent.OnWaveStart, OnWaveStart);
     }
 
     private void UnSubscribeEvents()
     {
         // Unsubscribe from events to prevent memory leaks
         GameEventMgr.GED.UnRegister(GameEvent.OnGameRetry, OnGameRetry);
+        GameEventMgr.GED.UnRegister(GameEvent.OnWaveManagerInit, OnWaveManagerInit);
+        GameEventMgr.GED.UnRegister(GameEvent.OnWaveStart, OnWaveStart);
     }
 
     /// <summary>
@@ -118,6 +129,19 @@ public class PlayerInfoUICtrl : MonoBehaviour
     private void OnGameRetry(object data)
     {
         ResetPlayerInfo();
+    }
+
+    private void OnWaveStart(object data)
+    {
+        var crrWave = ((int waveId, int enemyCount))data;
+        textWave.text = $"Wave: {crrWave.waveId}/{waveCount}";
+    }
+
+    private void OnWaveManagerInit(object data)
+    {
+        // Initialize wave count when WaveManager is ready
+        waveCount = WaveManager.instance.TotalWaves;
+        textWave.text = $"Wave: 0/{waveCount}";
     }
     #endregion SubscribeEvents / UnSubscribeEvents!!!
 }

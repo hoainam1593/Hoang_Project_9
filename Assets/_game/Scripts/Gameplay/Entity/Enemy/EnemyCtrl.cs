@@ -1,3 +1,4 @@
+using Amazon.S3.Model;
 using R3;
 using System.Text;
 using UnityEngine;
@@ -35,6 +36,7 @@ public class EnemyCtrl : EntityBase, IDamagable
     private Vector3 cornerStartPos;
     private Vector3 cornerExitPos;
     private Vector3 targetCurvePos;
+    private float cornerMovingProgress = 0f;
     [SerializeField] private float curveIntensity = 0.3f; // How curved the corners should be (0-1)
     [SerializeField] private float cornerDetectionDistance = 0.3f; // Distance from tile center to start corner detection
     
@@ -249,8 +251,8 @@ public class EnemyCtrl : EntityBase, IDamagable
         cornerTriggered = true;
         cornerStartPos = cachedCornerStart;
         cornerExitPos = cachedCornerExit;
-
-        targetCurvePos = PathFinding.instance.GetCurvedPosition(cornerStartPos, cornerExitPos, targetPos, 0.01f, curveIntensity);
+        cornerMovingProgress = 0.01f;
+        targetCurvePos = PathFinding.instance.GetCurvedPosition(cornerStartPos, cornerExitPos, targetPos, cornerMovingProgress, curveIntensity);
     }
 
     private void MoveOutOfCorner()
@@ -304,7 +306,7 @@ public class EnemyCtrl : EntityBase, IDamagable
 
     private bool CheckForCornerStart()
     {
-        Debug.Log($"[EnemyCtrl {Uid}] CheckForCornerStart > target: {target} > cornerTriggered: {cornerTriggered} > isCorner: {target.isCorner}");
+        //Debug.Log($"[EnemyCtrl {Uid}] CheckForCornerStart > target: {target} > cornerTriggered: {cornerTriggered} > isCorner: {target.isCorner}");
 
         if (cornerTriggered || !target.isCorner)
         {
@@ -359,10 +361,10 @@ public class EnemyCtrl : EntityBase, IDamagable
 
     private Vector3 MovingInCorner()
     {
-        float progress = GetCornerProgress();
+        cornerMovingProgress = GetCornerProgress();
 
         // Get curved position
-        targetCurvePos = PathFinding.instance.GetCurvedPosition(cornerStartPos, cornerExitPos, targetPos, progress, curveIntensity);
+        targetCurvePos = PathFinding.instance.GetCurvedPosition(cornerStartPos, cornerExitPos, targetPos, cornerMovingProgress, curveIntensity);
 
         // Move towards the curved target position
         Vector3 newPos = Vector3.MoveTowards(transform.position, targetCurvePos, speed * Time.deltaTime);
@@ -395,16 +397,16 @@ public class EnemyCtrl : EntityBase, IDamagable
     
     private void Rotate()
     {
-        Vector3 rotationDirection = direction;
+        //Vector3 rotationDirection = direction;
         
-        // If in corner, rotate towards the curve direction
-        if (isInCorner)
-        {
-            rotationDirection = (targetCurvePos - transform.position).normalized;
-        }
+        //// If in corner, rotate towards the curve direction
+        //if (isInCorner & cornerMovingProgress > 0.1f)
+        //{
+        //    rotationDirection = (targetCurvePos - transform.position).normalized;
+        //}
         
-        float angle = Mathf.Atan2(rotationDirection.y, rotationDirection.x) * Mathf.Rad2Deg - DefaultForward;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
+        //float angle = Mathf.Atan2(rotationDirection.y, rotationDirection.x) * Mathf.Rad2Deg - DefaultForward;
+        //transform.rotation = Quaternion.Euler(0, 0, angle);
     }
     
     #endregion Task - Move & Rotate!!!
