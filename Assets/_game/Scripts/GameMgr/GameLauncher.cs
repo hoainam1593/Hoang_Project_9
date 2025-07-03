@@ -113,6 +113,7 @@ public class GameLauncher : SingletonMonoBehaviour<GameLauncher>
             {
                 new MapModel(),
                 new CurrencyModel(), // Add the new PlayerModel
+                new TurretUpgradeModel(),
             };
             
             PlayerModelManager.instance.LoadAllModels(models, "PlayerModel"); // Changed default model name to PlayerModel

@@ -10,7 +10,6 @@ public class TurretConfigItem : BaseConfigItem
     public float range;
     public float speed;
     public int cost;
-    public string upgradeStats;
     
     public override void ReadOrWrite(IFileStream stream)
     {
@@ -22,7 +21,6 @@ public class TurretConfigItem : BaseConfigItem
         stream.ReadOrWriteFloat(ref range, "range");
         stream.ReadOrWriteFloat(ref speed, "speed");
         stream.ReadOrWriteInt(ref cost, "cost");
-        stream.ReadOrWriteString(ref upgradeStats, "upgrade_stats_percent");
     }
 
     public override string ToString()
