@@ -202,16 +202,11 @@ public class EnemyCtrl : EntityBase, IDamagable
 
     private void GetFirstTarget()
     {
-        var startEntry = PathFinding.instance.GetStartEntry();
-        target = PathFinding.instance.GetNextEntry(startEntry.mapCoordinate);
-        if (IsValidPathEntry(target))
-        {
-            targetPos = PathFinding.instance.GetWorldPos(target.mapCoordinate);
-            direction = targetPos - transform.position;
-            direction.z = 0;
-            
-            UpdateLookahead();
-        }
+        currentPathEntry = PathFinding.instance.GetStartEntry();
+        nextPathEntry = PathFinding.instance.GetNextEntry(currentPathEntry.mapCoordinate);
+        target = currentPathEntry;
+
+        NextStep();
     }
 
     private bool IsReachTarget()
@@ -273,15 +268,13 @@ public class EnemyCtrl : EntityBase, IDamagable
             return;
         }
 
-        // NEW LOGIC: Check if target itself is a corner using target.isCorner
         bool hasCorner = target.isCorner;
 
         Debug.Log($"[EnemyCtrl {Uid}] CheckForCornerAheadOptimized: target={target} hasCorner={hasCorner}");
+
         if (hasCorner)
         {
-            // Calculate corner positions once and cache them
-            // We need current, next and next-next for corner calculation
-            if (IsValidPathEntry(currentPathEntry) && IsValidPathEntry(nextPathEntry) && IsValidPathEntry(prePathEntry))
+            if (IsValidPathEntry(prePathEntry) && IsValidPathEntry(currentPathEntry) && IsValidPathEntry(nextPathEntry))
             {
                 PathFinding.instance.GetCornerPositions(target, out cachedCornerStart, out cachedCornerExit);
 
@@ -289,7 +282,7 @@ public class EnemyCtrl : EntityBase, IDamagable
                 cornerStartPos = cachedCornerStart;
                 cornerExitPos = cachedCornerExit;
 
-                DebugCorner();
+                //DebugCorner();
             }
             else
             {
