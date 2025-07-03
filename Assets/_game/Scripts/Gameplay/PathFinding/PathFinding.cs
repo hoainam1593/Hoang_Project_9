@@ -96,27 +96,22 @@ public class PathFinding : SingletonMonoBehaviour<PathFinding>
         return new MatrixPath<PathEntry>(pathEntries);
     }
 
-    #region Get StartPoint
+
+    /// <summary>
+    /// Get all path entries for debugging
+    /// </summary>
+    public List<PathEntry> GetAllPathEntries()
+    {
+        return matrixPath.Points;
+    }
+
+    #region Task - Get MapCoordinate
+
     public MapCoordinate GetStartPoint()
     {
         var startEntry = matrixPath.GetRoot();
         return startEntry?.mapCoordinate;
     }
-
-    public PathEntry GetStartEntry()
-    {
-        return matrixPath.GetRoot();
-    }
-
-    public Vector3 GetStartWorldPos()
-    {
-        var startPoint = GetStartPoint();
-        return GetWorldPos(startPoint);
-    }
-    
-    #endregion Get StartPoint!!
-    
-    #region Get Next Point
 
     public MapCoordinate GetNextPoint(MapCoordinate crrPoint)
     {
@@ -128,6 +123,30 @@ public class PathFinding : SingletonMonoBehaviour<PathFinding>
         }
         return null;
     }
+    /// <summary>
+    /// Get the point after the next point (for lookahead corner detection)
+    /// </summary>
+    public MapCoordinate GetNextNextPoint(MapCoordinate crrPoint)
+    {
+        var nextPoint = GetNextPoint(crrPoint);
+        if (nextPoint != null)
+        {
+            return GetNextPoint(nextPoint);
+        }
+        return null;
+    }
+
+
+    #endregion Task - Get MapCoordinate!!!
+
+
+    #region Task - Get PathEntry
+
+    public PathEntry GetStartEntry()
+    {
+        return matrixPath.GetRoot();
+    }
+
 
     public PathEntry GetNextEntry(PathEntry currentEntry)
     {
@@ -140,30 +159,6 @@ public class PathFinding : SingletonMonoBehaviour<PathFinding>
         if (currentEntry != null)
         {
             return matrixPath.Next(currentEntry);
-        }
-        return null;
-    }
-
-    public Vector3 GetNextWorldPos(MapCoordinate crrPoint)
-    {
-        var nextPoint = GetNextPoint(crrPoint);
-        if (nextPoint != null)
-        {
-            return GetWorldPos(nextPoint);
-        }
-
-        return UnDefinePos;
-    }
-
-    /// <summary>
-    /// Get the point after the next point (for lookahead corner detection)
-    /// </summary>
-    public MapCoordinate GetNextNextPoint(MapCoordinate crrPoint)
-    {
-        var nextPoint = GetNextPoint(crrPoint);
-        if (nextPoint != null)
-        {
-            return GetNextPoint(nextPoint);
         }
         return null;
     }
@@ -182,6 +177,55 @@ public class PathFinding : SingletonMonoBehaviour<PathFinding>
     }
 
     /// <summary>
+    /// Find PathEntry by MapCoordinate
+    /// </summary>
+    private PathEntry FindPathEntry(MapCoordinate coordinate)
+    {
+        if (coordinate == null) return null;
+
+        foreach (var entry in matrixPath.Points)
+        {
+            if (entry.mapCoordinate.Equals(coordinate))
+            {
+                return entry;
+            }
+        }
+        return null;
+    }
+    #endregion Task - Get PathEntry!!!
+
+
+    #region Task - Get World Position
+    public Vector3 GetStartWorldPos()
+    {
+        var startPoint = GetStartPoint();
+        return GetWorldPos(startPoint);
+    }
+
+    public Vector3 GetWorldPos(MapCoordinate point)
+    {
+        if (convertPos.ContainsKey(point))
+        {
+            return convertPos[point];
+        }
+
+        return UnDefinePos;
+    }
+
+
+    public Vector3 GetNextWorldPos(MapCoordinate crrPoint)
+    {
+        var nextPoint = GetNextPoint(crrPoint);
+        if (nextPoint != null)
+        {
+            return GetWorldPos(nextPoint);
+        }
+
+        return UnDefinePos;
+    }
+
+
+    /// <summary>
     /// Get the world position of the point after next point
     /// </summary>
     public Vector3 GetNextNextWorldPos(MapCoordinate crrPoint)
@@ -193,6 +237,30 @@ public class PathFinding : SingletonMonoBehaviour<PathFinding>
         }
         return UnDefinePos;
     }
+
+
+    #endregion Task - Get World Position!!!
+
+
+
+
+    #region Task - Check IsEndOfPath
+
+    public bool IsEnd(MapCoordinate crrPoint)
+    {
+        var pathEntry = FindPathEntry(crrPoint);
+        if (pathEntry != null)
+        {
+            return matrixPath.IsEnd(pathEntry);
+        }
+        return false;
+    }
+
+    #endregion IsEndOfPath!!
+
+
+
+    #region Task - Check & Calculate Corner Position
 
     /// <summary>
     /// Check if the given coordinate is marked as a corner in the path
@@ -215,22 +283,6 @@ public class PathFinding : SingletonMonoBehaviour<PathFinding>
         return IsCornerPoint(next);
     }
 
-    /// <summary>
-    /// Find PathEntry by MapCoordinate
-    /// </summary>
-    private PathEntry FindPathEntry(MapCoordinate coordinate)
-    {
-        if (coordinate == null) return null;
-
-        foreach (var entry in matrixPath.Points)
-        {
-            if (entry.mapCoordinate.Equals(coordinate))
-            {
-                return entry;
-            }
-        }
-        return null;
-    }
 
     /// <summary>
     /// Get the corner entry and exit positions for smooth curved movement
@@ -275,64 +327,59 @@ public class PathFinding : SingletonMonoBehaviour<PathFinding>
     /// <param name="currentPos">Current enemy position</param>
     /// <param name="curveIntensity">How curved the path should be (0-1)</param>
     /// <returns>Next position along the curved path</returns>
-    public Vector3 GetCurvedPosition(Vector3 startPos, Vector3 endPos, Vector3 currentPos, float curveIntensity = 0.5f)
+    public Vector3 GetCurvedPosition(Vector3 startPos, Vector3 endPos, Vector3 targetPos, float progress, float curveIntensity = 0.5f)
     {
-        // Calculate the midpoint
         Vector3 midPoint = (startPos + endPos) * 0.5f;
-        
-        // Calculate perpendicular direction for curve offset
-        Vector3 direction = (endPos - startPos).normalized;
-        Vector3 perpendicular = new Vector3(-direction.y, direction.x, 0);
-        
-        // Add curve offset to midpoint
-        Vector3 curveCenter = midPoint + perpendicular * curveIntensity;
-        
-        // Calculate progress along the curve (0 to 1)
-        float totalDistance = Vector3.Distance(startPos, endPos);
-        float currentDistance = Vector3.Distance(startPos, currentPos);
-        float t = Mathf.Clamp01(currentDistance / totalDistance);
-        
+
+        Vector3 perpendicular = GetPerpendicularTowardTarget(startPos, endPos, targetPos);
+
+        Vector3 flowingCurveCenter = CalculateFollowingCurveCenter(startPos, endPos, curveIntensity, progress, midPoint, perpendicular);
+
         // Use quadratic Bezier curve: P(t) = (1-t)²P₀ + 2(1-t)tP₁ + t²P₂
-        Vector3 curvedPos = Mathf.Pow(1 - t, 2) * startPos + 
-                           2 * (1 - t) * t * curveCenter + 
-                           Mathf.Pow(t, 2) * endPos;
-        
+        Vector3 curvedPos = Mathf.Pow(1 - progress, 2) * startPos +
+                           2 * (1 - progress) * progress * flowingCurveCenter +
+                           Mathf.Pow(progress, 2) * endPos;
+
         return curvedPos;
     }
-    
-    #endregion Get Next!!
-    
-    #region IsEndOfPath
 
-    public bool IsEnd(MapCoordinate crrPoint)
+    private static Vector3 CalculateFollowingCurveCenter(Vector3 startPos, Vector3 endPos, float curveIntensity, float t, Vector3 midPoint, Vector3 perpendicular)
     {
-        var pathEntry = FindPathEntry(crrPoint);
-        if (pathEntry != null)
-        {
-            return matrixPath.IsEnd(pathEntry);
-        }
-        return false;
-    }
-    
-    #endregion IsEndOfPath!!
-    
-    public Vector3 GetWorldPos(MapCoordinate point)
-    {
-        if (convertPos.ContainsKey(point))
-        {
-            return convertPos[point];
-        }
-
-        return UnDefinePos;
+        Vector3 direction = (endPos - startPos).normalized;
+        Vector3 progressiveOffset = perpendicular * curveIntensity * (1 - t * 0.5f); // Reduces as we progress
+        Vector3 flowingCurveCenter = midPoint + progressiveOffset + direction * t * 0.2f;
+        return flowingCurveCenter;
     }
 
-    /// <summary>
-    /// Get all path entries for debugging
-    /// </summary>
-    public List<PathEntry> GetAllPathEntries()
+    //private float CaculateCornerProgress(Vector3 startPos, Vector3 endPos, Vector3 currentPos)
+    //{
+    //    float totalDistance = Vector3.Distance(startPos, endPos);
+    //    float currentDistance = Vector3.Distance(startPos, currentPos);
+    //    return Mathf.Clamp01(currentDistance / totalDistance);
+    //}
+
+
+    public Vector3 GetPerpendicularTowardTarget(Vector3 startPos, Vector3 endPos, Vector3 targetPos)
     {
-        return matrixPath.Points;
+        // 1. Calculate line direction
+        Vector3 lineDirection = (endPos - startPos).normalized;
+
+        // 2. Calculate both perpendicular options
+        Vector3 perpendicularUp = new Vector3(-lineDirection.y, lineDirection.x, 0);    // 90° counterclockwise
+        Vector3 perpendicularDown = new Vector3(lineDirection.y, -lineDirection.x, 0); // 90° clockwise
+
+        // 3. Use cross product to determine which side target is on
+        Vector3 toTarget = (targetPos - startPos).normalized;
+        float crossProduct = (lineDirection.x * toTarget.y) - (lineDirection.y * toTarget.x);
+
+        // 4. Choose perpendicular based on target side
+        return crossProduct > 0 ? perpendicularUp : perpendicularDown;
     }
+
+    #endregion Task - Check & Calculate Corner Position!!!
+
+
+    #region Task - Debug
 
     /// <summary>
     /// Debug method to print all path entries with corner information
@@ -347,4 +394,6 @@ public class PathFinding : SingletonMonoBehaviour<PathFinding>
         }
         Debug.Log("=== END PATH ENTRIES ===");
     }
+
+    #endregion Task - Debug!!!
 }
