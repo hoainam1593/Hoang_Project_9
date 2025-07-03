@@ -4,6 +4,7 @@ public class EnemyConfigItem : BaseConfigItem
     public string prefabName;
     public float hp;
     public float speed;
+    public int bonusCoin;
     
     public override void ReadOrWrite(IFileStream stream)
     {
@@ -11,5 +12,6 @@ public class EnemyConfigItem : BaseConfigItem
         stream.ReadOrWriteString(ref prefabName, "prefab_name");
         stream.ReadOrWriteFloat(ref hp, "hp");
         stream.ReadOrWriteFloat(ref speed, "speed");
+        stream.ReadOrWriteInt(ref bonusCoin, "bonus_coin");
     }
 }

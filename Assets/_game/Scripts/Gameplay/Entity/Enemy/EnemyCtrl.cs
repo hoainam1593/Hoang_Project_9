@@ -12,6 +12,7 @@ public class EnemyCtrl : EntityBase, IDamagable
     private static int _uid = -1;
 
     private int id;
+    public EnemyConfigItem Config { get; private set; }
     public int Uid { get; private set; }
     public bool IsDead { get; private set; }
     public float MaxHp { get; private set; }
@@ -108,13 +109,13 @@ public class EnemyCtrl : EntityBase, IDamagable
         }
 
         id = (int)data;
-        var config = ConfigManager.instance.GetConfig<EnemyConfig>().GetItem(id);
+        Config = ConfigManager.instance.GetConfig<EnemyConfig>().GetItem(id);
         IsDead = true;
-        MaxHp = config.hp;
-        CrrHp = new ReactiveProperty<float>(config.hp);
+        MaxHp = Config.hp;
+        CrrHp = new ReactiveProperty<float>(Config.hp);
         Position = new ReactiveProperty<Vector3>(transform.position);
-        speed = config.speed / FixedSpeed;
-        name = config.prefabName;
+        speed = Config.speed / FixedSpeed;
+        name = Config.prefabName;
     }
 
     protected override void OnSpawnStart()
@@ -431,11 +432,24 @@ public class EnemyCtrl : EntityBase, IDamagable
     private void OnDead()
     {
         Debug.Log($"[EnemyCtrl] OnDead > Uid: {Uid}, Id: {id}");
+        GameEventMgr.GED.DispatcherEvent(GameEvent.OnEnemyDead, GetEnemyInfo());
         EntityManager.instance.DespawnEnemy(this.Uid);
     }
+
     #endregion Task - IDamageable!!!
 
+    #region Get / Set
 
+    private EnemyInfo GetEnemyInfo()
+    {
+        return new EnemyInfo
+        {
+            uid = this.Uid,
+            config = this.Config,
+        };
+    }
+
+    #endregion Get / Set!!!
 
 
     #region Debug/Log
@@ -467,4 +481,10 @@ public class EnemyCtrl : EntityBase, IDamagable
     }
 
     #endregion Debug/Log!!!
+}
+
+public class EnemyInfo
+{
+    public int uid;
+    public EnemyConfigItem config;
 }

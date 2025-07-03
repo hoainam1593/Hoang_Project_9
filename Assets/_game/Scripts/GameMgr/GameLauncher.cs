@@ -39,7 +39,7 @@ public class GameLauncher : SingletonMonoBehaviour<GameLauncher>
             // Load player models
             LoadPlayerModels();
 
-            PlayerCtrl.instance.Initialize();
+            CurrencyManager.instance?.Initialize();
 
             // Initialize GameManager and launch game
             await GameManager.instance.LaunchGame();
@@ -112,7 +112,7 @@ public class GameLauncher : SingletonMonoBehaviour<GameLauncher>
             List<BasePlayerModel> models = new List<BasePlayerModel>()
             {
                 new MapModel(),
-                new PlayerModel(), // Add the new PlayerModel
+                new CurrencyModel(), // Add the new PlayerModel
             };
             
             PlayerModelManager.instance.LoadAllModels(models, "PlayerModel"); // Changed default model name to PlayerModel

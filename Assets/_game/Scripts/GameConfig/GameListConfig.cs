@@ -37,6 +37,7 @@ public class GameListConfig : IListConfigDeclaration
             new TurretConfig(),
             new MapWaveConfig(),
             new PlayerConfig(),
+            new GameResultConfig(),
         };
     }
 

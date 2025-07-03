@@ -222,7 +222,7 @@ public class WaveManager : SingletonMonoBehaviour<WaveManager>
         
         // Small delay before triggering victory
         await UniTask.WaitForSeconds(1f);
-        
+
         // Check if this should trigger victory condition
         GameManager.instance?.Victory();
     }
@@ -237,7 +237,7 @@ public class WaveManager : SingletonMonoBehaviour<WaveManager>
     private void SubscribeToEvents()
     {
         GameEventMgr.GED.Register(GameEvent.OnEnemyDespawnCompleted, OnEnemyDespawned);
-        
+
         if (enableDebugLogs) Debug.Log("[WaveManager] Subscribed to game events");
     }
 
@@ -247,7 +247,6 @@ public class WaveManager : SingletonMonoBehaviour<WaveManager>
     private void UnsubscribeFromEvents()
     {
         GameEventMgr.GED.UnRegister(GameEvent.OnEnemyDespawnCompleted, OnEnemyDespawned);
-        
         if (enableDebugLogs) Debug.Log("[WaveManager] Unsubscribed from game events");
     }
 

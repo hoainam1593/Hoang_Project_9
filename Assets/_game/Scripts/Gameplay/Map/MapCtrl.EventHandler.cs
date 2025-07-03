@@ -56,7 +56,8 @@ public partial class MapCtrl
     
     private void OnTurretSpawnCompleted(object data)
     {
-        var coordinate = (MapCoordinate)data;
+        var parseData = (TurretInfo)data;
+        var coordinate = parseData.mapCoordinate;
         if (mapData.IsInMatrix(coordinate))
         {
             mapData.tiles[coordinate.x][coordinate.y] = (int)TileEnum.Turret;

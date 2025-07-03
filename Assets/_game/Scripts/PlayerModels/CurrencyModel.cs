@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// Player model to hold main player data - simplified to only gold for upgrades.
 /// </summary>
-public class PlayerModel : BasePlayerModel
+public class CurrencyModel : BasePlayerModel
 {
     public override int ModelVersion => 1;
 

@@ -15,6 +15,8 @@ public class TurretCtrl : EntityBase
     private float shooterGapTime;
     private MapCoordinate mapCoordinate;
     private const float DefaultForward = 90f;
+    public TurretConfigItem Config { get; private set; }
+
     [SerializeField] private Transform objectMachine;
     [SerializeField] private List<Transform> gunHead;
 
@@ -41,11 +43,11 @@ public class TurretCtrl : EntityBase
         id = enemyData.id;
         mapCoordinate = enemyData.mapCoordinate;
         
-        var config = ConfigManager.instance.GetConfig<TurretConfig>().GetItem(id);
-        name = config.prefabName;
-        attack = config.attack;
-        range = config.range;
-        speed = config.speed;
+        Config = ConfigManager.instance.GetConfig<TurretConfig>().GetItem(id);
+        name = Config.prefabName;
+        attack = Config.attack;
+        range = Config.range;
+        speed = Config.speed;
         shooterGapTime = 1 / speed;
     }
 
@@ -82,7 +84,21 @@ public class TurretCtrl : EntityBase
     }
 
     #endregion Main Stream!!
-    
+
+
+    #region Getters/Setters
+
+    public TurretInfo GetTurretInfo()
+    {
+        return new TurretInfo
+        {
+            mapCoordinate = this.mapCoordinate,
+            config = this.Config,
+        };
+    }
+
+    #endregion Getters/Setters!!!
+
     #region Subscribes/UnSubscribes Event
 
     private void Subscribes()
@@ -237,4 +253,10 @@ public class TurretCtrl : EntityBase
     }
     #endregion Task - Attack!
 
+}
+
+public class TurretInfo
+{
+    public MapCoordinate mapCoordinate { get; set; }
+    public TurretConfigItem config { get; set; }
 }

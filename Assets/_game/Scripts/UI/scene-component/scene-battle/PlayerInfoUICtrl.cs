@@ -3,27 +3,18 @@ using TMPro;
 using R3;
 
 /// <summary>
-/// PlayerInfoCtrl handles the UI display for player information during battle.
-/// It gets data from PlayerCtrl and updates the UI accordingly.
+/// PlayerInfoUICtrl handles the UI display for player information during battle.
+/// It gets in-game data (HP, coin) from PlayerCtrl. Gold is handled separately by CurrencyGoldUICtrl.
 /// </summary>
 public class PlayerInfoUICtrl : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI textHp;
     [SerializeField] private TextMeshProUGUI textCoin;
-    [SerializeField] private TextMeshProUGUI textWave;
-
-
-    private int waveCount;
     private PlayerInfo playerInfo;
 
     void Awake()
     {
         SubscribeEvents();
-    }
-
-    private void Start()
-    {
-        InitializePlayerInfo();
     }
 
     private void OnDestroy()
@@ -32,45 +23,29 @@ public class PlayerInfoUICtrl : MonoBehaviour
     }
 
     /// <summary>
-    /// Initialize player info by getting data from PlayerCtrl
+    /// Initialize player info by getting in-game data from PlayerCtrl
     /// </summary>
-    private void InitializePlayerInfo()
+    private void InitView(PlayerInfo playerInfo)
     {
-        // Get in-game player info from PlayerCtrl
-        if (PlayerCtrl.instance != null)
+        // Set up UI subscriptions for in-game attributes
+        if (playerInfo != null)
         {
-            playerInfo = PlayerCtrl.instance.GetPlayerInfo();
-            
-            // Set up UI subscriptions
-            if (playerInfo != null)
+            playerInfo.HP.Subscribe(value =>
             {
-                playerInfo.HP.Subscribe(value =>
-                {
-                    textHp.text = $"{value}";
-                });
+                textHp.text = $"{value}";
+            });
 
-                playerInfo.Coin.Subscribe(value =>
-                {
-                    textCoin.text = $"{value}";
-                });
-            }
-            else
+            playerInfo.Coin.Subscribe(value =>
             {
-                Debug.LogError("PlayerInfoCtrl: Failed to get player info from PlayerCtrl");
-                // Fallback to config values
-                InitializeFallbackPlayerInfo();
-            }
+                textCoin.text = $"{value}";
+            });
         }
         else
         {
-            Debug.LogError("PlayerInfoCtrl: PlayerCtrl instance not found");
+            Debug.LogError("PlayerInfoUICtrl: Failed to get player info from PlayerCtrl");
             // Fallback to config values
             InitializeFallbackPlayerInfo();
         }
-
-
-        waveCount = WaveManager.instance.TotalWaves;
-        textWave.text = $"Wave: 0/{waveCount}";
     }
 
     /// <summary>
@@ -84,64 +59,35 @@ public class PlayerInfoUICtrl : MonoBehaviour
             textHp.text = playerConfig.hp.ToString();
             textCoin.text = playerConfig.coin.ToString();
             
-            Debug.LogWarning("PlayerInfoCtrl: Using fallback initialization with config values");
-        }
-    }
-
-    /// <summary>
-    /// Reset player info display (called on retry)
-    /// </summary>
-    private void ResetPlayerInfo()
-    {
-        // PlayerCtrl will handle the data reset, UI will update automatically through reactive properties
-        if (PlayerCtrl.instance != null)
-        {
-            // Data is reset in PlayerCtrl.OnGameRetry, UI updates automatically
-            Debug.Log("PlayerInfoCtrl: Player info reset handled by PlayerCtrl");
+            Debug.LogWarning("PlayerInfoUICtrl: Using fallback initialization with config values");
         }
         else
         {
-            // Fallback reset
-            InitializeFallbackPlayerInfo();
+            textHp.text = "0";
+            textCoin.text = "0";
         }
     }
 
     #region SubscribeEvents / UnSubscribeEvents
+
     private void SubscribeEvents()
     {
-        GameEventMgr.GED.Register(GameEvent.OnGameRetry, OnGameRetry);
-        GameEventMgr.GED.Register(GameEvent.OnWaveManagerInit, OnWaveManagerInit);
-        GameEventMgr.GED.Register(GameEvent.OnWaveStart, OnWaveStart);
+        GameEventMgr.GED.Register(GameEvent.OnPlayerInit, OnPlayerInit);
     }
 
     private void UnSubscribeEvents()
     {
-        // Unsubscribe from events to prevent memory leaks
-        GameEventMgr.GED.UnRegister(GameEvent.OnGameRetry, OnGameRetry);
-        GameEventMgr.GED.UnRegister(GameEvent.OnWaveManagerInit, OnWaveManagerInit);
-        GameEventMgr.GED.UnRegister(GameEvent.OnWaveStart, OnWaveStart);
+        GameEventMgr.GED.UnRegister(GameEvent.OnPlayerInit, OnPlayerInit);
     }
 
-    /// <summary>
-    /// Handle game retry event - reset player info display
-    /// </summary>
-    /// <param name="data">Event data (unused)</param>
-    private void OnGameRetry(object data)
+    private void OnPlayerInit(object data)
     {
-        ResetPlayerInfo();
+        var parseData = (PlayerInfo)data;
+        if (parseData != null)
+        {
+            InitView(parseData);
+        }
     }
 
-    private void OnWaveStart(object data)
-    {
-        var crrWave = ((int waveId, int enemyCount))data;
-        textWave.text = $"Wave: {crrWave.waveId}/{waveCount}";
-    }
-
-    private void OnWaveManagerInit(object data)
-    {
-        // Initialize wave count when WaveManager is ready
-        waveCount = WaveManager.instance.TotalWaves;
-        textWave.text = $"Wave: 0/{waveCount}";
-    }
-    #endregion SubscribeEvents / UnSubscribeEvents!!!
+    #endregion
 }

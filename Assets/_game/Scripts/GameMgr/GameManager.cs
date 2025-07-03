@@ -174,6 +174,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     /// </summary>
     public async void GameOver()
     {
+        game.PauseGame();
         if (currentState == GameState.Playing)
         {
             if (enableDebugLogs) Debug.Log("GameManager: Game Over");
@@ -196,6 +197,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     /// </summary>
     public async void Victory()
     {
+        game.PauseGame();
         if (currentState == GameState.Playing)
         {
             if (enableDebugLogs) Debug.Log("GameManager: Victory!");
@@ -204,25 +206,66 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             
             // Stop wave system
             WaveManager.instance?.StopWaveSystem();
-            
+
             // Generate rewards
-            int goldBonus = UnityEngine.Random.Range(1000, 2501); // Random between 1000-2500
-            int fakeStar = UnityEngine.Random.Range(1, 4); // Random between 1-3
+            GameResult result = CaculateGameResult();
             
-            if (enableDebugLogs) Debug.Log($"GameManager: Victory rewards - Gold: {goldBonus}, Stars: {fakeStar}");
+            if (enableDebugLogs) Debug.Log($"GameManager: Victory rewards - Gold: {result.GoldBonus}, Stars: {result.Star}");
             
             // Update gold with battle bonus
-            PlayerCtrl.instance?.UpdateGoldWithBonus(goldBonus);
+            CurrencyManager.instance?.AddBattleReward(result.GoldBonus);
             
             // Update map progress and unlock next level
-            UpdateMapProgress(fakeStar);
+            UpdateMapProgress(result.Star);
             
             // Show victory popup with rewards
-            await ShowVictoryPopup(goldBonus, fakeStar);
+            await ShowVictoryPopup(result.GoldBonus, result.Star);
             
             // Dispatch victory event
             GameEventMgr.GED.DispatcherEvent(GameEvent.OnVictory);
         }
+    }
+
+    private GameResult CaculateGameResult()
+    {
+        int playerHp = PlayerCtrl.instance?.Hp.Value ?? 0;
+
+        var gameResultConfig = ConfigManager.instance.GetConfig<GameResultConfig>().GetFirst();
+        if (gameResultConfig == null)
+        {
+            Debug.LogError("GameManager: GameResultConfig not found");
+            return new GameResult(0, 0); // Default result if config is missing
+        }
+
+        var star = 1;
+        if (playerHp >= gameResultConfig.playerHpRequiredFor3Star)
+        {
+            star = 3;
+        }
+        else if (playerHp >= gameResultConfig.playerHpRequiredFor2Star)
+        {
+            star = 2;
+        }
+        else
+        {
+            star = 1;
+        }
+
+        var bonusGold = 0;
+        switch (star)
+        {
+            case 1:
+                bonusGold = gameResultConfig.bonusGold1;
+                break;
+            case 2:
+                bonusGold = gameResultConfig.bonusGold2;
+                break;
+            case 3:
+                bonusGold = gameResultConfig.bonusGold3;
+                break;
+        }
+
+         return new GameResult(bonusGold, star);
     }
 
     /// <summary>
@@ -572,7 +615,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
             // Set spawn position (you might want to get this from map data)
             var spawnEnemyPosition = PathFinding.instance.GetStartWorldPos();
-            WaveManager.instance.SetSpawnPosition(spawnEnemyPosition);
+            WaveManager.instance.SetSpawnPosition(spawnEnemyPosition + Vector3.down * 2f);
             
             // Start the wave system
             WaveManager.instance.StartWaveSystem().Forget();
@@ -697,4 +740,16 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         }
     }
     #endregion
+}
+
+public class GameResult
+{
+    public int GoldBonus { get; set; }
+    public int Star { get; set; }
+    
+    public GameResult(int gold, int stars)
+    {
+        GoldBonus = gold;
+        Star = stars;
+    }
 }

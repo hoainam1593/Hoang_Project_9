@@ -1,10 +1,12 @@
 using UnityEngine;
 using R3;
 using System;
+using System.Runtime.InteropServices;
 
 /// <summary>
-/// PlayerCtrl manages player data during gameplay using reactive properties.
-/// It controls in-game resources like HP, coins, and gold for upgrades.
+/// PlayerCtrl manages in-game player attributes during gameplay.
+/// Only handles HP and coins that reset each game session.
+/// Gold management is handled by CurrencyManager.
 /// </summary>
 public class PlayerCtrl : SingletonMonoBehaviour<PlayerCtrl>
 {
@@ -12,18 +14,33 @@ public class PlayerCtrl : SingletonMonoBehaviour<PlayerCtrl>
     [SerializeField] private bool enableDebugLogs = true;
 
     // In-game reactive properties (reset each game)
-    private ReactiveProperty<int> inGameHP;
-    private ReactiveProperty<int> inGameCoin;
-    
-    // Persistent reactive properties (from PlayerModel)
-    private ReactiveProperty<int> gold; // Renamed from persistentGold - used for all upgrades in main scene
+    public bool IsDead { get; private set; } = false;
+    public ReactiveProperty<int> Hp { get; private set; }
+    public ReactiveProperty<int> Coin { get; private set; }
 
-    // Configuration and models
+    // Configuration reference
     private PlayerConfigItem playerConfig;
-    private PlayerModel playerModel;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        // Subscribe to game events
+        SubscribeToGameEvents();
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        UnsubscribeFromGameEvents();
+    }
+
+    private void Start()
+    {
+        Initialize();
+    }
 
     /// <summary>
-    /// Initialize player data from config and persistent model
+    /// Initialize player data from config
     /// </summary>
     public void Initialize()
     {
@@ -37,35 +54,22 @@ public class PlayerCtrl : SingletonMonoBehaviour<PlayerCtrl>
                 return;
             }
 
-            // Get persistent player model
-            playerModel = PlayerModelManager.instance.GetPlayerModel<PlayerModel>();
-            if (playerModel == null)
-            {
-                Debug.LogError("PlayerCtrl: Failed to load PlayerModel");
-                return;
-            }
-
             // Initialize in-game reactive properties (reset each game)
-            inGameHP = new ReactiveProperty<int>(playerConfig.hp);
-            inGameCoin = new ReactiveProperty<int>(playerConfig.coin);
-
-            // Initialize persistent gold for upgrades
-            gold = new ReactiveProperty<int>(playerModel.Gold);
-
-            // Subscribe to gold changes to save data
-            gold.Subscribe(value => {
-                playerModel.Gold = value;
-                //Dispatcher Event goldChange
-                SavePlayerModel();
-            });
+            IsDead = false;
+            Hp = new ReactiveProperty<int>(playerConfig.hp);
+            Coin = new ReactiveProperty<int>(playerConfig.coin);
 
             if (enableDebugLogs)
             {
-                Debug.Log($"PlayerCtrl: Initialized - Gold: {gold.Value}, HP: {inGameHP.Value}, Coin: {inGameCoin.Value}");
+                Debug.Log($"PlayerCtrl: Initialized - HP: {Hp.Value}, Coin: {Coin.Value}");
             }
 
-            // Subscribe to game events
-            SubscribeToGameEvents();
+            GameEventMgr.GED.DispatcherEvent(GameEvent.OnPlayerInit, new PlayerInfo
+            {
+                HP = Hp,
+                Coin = Coin
+            });
+
         }
         catch (Exception ex)
         {
@@ -82,15 +86,46 @@ public class PlayerCtrl : SingletonMonoBehaviour<PlayerCtrl>
     {
         if (playerConfig != null)
         {
-            inGameHP.Value = playerConfig.hp;
-            inGameCoin.Value = playerConfig.coin;
+            Hp.Value = playerConfig.hp;
+            Coin.Value = playerConfig.coin;
 
             if (enableDebugLogs)
             {
-                Debug.Log($"PlayerCtrl: Reset in-game data - HP: {inGameHP.Value}, Coin: {inGameCoin.Value}");
+                Debug.Log($"PlayerCtrl: Reset in-game data - HP: {Hp.Value}, Coin: {Coin.Value}");
             }
         }
     }
+
+    /// <summary>
+    /// Get maximum HP from config
+    /// </summary>
+    /// <returns>Maximum HP value</returns>
+    public int GetMaxHP()
+    {
+        return playerConfig?.hp ?? 0;
+    }
+
+    /// <summary>
+    /// Get current HP value
+    /// </summary>
+    /// <returns>Current HP value</returns>
+    public int GetCurrentHP()
+    {
+        return Hp.Value;
+    }
+
+    /// <summary>
+    /// Get current coin value
+    /// </summary>
+    /// <returns>Current coin value</returns>
+    public int GetCurrentCoin()
+    {
+        return Coin.Value;
+    }
+
+    #endregion
+
+    #region HP Management
 
     /// <summary>
     /// Lose HP (e.g., when enemy reaches gate)
@@ -99,16 +134,27 @@ public class PlayerCtrl : SingletonMonoBehaviour<PlayerCtrl>
     /// <returns>True if player died (HP <= 0)</returns>
     public bool LoseHP(int amount = 1)
     {
-        if (inGameHP.Value <= 0) return true;
+        if (Hp.Value <= 0) return true;
 
-        inGameHP.Value = Mathf.Max(0, inGameHP.Value - amount);
+        int previousHP = Hp.Value;
+        Hp.Value = Mathf.Max(0, Hp.Value - amount);
         
         if (enableDebugLogs)
         {
-            Debug.Log($"PlayerCtrl: Lost {amount} HP, current HP: {inGameHP.Value}");
+            Debug.Log($"PlayerCtrl: Lost {amount} HP, current HP: {Hp.Value}");
         }
 
-        return inGameHP.Value <= 0;
+        if (Hp.Value <= 0)
+        {
+            IsDead = true;
+            if (enableDebugLogs)
+            {
+                Debug.Log("PlayerCtrl: Player has died");
+            }
+            GameEventMgr.GED.DispatcherEvent(GameEvent.OnPlayerDeath);
+        }
+
+        return Hp.Value <= 0;
     }
 
     /// <summary>
@@ -117,14 +163,41 @@ public class PlayerCtrl : SingletonMonoBehaviour<PlayerCtrl>
     /// <param name="amount">Amount of HP to heal</param>
     public void HealHP(int amount)
     {
+        if (amount <= 0) return;
+
+        int previousHP = Hp.Value;
         int maxHP = playerConfig.hp;
-        inGameHP.Value = Mathf.Min(maxHP, inGameHP.Value + amount);
+        Hp.Value = Mathf.Min(maxHP, Hp.Value + amount);
+        
+        int actualHealing = Hp.Value - previousHP;
         
         if (enableDebugLogs)
         {
-            Debug.Log($"PlayerCtrl: Healed {amount} HP, current HP: {inGameHP.Value}");
+            Debug.Log($"PlayerCtrl: Healed {actualHealing} HP, current HP: {Hp.Value}");
         }
     }
+
+    /// <summary>
+    /// Check if player is at full health
+    /// </summary>
+    /// <returns>True if HP is at maximum</returns>
+    public bool IsAtFullHealth()
+    {
+        return Hp.Value >= playerConfig.hp;
+    }
+
+    /// <summary>
+    /// Get HP percentage (0.0 to 1.0)
+    /// </summary>
+    /// <returns>HP as percentage</returns>
+    public float GetHPPercentage()
+    {
+        return (float)Hp.Value / (float)playerConfig.hp;
+    }
+
+    #endregion
+
+    #region Coin Management
 
     /// <summary>
     /// Consume in-game coins (e.g., for buying turrets)
@@ -133,22 +206,28 @@ public class PlayerCtrl : SingletonMonoBehaviour<PlayerCtrl>
     /// <returns>True if transaction was successful</returns>
     public bool ConsumeCoin(int amount)
     {
-        if (inGameCoin.Value < amount)
+        if (amount <= 0)
+        {
+            Debug.LogWarning("PlayerCtrl: Cannot consume negative or zero coins");
+            return false;
+        }
+
+        if (Coin.Value < amount)
         {
             if (enableDebugLogs)
             {
-                Debug.LogWarning($"PlayerCtrl: Not enough coins. Needed: {amount}, Have: {inGameCoin.Value}");
+                Debug.LogWarning($"PlayerCtrl: Not enough coins. Needed: {amount}, Have: {Coin.Value}");
             }
             return false;
         }
 
-        inGameCoin.Value -= amount;
+        int previousCoins = Coin.Value;
+        Coin.Value -= amount;
         
         if (enableDebugLogs)
         {
-            Debug.Log($"PlayerCtrl: Consumed {amount} coins, remaining: {inGameCoin.Value}");
+            Debug.Log($"PlayerCtrl: Consumed {amount} coins, remaining: {Coin.Value}");
         }
-
         return true;
     }
 
@@ -158,94 +237,42 @@ public class PlayerCtrl : SingletonMonoBehaviour<PlayerCtrl>
     /// <param name="amount">Amount of coins to add</param>
     public void AddCoin(int amount)
     {
-        inGameCoin.Value += amount;
+        if (amount <= 0) return;
+
+        int previousCoins = Coin.Value;
+        Coin.Value += amount;
         
         if (enableDebugLogs)
         {
-            Debug.Log($"PlayerCtrl: Added {amount} coins, total: {inGameCoin.Value}");
+            Debug.Log($"PlayerCtrl: Added {amount} coins, total: {Coin.Value}");
         }
     }
 
-    #endregion
-
-    #region Gold Management (for upgrades)
-
     /// <summary>
-    /// Add gold (used for upgrades in main scene)
+    /// Check if player has enough coins for a purchase
     /// </summary>
-    /// <param name="amount">Amount of gold to add</param>
-    public void AddGold(int amount)
+    /// <param name="amount">Amount to check</param>
+    /// <returns>True if player has enough coins</returns>
+    public bool HasEnoughCoin(int amount)
     {
-        gold.Value += amount;
-        
-        if (enableDebugLogs)
-        {
-            Debug.Log($"PlayerCtrl: Added {amount} gold, total: {gold.Value}");
-        }
+        return Coin.Value >= amount;
     }
-
-    /// <summary>
-    /// Consume gold (e.g., for upgrades in main scene)
-    /// </summary>
-    /// <param name="amount">Amount of gold to consume</param>
-    /// <returns>True if transaction was successful</returns>
-    public bool ConsumeGold(int amount)
-    {
-        if (gold.Value < amount)
-        {
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"PlayerCtrl: Not enough gold. Needed: {amount}, Have: {gold.Value}");
-            }
-            return false;
-        }
-
-        gold.Value -= amount;
-        
-        if (enableDebugLogs)
-        {
-            Debug.Log($"PlayerCtrl: Consumed {amount} gold, remaining: {gold.Value}");
-        }
-
-        return true;
-    }
-
-    /// <summary>
-    /// Update gold with bonus at end of battle
-    /// </summary>
-    /// <param name="bonusAmount">Amount of bonus gold to add</param>
-    public void UpdateGoldWithBonus(int bonusAmount)
-    {
-        AddGold(bonusAmount);
-        
-        if (enableDebugLogs)
-        {
-            Debug.Log($"PlayerCtrl: Updated gold with battle bonus: {bonusAmount}, total: {gold.Value}");
-        }
-    }
-
-    /// <summary>
-    /// Get current gold amount
-    /// </summary>
-    public int GetGold() => gold.Value;
 
     #endregion
 
     #region Public Getters for UI
 
     /// <summary>
-    /// Get in-game player info for UI display
+    /// Get in-game player info for UI display (without gold)
     /// </summary>
     public PlayerInfo GetPlayerInfo()
     {
         return new PlayerInfo
         {
-            HP = inGameHP,
-            Coin = inGameCoin,
-            Gold = gold,
+            HP = Hp,
+            Coin = Coin,
         };
     }
-
 
     #endregion
 
@@ -255,12 +282,18 @@ public class PlayerCtrl : SingletonMonoBehaviour<PlayerCtrl>
     {
         GameEventMgr.GED.Register(GameEvent.OnGameStart, OnGameStart);
         GameEventMgr.GED.Register(GameEvent.OnEnemyReachHallGate, OnEnemyReachHallGate);
+        GameEventMgr.GED.Register(GameEvent.OnGameRetry, OnGameRetry);
+        GameEventMgr.GED.Register(GameEvent.OnEnemyDead, OnEnemyDead);
+        GameEventMgr.GED.Register(GameEvent.OnTurretSpawnCompleted, OnTurretSpawnCompleted);
     }
 
     private void UnsubscribeFromGameEvents()
     {
         GameEventMgr.GED.UnRegister(GameEvent.OnGameStart, OnGameStart);
         GameEventMgr.GED.UnRegister(GameEvent.OnEnemyReachHallGate, OnEnemyReachHallGate);
+        GameEventMgr.GED.UnRegister(GameEvent.OnGameRetry, OnGameRetry);
+        GameEventMgr.GED.UnRegister(GameEvent.OnEnemyDead, OnEnemyDead);
+        GameEventMgr.GED.UnRegister(GameEvent.OnTurretSpawnCompleted, OnTurretSpawnCompleted);
     }
 
     private void OnGameStart(object data)
@@ -273,40 +306,95 @@ public class PlayerCtrl : SingletonMonoBehaviour<PlayerCtrl>
         }
     }
 
+    private void OnGameRetry(object data)
+    {
+        ResetInGameData();
+
+        if (enableDebugLogs)
+        {
+            Debug.Log("PlayerCtrl: Game retry - resetting in-game data");
+        }
+    }
+
     private void OnEnemyReachHallGate(object data)
     {
         bool playerDied = LoseHP();
-        if (playerDied)
+    }
+
+    private void OnEnemyDead(object data)
+    {
+        var parseData = (EnemyInfo)data;
+        if (parseData != null)
         {
-            GameEventMgr.GED.DispatcherEvent(GameEvent.OnPlayerDeath);
+            AddCoin(parseData.config.bonusCoin);
+            if (enableDebugLogs)
+            {
+                Debug.Log($"PlayerCtrl: Enemy dead - added {parseData.config.bonusCoin} coins, total: {Coin.Value}");
+            }
+        }
+    }
+
+    private void OnTurretSpawnCompleted(object data)
+    {
+        var parseData = (TurretInfo)data;
+        if (parseData != null)
+        {
+            if (HasEnoughCoin(parseData.config.cost))
+            {
+                ConsumeCoin(parseData.config.cost);
+                if (enableDebugLogs)
+                {
+                    Debug.Log($"PlayerCtrl: Turret spawned - consumed {parseData.config.cost} coins, remaining: {Coin.Value}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("PlayerCtrl: Not enough coins to spawn turret");
+            }
         }
     }
 
     #endregion
 
-    #region Utility
+    #region Debug Methods
 
-    private void SavePlayerModel()
+    /// <summary>
+    /// Add debug coins (for testing purposes)
+    /// </summary>
+    [ContextMenu("Add 100 Coins (Debug)")]
+    public void AddDebugCoins()
     {
-        PlayerModelManager.instance.SaveModel(playerModel);
+        AddCoin(100);
     }
 
-    protected override void OnDestroy()
+    /// <summary>
+    /// Take damage for testing
+    /// </summary>
+    [ContextMenu("Take 1 Damage (Debug)")]
+    public void TakeDebugDamage()
     {
-        UnsubscribeFromGameEvents();
-        base.OnDestroy();
+        LoseHP(1);
+    }
+
+    /// <summary>
+    /// Heal to full HP for testing
+    /// </summary>
+    [ContextMenu("Heal to Full (Debug)")]
+    public void HealToFull()
+    {
+        HealHP(playerConfig.hp);
     }
 
     #endregion
+
 }
 
 /// <summary>
-/// Data structure for in-game player information (simplified)
+/// Data structure for in-game player information (without gold)
 /// </summary>
 [System.Serializable]
 public class PlayerInfo
 {
     public ReactiveProperty<int> HP;
     public ReactiveProperty<int> Coin;
-    public ReactiveProperty<int> Gold;
 }

@@ -7,10 +7,12 @@ public enum GameEvent
     OnDraggedStart,
     OnDragging,
     OnClick,
-    
-    //
+
+    OncurrencyManagerInit,
+
+    //Map
     OnMapSizeUpdate,
-    
+
     //Spawn - Despawn Turret
     OnTurretSpawnStart,
     OnTurretSpawnCompleted,
@@ -23,6 +25,7 @@ public enum GameEvent
     OnEnemyDespawnStart,
     OnEnemyDespawnCompleted,
     //Enemy
+    OnEnemyDead,
     OnEnemyReachHallGate,
     
     //Game State Events
@@ -35,9 +38,13 @@ public enum GameEvent
     OnGameOver,
     OnVictory,
     OnGameRetry,
-    
+
     //Player Events
+    OnPlayerInit,
     OnPlayerDeath,
+    OnPlayerHealthChanged,
+    OnPlayerHPLost,
+    OnPlayerHPGained,
 
     //Wave Events
     OnWaveManagerInit,

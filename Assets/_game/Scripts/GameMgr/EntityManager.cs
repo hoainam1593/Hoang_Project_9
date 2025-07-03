@@ -21,14 +21,22 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
             return;
         }
         
-        var turretName = ConfigManager.instance.GetConfig<TurretConfig>().GetItem(turretId).prefabName;
-        
+        var turretConfig = ConfigManager.instance.GetConfig<TurretConfig>().GetItem(turretId);
+        var turretName = turretConfig.prefabName;
+        var turretInfo = new TurretInfo()
+        {
+            mapCoordinate = mapCoordinate,
+            config = turretConfig,
+        };
+
+        GameEventMgr.GED.DispatcherEvent(GameEvent.OnTurretSpawnStart, turretInfo);
+
         //SpawnNewTurret
         TurretCtrl turretCtrl = await SpawnEntity<TurretCtrl>(EntityType.Turret, ResourcesConfig.TurretPrefab, turretName, pos, turretPool.transform);
         turretCtrl.OnSpawn((0, mapCoordinate));
         turretCtrls.Add(mapCoordinate, turretCtrl);
         
-        GameEventMgr.GED.DispatcherEvent(GameEvent.OnTurretSpawnCompleted, mapCoordinate);
+        GameEventMgr.GED.DispatcherEvent(GameEvent.OnTurretSpawnCompleted, turretInfo);
     }
     
         
@@ -166,9 +174,13 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
             return;
         }
         
+        // Get enemy info for rewards before despawning
+        EnemyCtrl enemyCtrl = enemyCtrls[uid];
+        
+        // Clean up enemy
         HealthBarManager.instance.DespawnHealthBar(uid);
-        enemyCtrls[uid].OnDespawn();
-        DespawnEntity(EntityType.Enemy, enemyCtrls[uid].gameObject);
+        enemyCtrl.OnDespawn();
+        DespawnEntity(EntityType.Enemy, enemyCtrl.gameObject);
         enemyCtrls.Remove(uid); 
 
         GameEventMgr.GED.DispatcherEvent(GameEvent.OnEnemyDespawnCompleted, uid);
