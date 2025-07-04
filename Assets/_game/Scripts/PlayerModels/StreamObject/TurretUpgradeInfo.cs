@@ -18,5 +18,8 @@ public class TurretUpgradeInfo : IFileStreamObject
     public void ReadOrWrite(IFileStream stream, int version)
     {
         stream.ReadOrWriteInt(ref upgradeLv, "upgrade_lv");
+        stream.ReadOrWriteFloat(ref attack, "attack");
+        stream.ReadOrWriteFloat(ref range, "range");
+        stream.ReadOrWriteFloat(ref speed, "speed");
     }
 }
