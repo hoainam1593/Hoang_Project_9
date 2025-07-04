@@ -76,13 +76,13 @@ public class TurretUpgradeManager : SingletonMonoBehaviour<TurretUpgradeManager>
     #endregion
 
     #region Initialization
-    protected override void Awake()
-    {
-        base.Awake();
-        Initialize();
-    }
+    //protected override void Awake()
+    //{
+    //    base.Awake();
+    //    Initialize();
+    //}
 
-    private void Initialize()
+    public void Initialize()
     {
         // Get model and config references
         _turretUpgradeModel = PlayerModelManager.instance.GetPlayerModel<TurretUpgradeModel>();
@@ -162,9 +162,6 @@ public class TurretUpgradeManager : SingletonMonoBehaviour<TurretUpgradeManager>
             return false;
         }
 
-        // TODO: Add cost checking and resource deduction here
-        // For now, just unlock without cost
-
         upgradeInfo.upgradeLv = 0;
         
         // Update ReactiveProperty
@@ -183,6 +180,7 @@ public class TurretUpgradeManager : SingletonMonoBehaviour<TurretUpgradeManager>
 
     /// <summary>
     /// Upgrade a turret by one level (handles both buy and upgrade logic)
+    /// NOTE: Currency validation and consumption should be handled by the caller (UI layer)
     /// </summary>
     /// <param name="turretId">ID of the turret to upgrade</param>
     /// <returns>True if upgrade was successful</returns>
@@ -215,9 +213,7 @@ public class TurretUpgradeManager : SingletonMonoBehaviour<TurretUpgradeManager>
             return false;
         }
 
-        // TODO: Check if player has enough resources (nextUpgradeStats.cost)
-        // For now, just upgrade without cost checking
-
+        // Apply upgrade stats
         upgradeInfo.attack += nextUpgradeStats.attack;
         upgradeInfo.range += nextUpgradeStats.range;
         upgradeInfo.speed += nextUpgradeStats.speed;
