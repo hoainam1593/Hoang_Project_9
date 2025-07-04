@@ -8,7 +8,9 @@ public enum GameEvent
     OnDragging,
     OnClick,
 
+    //Manager Events:
     OncurrencyManagerInit,
+    OnTurretUpgradeMgrInit,
 
     //Map
     OnMapSizeUpdate,

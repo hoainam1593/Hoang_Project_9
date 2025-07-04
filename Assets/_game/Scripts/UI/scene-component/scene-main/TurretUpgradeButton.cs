@@ -4,96 +4,122 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TurretUpgradeButton : MonoBehaviour
+public class TurretUpgradeButton : TabButtonController
 {
     [SerializeField] private int turretId;
     [SerializeField] private Image iconTurret;
     [SerializeField] private Image iconLocked;
     [SerializeField] private TextMeshProUGUI textLv;
-    [SerializeField] private Image selected_frame;
-    [SerializeField] private Image mask;
+    //[SerializeField] private Image selected_frame;
+    //[SerializeField] private Image mask;
 
-    private Button button;
-    private Action<int> onClickCallback;
-    private ReactiveProperty<int> selectedTurretId;
-
-    private void Awake()
-    {
-        button = GetComponent<Button>();
-    }
-
+    private CompositeDisposable disposables = new CompositeDisposable();
     public int TurretId => turretId;
 
     private void Start()
     {
-        button.onClick.AddListener(() => onClickCallback?.Invoke(turretId));
-
-        InitView();
+        //InitView();
+        //Subscribes(); 
+        SubscribeToUpgradeManager();
     }
 
+    private void OnDestroy()
+    {
+        //UnSubscribes();
+        UnSubscribeToUpgradeManager();
+    }
+
+    #region Task - Init/Display View
     private void InitView()
     {
-        var turretUpgradeInfo = PlayerModelManager.instance.GetPlayerModel<TurretUpgradeModel>().GetItem(turretId);
-        if (turretUpgradeInfo == null)
+        Debug.Log("InitView");
+        if (TurretUpgradeManager.instance == null)
         {
-            Debug.LogError($"TurretUpgradeButton: No upgrade info found for turretId {turretId}");
+            Debug.LogError($"TurretUpgradeButton: TurretUpgradeManager instance not found");
             return;
         }
 
-        var upgradeLv = turretUpgradeInfo.upgradeLv;
+        UpdateButtonDisplay();
+    }
+
+    private void UpdateButtonDisplay()
+    {
+        Debug.Log("[TurretUpgradeButton] UpdateButtonDisplay");
+        if (TurretUpgradeManager.instance == null) return;
+
+        var upgradeLv = TurretUpgradeManager.instance.GetCurrentLevel(turretId);
+        Debug.Log($"[TurretUpgradeButton] UpdateButtonDisplay > turretId: {turretId} - upgradeLv: " + upgradeLv);
 
         textLv.gameObject.SetActive(true);
         iconTurret.gameObject.SetActive(true);
 
-        if (upgradeLv == -1)
+        if (TurretUpgradeManager.instance.IsLocked(turretId))
         {
             // Locked state
             iconLocked.gameObject.SetActive(true);
             textLv.text = "Locked";
-            // Make button grayscale and potentially non-interactable
-            button.interactable = false;
+            btnSelect.interactable = false;
         }
-        else if (upgradeLv == 0)
+        else if (TurretUpgradeManager.instance.IsUnlocked(turretId))
         {
             // Unlocked but inactive
             iconLocked.gameObject.SetActive(false);
-            textLv.text = "Unlocked";
-            button.interactable = true;
+            var nextUpgradeCost = TurretUpgradeManager.instance.GetNextUpgradeCost(turretId);
+            textLv.text = nextUpgradeCost > 0 ? $"Price: {nextUpgradeCost}" : "Price: -"; ;
+            btnSelect.interactable = true;
         }
-        else
+        else if (TurretUpgradeManager.instance.IsActive(turretId))
         {
             // Active with upgrade level
             iconLocked.gameObject.SetActive(false);
             textLv.text = $"Lv.{upgradeLv}";
-            button.interactable = true;
+            btnSelect.interactable = true;
+        }
+    }
+    #endregion Task - Init/Display View
+
+    #region Task - R3 Subscribes/Unsubscribes
+
+
+    private void SubscribeToUpgradeManager()
+    {
+        if (TurretUpgradeManager.instance == null) return;
+
+        // Subscribe to this turret's upgrade level changes
+        var upgradeLevelProperty = TurretUpgradeManager.instance.GetTurretUpgradeLevelProperty(turretId);
+        if (upgradeLevelProperty != null)
+        {
+            upgradeLevelProperty.Subscribe(_ => UpdateButtonDisplay()).AddTo(disposables);
         }
     }
 
-    public void Init(ReactiveProperty<int> selectedTurretId)
+    private void UnSubscribeToUpgradeManager()
     {
-        this.selectedTurretId = selectedTurretId;
-        selectedTurretId.Subscribe((selectedId) =>
-        {
-            selected_frame.gameObject.SetActive(selectedId == turretId);
-        });
+        disposables?.Dispose();
+    }
+    #endregion Task - R3 Subscribes/Unsubscribes!!!
 
-        OnSelectTurret(selectedTurretId);
+
+
+    #region Task - GameEvent Subscribes/Unsubscribes
+
+
+    private void Subscribes()
+    {
+        //GameEventMgr
+        GameEventMgr.GED.Register(GameEvent.OnTurretUpgradeMgrInit, OnTurretUpgradeMgrInit);
     }
 
-    private void OnSelectTurret(ReactiveProperty<int> selectedTurretId)
+    private void UnSubscribes()
     {
-        if (selectedTurretId.Value == turretId)
-        {
-            selected_frame.gameObject.SetActive(true);
-        }
-        else
-        {
-            selected_frame.gameObject.SetActive(false);
-        }
+        //GameEventMgr
+        GameEventMgr.GED.UnRegister(GameEvent.OnTurretUpgradeMgrInit, OnTurretUpgradeMgrInit);
     }
 
-    public void SetCallback(Action<int> callback)
+    private void OnTurretUpgradeMgrInit(object data)
     {
-        onClickCallback = callback;
+        InitView();
     }
+
+    #endregion Task - GameEvent Subscribes/Unsubscribes!!!
 }
