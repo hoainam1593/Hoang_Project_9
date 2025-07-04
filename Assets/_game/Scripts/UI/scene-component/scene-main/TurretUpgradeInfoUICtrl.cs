@@ -10,29 +10,26 @@ public class TurretUpgradeInfoUICtrl : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textRange;
     [SerializeField] private TextMeshProUGUI textSpeed;
     [SerializeField] private TextMeshProUGUI textPrice;
-    [SerializeField] private Button buttonBuy;
-    [SerializeField] private Button buttonUpgrade;
+    [SerializeField] private TextMeshProUGUI textButtonUpgrade;
+    [SerializeField] private Button buttonUpgrade; // Single button for both buy and upgrade
 
     [SerializeField] private int turretId = 0;
     private CompositeDisposable disposables = new CompositeDisposable();
 
     TurretConfigItem defaultConfig;
 
-
     private void Start()
     {
         InitView();
-        //Subscribes();
         RegisterListeners();
         SubscribeToUpgradeManager();
     }
+
     private void OnDestroy()
     {
-        //UnSubscribes();
         RemoveListeners();
         UnSubscribeToUpgradeManager();
     }
-
 
     #region Task - UI Init/Display View
 
@@ -85,7 +82,6 @@ public class TurretUpgradeInfoUICtrl : MonoBehaviour
         textRange.text = "Range: Locked";
         textSpeed.text = "Speed: Locked";
         textPrice.text = "Price: -";
-        buttonBuy.gameObject.SetActive(false);
         buttonUpgrade.gameObject.SetActive(false);
     }
 
@@ -95,23 +91,24 @@ public class TurretUpgradeInfoUICtrl : MonoBehaviour
         textAttack.text = $"Attack: {defaultConfig.attack}";
         textRange.text = $"Range: {defaultConfig.range}";
         textSpeed.text = $"Speed: {defaultConfig.speed}";
-        
-        // Show next upgrade cost (level 1)
+
+        // Show next upgrade cost (level 1 - buying the turret)
         var nextUpgradeCost = TurretUpgradeManager.instance.GetNextUpgradeCost(turretId);
         textPrice.text = nextUpgradeCost > 0 ? $"Price: {nextUpgradeCost}" : "Price: -";
 
-        buttonBuy.gameObject.SetActive(true);
-        buttonUpgrade.gameObject.SetActive(false);
+        buttonUpgrade.gameObject.SetActive(true);
+        buttonUpgrade.interactable = true;
+        textButtonUpgrade.text = "Buy";
     }
 
     private void ShowActiveState(TurretConfigItem defaultConfig, int currentLevel, int maxLevel)
     {
-        // Show current total stats (base + upgrades)
-        var upgradeStats = PlayerModelManager.instance.GetPlayerModel<TurretUpgradeModel>().GetItem(turretId);
-        
-        textAttack.text = $"Attack: {defaultConfig.attack + upgradeStats.attack}";
-        textRange.text = $"Range: {defaultConfig.range + upgradeStats.range}";
-        textSpeed.text = $"Speed: {defaultConfig.speed + upgradeStats.speed}";
+        // Use TurretUpgradeManager to get proper calculated stats
+        var (totalAttack, totalRange, totalSpeed) = TurretUpgradeManager.instance.GetCurrentTotalStats(turretId);
+
+        textAttack.text = $"Attack: {totalAttack}";
+        textRange.text = $"Range: {totalRange}";
+        textSpeed.text = $"Speed: {totalSpeed}";
 
         // Show next upgrade cost if not at max level
         if (currentLevel < maxLevel)
@@ -120,23 +117,20 @@ public class TurretUpgradeInfoUICtrl : MonoBehaviour
             textPrice.text = nextUpgradeCost > 0 ? $"Price: {nextUpgradeCost}" : "Price: -";
         }
 
-        buttonBuy.gameObject.SetActive(false);
         buttonUpgrade.gameObject.SetActive(true);
         buttonUpgrade.interactable = true;
+        textButtonUpgrade.text = "Upgrade";
     }
 
     private void ShowMaxLevelState()
     {
-        buttonBuy.gameObject.SetActive(false);
         buttonUpgrade.gameObject.SetActive(true);
         buttonUpgrade.interactable = false;
         textPrice.text = "Max Level";
     }
     #endregion Task - UI Init/Display View
 
-
     #region Task - R3 EventHandler
-
 
     private void SubscribeToUpgradeManager()
     {
@@ -157,9 +151,7 @@ public class TurretUpgradeInfoUICtrl : MonoBehaviour
 
     #endregion Task - R3 EventHandler!!!
 
-
     #region Task - GameEvent Subscribes/Unsubscribes
-
 
     private void Subscribes()
     {
@@ -168,7 +160,7 @@ public class TurretUpgradeInfoUICtrl : MonoBehaviour
     }
 
     private void UnSubscribes()
-    {        
+    {
         //GameEventMgr
         GameEventMgr.GED.UnRegister(GameEvent.OnTurretUpgradeMgrInit, OnTurretUpgradeMgrInit);
     }
@@ -183,27 +175,13 @@ public class TurretUpgradeInfoUICtrl : MonoBehaviour
     #region Button onClick events
 
     private void RegisterListeners()
-    {   
-        buttonBuy.onClick.AddListener(OnBuyButtonClicked);
+    {
         buttonUpgrade.onClick.AddListener(OnUpgradeButtonClicked);
     }
 
     private void RemoveListeners()
     {
-        buttonBuy.onClick.RemoveListener(OnBuyButtonClicked);
         buttonUpgrade.onClick.RemoveListener(OnUpgradeButtonClicked);
-    }
-
-    private void OnBuyButtonClicked()
-    {
-        if (TurretUpgradeManager.instance == null || turretId == -1) return;
-
-        bool success = TurretUpgradeManager.instance.BuyTurret(turretId);
-        if (!success)
-        {
-            Debug.LogWarning($"TurretUpgradeInfoUICtrl: Failed to unlock turret {turretId}");
-            // TODO: Show error message to player (insufficient resources, etc.)
-        }
     }
 
     private void OnUpgradeButtonClicked()

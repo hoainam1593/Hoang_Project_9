@@ -21,7 +21,6 @@ public class TurretUpgradeManager : SingletonMonoBehaviour<TurretUpgradeManager>
         return turretUpgradeLevels[turretId];
     }
 
-
     #region Get/Set Config Model
 
     private TurretUpgradeModel _turretUpgradeModel;
@@ -67,7 +66,6 @@ public class TurretUpgradeManager : SingletonMonoBehaviour<TurretUpgradeManager>
     #region R3 Observable
     // Global events for UI to subscribe to
     private Subject<int> onTurretUnlocked = new Subject<int>();
-    private Subject<int> onTurretBought = new Subject<int>();
     private Subject<int> onTurretUpgraded = new Subject<int>();
 
     /// <summary>
@@ -75,16 +73,12 @@ public class TurretUpgradeManager : SingletonMonoBehaviour<TurretUpgradeManager>
     /// </summary>
     public Observable<int> OnTurretUpgraded => onTurretUpgraded.AsObservable();
     public Observable<int> OnTurretUnlocked => onTurretUnlocked.AsObservable();
-    public Observable<int> OnTurretBought => onTurretBought.AsObservable();
     #endregion
-
-
 
     #region Initialization
     protected override void Awake()
     {
         base.Awake();
-
         Initialize();
     }
 
@@ -121,11 +115,6 @@ public class TurretUpgradeManager : SingletonMonoBehaviour<TurretUpgradeManager>
         {
             UnlockTurret(0); // Ensure the first turret is unlocked by default
         }
-        //if (IsUnlocked(0) && !IsActive(0))
-        //{
-        //    UpgradeTurret(0); // Upgrade the first turret to level 1
-        //}
-
 
         GameEventMgr.GED.DispatcherEvent(GameEvent.OnTurretUpgradeMgrInit);
     }
@@ -192,38 +181,8 @@ public class TurretUpgradeManager : SingletonMonoBehaviour<TurretUpgradeManager>
         return true;
     }
 
-    public bool BuyTurret(int turretId)
-    {
-        var upgradeInfo = turretUpgradeModel.GetItem(turretId);
-        if (upgradeInfo == null)
-        {
-            Debug.LogError($"TurretUpgradeManager: No upgrade info found for turretId {turretId}");
-            return false;
-        }
-
-
-        if (IsLocked(turretId))
-        {
-            Debug.LogError($"TurretUpgradeManager: Cannot upgrade locked turret {turretId}");
-            return false;
-        }
-
-        if (upgradeInfo.upgradeLv != 0)
-        {
-            Debug.LogError("Buy failed");
-            return false;
-        }
-        else
-        {
-            UpgradeTurret(turretId); // Automatically upgrade to level 1 when buying
-            onTurretBought.OnNext(turretId);
-            Debug.Log($"TurretUpgradeManager: BuyTurret {turretId} Success");
-            return true;
-        }
-    }
-
     /// <summary>
-    /// Upgrade a turret by one level
+    /// Upgrade a turret by one level (handles both buy and upgrade logic)
     /// </summary>
     /// <param name="turretId">ID of the turret to upgrade</param>
     /// <returns>True if upgrade was successful</returns>
@@ -256,8 +215,8 @@ public class TurretUpgradeManager : SingletonMonoBehaviour<TurretUpgradeManager>
             return false;
         }
 
-            // TODO: Check if player has enough resources (nextUpgradeStats.cost)
-            // For now, just upgrade without cost checking
+        // TODO: Check if player has enough resources (nextUpgradeStats.cost)
+        // For now, just upgrade without cost checking
 
         upgradeInfo.attack += nextUpgradeStats.attack;
         upgradeInfo.range += nextUpgradeStats.range;
@@ -274,7 +233,17 @@ public class TurretUpgradeManager : SingletonMonoBehaviour<TurretUpgradeManager>
 
         // Notify observers
         onTurretUpgraded.OnNext(turretId);
-        Debug.Log($"TurretUpgradeManager: UpgradeTurret {turretId} to level {nextLevel}");
+        
+        // Log appropriate message based on upgrade type
+        if (nextLevel == 1)
+        {
+            Debug.Log($"TurretUpgradeManager: Bought turret {turretId} (upgraded to level 1)");
+        }
+        else
+        {
+            Debug.Log($"TurretUpgradeManager: Upgraded turret {turretId} to level {nextLevel}");
+        }
+        
         return true;
     }
 
@@ -293,7 +262,6 @@ public class TurretUpgradeManager : SingletonMonoBehaviour<TurretUpgradeManager>
             // Automatically unlock the next turret if it exists
             UnlockTurret(nextLevelTurretId);
         }
-
     }
     #endregion
 
@@ -370,6 +338,39 @@ public class TurretUpgradeManager : SingletonMonoBehaviour<TurretUpgradeManager>
     #region Stats Calculation
 
     /// <summary>
+    /// Get base turret config
+    /// </summary>
+    public TurretConfigItem GetBaseTurretConfig(int turretId)
+    {
+        return turretConfig.GetItem(turretId);
+    }
+
+    /// <summary>
+    /// Calculate current total stats (base + all upgrade bonuses)
+    /// </summary>
+    public (float attack, float range, float speed) GetCurrentTotalStats(int turretId)
+    {
+        var baseConfig = GetBaseTurretConfig(turretId);
+        if (baseConfig == null)
+        {
+            Debug.LogError($"TurretUpgradeManager: No base config found for turretId {turretId}");
+            return (0, 0, 0);
+        }
+
+        var upgradeInfo = turretUpgradeModel.GetItem(turretId);
+        if (upgradeInfo == null || upgradeInfo.upgradeLv <= 0)
+        {
+            // Return base stats if locked or unlocked but inactive
+            return (baseConfig.attack, baseConfig.range, baseConfig.speed);
+        }
+
+        // Return base stats + cumulative upgrade bonuses stored in TurretUpgradeInfo
+        return (baseConfig.attack + upgradeInfo.attack, 
+                baseConfig.range + upgradeInfo.range, 
+                baseConfig.speed + upgradeInfo.speed);
+    }
+
+    /// <summary>
     /// Get stats for the next upgrade level
     /// </summary>
     public TurretUpgradeStats GetStatsNextLevel(int turretId)
@@ -413,7 +414,6 @@ public class TurretUpgradeManager : SingletonMonoBehaviour<TurretUpgradeManager>
         // Dispose subjects
         onTurretUpgraded?.Dispose();
         onTurretUnlocked?.Dispose();
-        onTurretBought?.Dispose();
 
         base.OnDestroy();
     }
