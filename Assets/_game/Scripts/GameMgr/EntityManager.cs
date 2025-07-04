@@ -123,6 +123,30 @@ public partial class EntityManager : SingletonMonoBehaviour<EntityManager>//, IE
     
     
     
+    #region Getters
+
+    /// <summary>
+    /// Get TurretCtrl by MapCoordinate
+    /// </summary>
+    /// <param name="mapCoordinate">Map coordinate of the turret</param>
+    /// <returns>TurretCtrl if found, null otherwise</returns>
+    public TurretCtrl GetTurretCtrl(MapCoordinate mapCoordinate)
+    {
+        return turretCtrls.ContainsKey(mapCoordinate) ? turretCtrls[mapCoordinate] : null;
+    }
+
+    /// <summary>
+    /// Check if turret exists at given coordinate
+    /// </summary>
+    /// <param name="mapCoordinate">Map coordinate to check</param>
+    /// <returns>True if turret exists at coordinate</returns>
+    public bool HasTurretAt(MapCoordinate mapCoordinate)
+    {
+        return turretCtrls.ContainsKey(mapCoordinate);
+    }
+
+    #endregion Getters!!!
+    
     #region Despawn
 
     public void ClearAll()

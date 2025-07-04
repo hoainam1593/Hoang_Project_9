@@ -42,6 +42,7 @@ public partial class MapCtrl : SingletonMonoBehaviour<MapCtrl>
         GameEventMgr.GED.Register(GameEvent.OnClick, OnClickedInMap);
         GameEventMgr.GED.Register(GameEvent.OnTurretSpawnStart, OnTurretSpawnStart);
         GameEventMgr.GED.Register(GameEvent.OnTurretSpawnCompleted, OnTurretSpawnCompleted);
+        GameEventMgr.GED.Register(GameEvent.OnTurretDespawnComplete, OnTurretDespawnComplete);
     }
 
     public void UnSubscribes()
@@ -49,6 +50,7 @@ public partial class MapCtrl : SingletonMonoBehaviour<MapCtrl>
         GameEventMgr.GED.UnRegister(GameEvent.OnClick, OnClickedInMap);
         GameEventMgr.GED.UnRegister(GameEvent.OnTurretSpawnStart, OnTurretSpawnStart);
         GameEventMgr.GED.UnRegister(GameEvent.OnTurretSpawnCompleted, OnTurretSpawnCompleted);
+        GameEventMgr.GED.UnRegister(GameEvent.OnTurretDespawnComplete, OnTurretDespawnComplete);
     }
 
     

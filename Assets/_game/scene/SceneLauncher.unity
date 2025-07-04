@@ -335,6 +335,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PopupTurretInfo
       objectReference: {fileID: 0}
+    - target: {fileID: 8656292764707261384, guid: 0bcc4fb042b452449b156c882662ca98, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

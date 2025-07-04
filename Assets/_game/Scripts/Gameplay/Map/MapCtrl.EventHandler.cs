@@ -1,4 +1,3 @@
-
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -20,16 +19,26 @@ public partial class MapCtrl
             if (clickedCell != selectedCell)
             {
                 CloseTurretSelectPopup();
+                CloseTurretInfoPopup();
                 ShowTurretSelectPopup(viewPos, clickedCell).Forget();
             }
+        }
+        else if (tile == TileEnum.Turret)
+        {
+            CloseTurretSelectPopup();
+            CloseTurretInfoPopup();
+            ShowTurretInfoPopup(viewPos, clickedCell).Forget();
         }
         else
         {
             CloseTurretSelectPopup();
+            CloseTurretInfoPopup();
         }
     }
 
     private PopupTurretSelect popup;
+    private PopupTurretInfo turretInfoPopup;
+
     private async UniTaskVoid ShowTurretSelectPopup(Vector3 viewPos, MapCoordinate clickedCell)
     {
         // Debug.Log("ShowTurretSelectPopup");
@@ -39,12 +48,31 @@ public partial class MapCtrl
         popup.InitView(clickedCell, worldPos, WorldTileSize);
     }
 
+    private async UniTaskVoid ShowTurretInfoPopup(Vector3 viewPos, MapCoordinate clickedCell)
+    {
+        // Debug.Log("ShowTurretInfoPopup");
+        var worldPos = ConvertScreenPosToCenterTileWorldPos(viewPos);
+        selectedCell = clickedCell;
+        turretInfoPopup = await PopupManager.instance.OpenPopupWorld<PopupTurretInfo>();
+        turretInfoPopup.InitView(clickedCell, worldPos, WorldTileSize);
+    }
+
     private void CloseTurretSelectPopup()
     {
         if (popup != null)
         {
             // Debug.Log("CloseTurretSelectPopup");
             PopupManager.instance.ClosePopup(popup);
+        }
+        selectedCell = MapCoordinate.oneNegative;
+    }
+
+    private void CloseTurretInfoPopup()
+    {
+        if (turretInfoPopup != null)
+        {
+            // Debug.Log("CloseTurretInfoPopup");
+            PopupManager.instance.ClosePopup(turretInfoPopup);
         }
         selectedCell = MapCoordinate.oneNegative;
     }
@@ -61,6 +89,17 @@ public partial class MapCtrl
         if (mapData.IsInMatrix(coordinate))
         {
             mapData.tiles[coordinate.x][coordinate.y] = (int)TileEnum.Turret;
+        }
+    }
+
+    private void OnTurretDespawnComplete(object data)
+    {
+        var parseData = (TurretInfo)data;
+        var coordinate = parseData.mapCoordinate;
+        if (mapData.IsInMatrix(coordinate))
+        {
+            mapData.tiles[coordinate.x][coordinate.y] = (int)TileEnum.Ground;
+            Debug.Log($"MapCtrl: Set tile at {coordinate} back to Ground after turret despawn");
         }
     }
 }
