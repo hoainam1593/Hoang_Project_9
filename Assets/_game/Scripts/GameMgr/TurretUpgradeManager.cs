@@ -281,6 +281,12 @@ public class TurretUpgradeManager : SingletonMonoBehaviour<TurretUpgradeManager>
     private void OnTurretUpgrade(int turretId)
     {
         var nextLevelTurretId = GetNextTurretLevelId(turretId);
+        if (nextLevelTurretId == -1)
+        {
+            //Don't have new level of this turret type
+            return;
+        }
+        
         //Debug.Log($"[TurretUpgradeManager] > OnTurretUpgrade: Turret {turretId} > nextLevelTurretId: {nextLevelTurretId}");
         if (!IsUnlocked(nextLevelTurretId))
         {

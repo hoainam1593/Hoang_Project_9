@@ -18,8 +18,14 @@ public class TurretUpgradeButton : TabButtonController
 
     private void Start()
     {
+        //Base Stats
+        btnSelect.OnClickAsObservable().Subscribe(_ =>
+        {
+            tabController.SelectTab(this);
+        });
+
         //InitView();
-        //Subscribes(); 
+        //Subscribes();
         SubscribeToUpgradeManager();
     }
 
