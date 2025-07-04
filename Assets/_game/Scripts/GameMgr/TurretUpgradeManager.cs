@@ -6,7 +6,7 @@ using UnityEngine;
 /// Manager class that controls all turret upgrade functionality as a separate module.
 /// Uses ReactiveProperty for UI binding and provides centralized upgrade logic.
 /// </summary>
-public class TurretUpgradeManager : SingletonMonoBehaviour<TurretUpgradeManager>
+public partial class TurretUpgradeManager : SingletonMonoBehaviour<TurretUpgradeManager>
 {
     // ReactiveProperties for UI binding - each turret has its own upgrade level observable
     private Dictionary<int, ReactiveProperty<int>> turretUpgradeLevels = new Dictionary<int, ReactiveProperty<int>>();
