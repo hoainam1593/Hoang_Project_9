@@ -40,6 +40,7 @@ public class GameLauncher : SingletonMonoBehaviour<GameLauncher>
             LoadPlayerModels();
 
             CurrencyManager.instance?.Initialize();
+            TurretUpgradeManager.instance?.Initialize();
 
             // Initialize GameManager and launch game
             await GameManager.instance.LaunchGame();
