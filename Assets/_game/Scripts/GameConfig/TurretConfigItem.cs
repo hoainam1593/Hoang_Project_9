@@ -3,7 +3,7 @@ using System.Collections.Generic;
 public class TurretConfigItem : BaseConfigItem
 {
     public int id;
-    public int type;
+    public TurretType type;
     public int level;
     public string prefabName;
     public float attack;
@@ -14,7 +14,7 @@ public class TurretConfigItem : BaseConfigItem
     public override void ReadOrWrite(IFileStream stream)
     {
         stream.ReadOrWriteInt(ref id, "turret_id");
-        stream.ReadOrWriteInt(ref type, "type");
+        stream.ReadOrWriteEnum<TurretType>(ref type, "type");
         stream.ReadOrWriteInt(ref level, "level");
         stream.ReadOrWriteString(ref prefabName, "prefab_name");
         stream.ReadOrWriteFloat(ref attack, "attack");

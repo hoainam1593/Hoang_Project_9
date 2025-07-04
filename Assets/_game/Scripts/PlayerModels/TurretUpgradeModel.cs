@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Security.Cryptography;
-using UnityEngine;
 
 public class TurretUpgradeModel : BasePlayerModel
 {
@@ -24,7 +22,8 @@ public class TurretUpgradeModel : BasePlayerModel
             upgradeInfos.Add(config.turretId, new TurretUpgradeInfo());
         }
 
-        upgradeInfos[0].upgradeLv = 1;
+        // Set the first turret (id 0) as unlocked but inactive
+        upgradeInfos[0].upgradeLv = 0;
     }
 
 
